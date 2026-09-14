@@ -1,0 +1,177 @@
+<!-- ESTILOS DEL NUEVO CARRUSEL (Puedes poner esto en tu CSS o en el <head>) -->
+<style>
+    /* ===== CARRUSEL FULL IMAGE ===== */
+    .shero-carousel-wrapper {
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(142, 58, 104, 0.2);
+    }
+
+    /* Altura fija del carrusel para que se vea imponente */
+    .carousel-item {
+        height: 550px;
+    }
+
+    /* La imagen ocupa todo el espacio */
+    .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Degradado oscuro sobre la imagen para que el texto se lea perfecto */
+    .overlay-gradient {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, rgba(45, 36, 48, 0.95) 0%, rgba(142, 58, 104, 0.6) 55%, rgba(0, 0, 0, 0) 100%);
+        z-index: 1;
+    }
+
+    /* Posición del texto flotante */
+    .carousel-caption-custom {
+        position: absolute;
+        z-index: 2;
+        top: 0; bottom: 0;
+        left: 8%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        max-width: 600px;
+    }
+
+    /* Tipografía del texto sobre la imagen */
+    .slide-title-overlay {
+        color: #ffffff;
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        letter-spacing: -1px;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .slide-text-overlay {
+        color: #f8f9fa;
+        font-size: 1.25rem;
+        line-height: 1.6;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    /* Botones de control flotantes */
+    .btn-carrusel {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 1px solid rgba(255,255,255,0.4);
+        margin: 0 20px;
+        z-index: 3;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-carrusel:hover {
+        background: #8e3a68;
+        border-color: #8e3a68;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Indicadores de abajo */
+    .carousel-indicators {
+        z-index: 3;
+        bottom: 20px;
+    }
+    .carousel-indicators [data-bs-target] {
+        width: 12px; height: 12px;
+        border-radius: 50%;
+        background-color: white;
+        margin: 0 8px;
+        opacity: 0.5;
+        transition: all 0.3s ease;
+    }
+    .carousel-indicators .active {
+        opacity: 1;
+        width: 30px;
+        border-radius: 10px;
+        background-color: #fbeaf3;
+    }
+</style>
+
+<!-- ==============================================
+     AQUÍ COMIENZA EL REEMPLAZO DE TU CÓDIGO REAL 
+     ============================================== -->
+<section id="slider" class="py-5" style="background:#fff8fc;">
+  <div class="container">
+    <h2 class="text-center mb-5" style="color:#8e3a68; font-weight: 800; font-size: 2.5rem;">Descripción del servicio</h2>
+
+    <div id="sheroCarousel" class="carousel slide carousel-fade shero-carousel-wrapper overflow-hidden" data-bs-ride="carousel">
+      
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="2"></button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="3"></button>
+      </div>
+
+      <div class="carousel-inner">
+
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+          <!-- Modificado para que use tus imágenes reales -->
+          <img src="/public/img/m1.jpg" alt="Activación con control total">
+          <div class="overlay-gradient"></div>
+          <div class="carousel-caption-custom">
+            <h4 class="slide-title-overlay">Activación con control total</h4>
+            <p class="slide-text-overlay">Un toque corto cancela una alerta accidental sin avisar a nadie. Mantener el botón 3 segundos bajo coacción envía la alerta real, mientras la pantalla OLED sigue mostrando algo neutro, como si nada pasara.</p>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+          <!-- Modificado para que use tus imágenes reales -->
+          <img src="/public/img/m2.jpg" alt="Confirmación silenciosa">
+          <div class="overlay-gradient"></div>
+          <div class="carousel-caption-custom">
+            <h4 class="slide-title-overlay">Confirmación silenciosa</h4>
+            <p class="slide-text-overlay">Una vibración corta y discreta confirma que la alerta se envió correctamente, sin luces ni sonidos que la delaten frente al agresor.</p>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item">
+          <!-- Modificado para que use tus imágenes reales -->
+          <img src="/public/img/m3.jpg" alt="Modo acompáñame">
+          <div class="overlay-gradient"></div>
+          <div class="carousel-caption-custom">
+            <h4 class="slide-title-overlay">Modo "Acompáñame"</h4>
+            <p class="slide-text-overlay">Activación voluntaria para trayectos cortos: la pulsera comparte su ubicación con tus contactos de confianza cada cierto tiempo mientras caminas a casa. Uso diario, no solo de emergencia.</p>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="carousel-item">
+          <!-- Modificado para que use tus imágenes reales -->
+          <img src="/public/img/m4.jpg" alt="Funciona sin señal celular">
+          <div class="overlay-gradient"></div>
+          <div class="carousel-caption-custom">
+            <h4 class="slide-title-overlay">Funciona sin señal celular</h4>
+            <p class="slide-text-overlay">Comunicación LoRa 915 MHz de largo alcance y bajo consumo. La alerta llega aunque no haya cobertura móvil, y queda registrada con GPS y sello de tiempo como evidencia.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones de navegación rediseñados -->
+      <button class="carousel-control-prev btn-carrusel" type="button" data-bs-target="#sheroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next btn-carrusel" type="button" data-bs-target="#sheroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+    </div>
+  </div>
+</section>
