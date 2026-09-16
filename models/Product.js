@@ -6,6 +6,8 @@ const productSchema = new mongoose.Schema(
     description: String,
     price: Number,
     image: String,
+    category: { type: String, default: "General" },
+    specs: [String],
   },
   { timestamps: true }
 );
