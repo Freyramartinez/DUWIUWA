@@ -1,45 +1,57 @@
-<!-- ESTILOS DEL NUEVO CARRUSEL (Puedes poner esto en tu CSS o en el <head>) -->
+<!-- ESTILOS DEL CARRUSEL -->
 <style>
-    /* ===== CARRUSEL FULL IMAGE ===== */
+    /* ===== CARRUSEL ===== */
+
     .shero-carousel-wrapper {
         border-radius: 24px;
         box-shadow: 0 25px 50px rgba(142, 58, 104, 0.2);
+        overflow: hidden;
     }
 
-    /* Altura fija del carrusel para que se vea imponente */
-    .carousel-item {
+    /* Altura del carrusel */
+    .shero-carousel-wrapper .carousel-item {
         height: 550px;
+        position: relative;
     }
 
-    /* La imagen ocupa todo el espacio */
-    .carousel-item img {
+    /* Imagen */
+    .shero-carousel-wrapper .carousel-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        display: block;
     }
 
-    /* Degradado oscuro sobre la imagen para que el texto se lea perfecto */
+    /* Degradado sobre la imagen */
     .overlay-gradient {
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(90deg, rgba(45, 36, 48, 0.95) 0%, rgba(142, 58, 104, 0.6) 55%, rgba(0, 0, 0, 0) 100%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            90deg,
+            rgba(45, 36, 48, 0.95) 0%,
+            rgba(142, 58, 104, 0.6) 55%,
+            rgba(0, 0, 0, 0) 100%
+        );
         z-index: 1;
     }
 
-    /* Posición del texto flotante */
+    /* Texto */
     .carousel-caption-custom {
         position: absolute;
         z-index: 2;
-        top: 0; bottom: 0;
+        top: 0;
+        bottom: 0;
         left: 8%;
+        right: 25%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         text-align: left;
-        max-width: 600px;
     }
 
-    /* Tipografía del texto sobre la imagen */
     .slide-title-overlay {
         color: #ffffff;
         font-size: 3.2rem;
@@ -47,17 +59,18 @@
         line-height: 1.1;
         margin-bottom: 20px;
         letter-spacing: -1px;
-        text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .slide-text-overlay {
         color: #f8f9fa;
         font-size: 1.25rem;
         line-height: 1.6;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
     }
 
-    /* Botones de control flotantes */
+    /* Botones */
     .btn-carrusel {
         width: 50px;
         height: 50px;
@@ -66,112 +79,410 @@
         border-radius: 50%;
         top: 50%;
         transform: translateY(-50%);
-        border: 1px solid rgba(255,255,255,0.4);
+        border: 1px solid rgba(255, 255, 255, 0.4);
         margin: 0 20px;
         z-index: 3;
         transition: all 0.3s ease;
     }
-    
+
     .btn-carrusel:hover {
         background: #8e3a68;
         border-color: #8e3a68;
         transform: translateY(-50%) scale(1.1);
     }
 
-    /* Indicadores de abajo */
+    /* Indicadores */
     .carousel-indicators {
         z-index: 3;
         bottom: 20px;
     }
+
     .carousel-indicators [data-bs-target] {
-        width: 12px; height: 12px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         background-color: white;
         margin: 0 8px;
         opacity: 0.5;
         transition: all 0.3s ease;
     }
+
     .carousel-indicators .active {
         opacity: 1;
         width: 30px;
         border-radius: 10px;
         background-color: #fbeaf3;
     }
+
+
+    /* ==========================================
+       RESPONSIVE - TABLET
+       ========================================== */
+
+    @media (max-width: 992px) {
+
+        .shero-carousel-wrapper .carousel-item {
+            height: 500px;
+        }
+
+        .carousel-caption-custom {
+            left: 7%;
+            right: 15%;
+        }
+
+        .slide-title-overlay {
+            font-size: 2.5rem;
+        }
+
+        .slide-text-overlay {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+    }
+
+
+    /* ==========================================
+       RESPONSIVE - CELULAR
+       ========================================== */
+
+    @media (max-width: 768px) {
+
+        .shero-carousel-wrapper .carousel-item {
+            height: 520px;
+        }
+
+        .overlay-gradient {
+            background: linear-gradient(
+                180deg,
+                rgba(45, 36, 48, 0.35) 0%,
+                rgba(45, 36, 48, 0.92) 65%,
+                rgba(45, 36, 48, 0.98) 100%
+            );
+        }
+
+        .carousel-caption-custom {
+            left: 7%;
+            right: 7%;
+            top: auto;
+            bottom: 65px;
+            height: auto;
+            justify-content: flex-end;
+        }
+
+        .slide-title-overlay {
+            font-size: 2rem;
+            line-height: 1.15;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-text-overlay {
+            font-size: 0.98rem;
+            line-height: 1.45;
+        }
+
+        .btn-carrusel {
+            width: 42px;
+            height: 42px;
+            margin: 0 8px;
+        }
+
+        .carousel-indicators {
+            bottom: 12px;
+        }
+
+        .carousel-indicators [data-bs-target] {
+            width: 9px;
+            height: 9px;
+            margin: 0 5px;
+        }
+
+        .carousel-indicators .active {
+            width: 22px;
+        }
+    }
+
+
+    /* ==========================================
+       CELULAR PEQUEÑO
+       ========================================== */
+
+    @media (max-width: 480px) {
+
+        .shero-carousel-wrapper .carousel-item {
+            height: 540px;
+        }
+
+        .carousel-caption-custom {
+            left: 6%;
+            right: 6%;
+            bottom: 58px;
+        }
+
+        .slide-title-overlay {
+            font-size: 1.65rem;
+            margin-bottom: 10px;
+        }
+
+        .slide-text-overlay {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .btn-carrusel {
+            width: 38px;
+            height: 38px;
+            margin: 0 5px;
+        }
+    }
 </style>
 
+
 <!-- ==============================================
-     AQUÍ COMIENZA EL REEMPLAZO DE TU CÓDIGO REAL 
+     CARRUSEL - DESCRIPCIÓN DEL SERVICIO
      ============================================== -->
+
 <section id="slider" class="py-5" style="background:#fff8fc;">
-  <div class="container">
-    <h2 class="text-center mb-5" style="color:#8e3a68; font-weight: 800; font-size: 2.5rem;">Descripción del servicio</h2>
 
-    <div id="sheroCarousel" class="carousel slide carousel-fade shero-carousel-wrapper overflow-hidden" data-bs-ride="carousel">
-      
-      <div class="carousel-indicators">
-        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="0" class="active"></button>
-        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="1"></button>
-        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="2"></button>
-        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="3"></button>
-      </div>
+    <div class="container">
 
-      <div class="carousel-inner">
+        <h2
+            class="text-center mb-5"
+            style="
+                color:#8e3a68;
+                font-weight:800;
+                font-size:2.5rem;
+            "
+        >
+            Descripción del servicio
+        </h2>
 
-        <!-- Slide 1 -->
-        <div class="carousel-item active">
-          <!-- Modificado para que use tus imágenes reales -->
-          <img src="/public/img/m1.jpg" alt="Activación con control total">
-          <div class="overlay-gradient"></div>
-          <div class="carousel-caption-custom">
-            <h4 class="slide-title-overlay">Activación con control total</h4>
-            <p class="slide-text-overlay">Un toque corto cancela una alerta accidental sin avisar a nadie. Mantener el botón 3 segundos bajo coacción envía la alerta real, mientras la pantalla OLED sigue mostrando algo neutro, como si nada pasara.</p>
-          </div>
+
+        <div
+            id="sheroCarousel"
+            class="carousel slide carousel-fade shero-carousel-wrapper"
+            data-bs-ride="carousel"
+        >
+
+            <!-- INDICADORES -->
+
+            <div class="carousel-indicators">
+
+                <button
+                    type="button"
+                    data-bs-target="#sheroCarousel"
+                    data-bs-slide-to="0"
+                    class="active"
+                    aria-current="true"
+                    aria-label="Slide 1"
+                ></button>
+
+                <button
+                    type="button"
+                    data-bs-target="#sheroCarousel"
+                    data-bs-slide-to="1"
+                    aria-label="Slide 2"
+                ></button>
+
+                <button
+                    type="button"
+                    data-bs-target="#sheroCarousel"
+                    data-bs-slide-to="2"
+                    aria-label="Slide 3"
+                ></button>
+
+                <button
+                    type="button"
+                    data-bs-target="#sheroCarousel"
+                    data-bs-slide-to="3"
+                    aria-label="Slide 4"
+                ></button>
+
+            </div>
+
+
+            <!-- CONTENIDO DEL CARRUSEL -->
+
+            <div class="carousel-inner">
+
+
+                <!-- =================================
+                     SLIDE 1
+                     ================================= -->
+
+                <div class="carousel-item active">
+
+                    <!-- CORREGIDO: /img/ en lugar de /public/img/ -->
+                    <img
+                        src="/img/m1.jpg"
+                        alt="Activación con control total"
+                    >
+
+                    <div class="overlay-gradient"></div>
+
+                    <div class="carousel-caption-custom">
+
+                        <h4 class="slide-title-overlay">
+                            Activación con control total
+                        </h4>
+
+                        <p class="slide-text-overlay">
+                            Un toque corto cancela una alerta accidental sin
+                            avisar a nadie. Mantener el botón 3 segundos bajo
+                            coacción envía la alerta real, mientras la pantalla
+                            OLED sigue mostrando algo neutro, como si nada pasara.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================
+                     SLIDE 2
+                     ================================= -->
+
+                <div class="carousel-item">
+
+                    <!-- CORREGIDO -->
+                    <img
+                        src="/img/m2.jpg"
+                        alt="Confirmación silenciosa"
+                    >
+
+                    <div class="overlay-gradient"></div>
+
+                    <div class="carousel-caption-custom">
+
+                        <h4 class="slide-title-overlay">
+                            Confirmación silenciosa
+                        </h4>
+
+                        <p class="slide-text-overlay">
+                            Una vibración corta y discreta confirma que la alerta
+                            se envió correctamente, sin luces ni sonidos que la
+                            delaten frente al agresor.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================
+                     SLIDE 3
+                     ================================= -->
+
+                <div class="carousel-item">
+
+                    <!-- CORREGIDO -->
+                    <img
+                        src="/img/m3.jpg"
+                        alt="Modo Acompáñame"
+                    >
+
+                    <div class="overlay-gradient"></div>
+
+                    <div class="carousel-caption-custom">
+
+                        <h4 class="slide-title-overlay">
+                            Modo "Acompáñame"
+                        </h4>
+
+                        <p class="slide-text-overlay">
+                            Activación voluntaria para trayectos cortos: la pulsera
+                            comparte su ubicación con tus contactos de confianza
+                            cada cierto tiempo mientras caminas a casa. Uso diario,
+                            no solo de emergencia.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================
+                     SLIDE 4
+                     ================================= -->
+
+                <div class="carousel-item">
+
+                    <!-- CORREGIDO -->
+                    <img
+                        src="/img/m4.jpg"
+                        alt="Funciona sin señal celular"
+                    >
+
+                    <div class="overlay-gradient"></div>
+
+                    <div class="carousel-caption-custom">
+
+                        <h4 class="slide-title-overlay">
+                            Funciona sin señal celular
+                        </h4>
+
+                        <p class="slide-text-overlay">
+                            Comunicación LoRa 915 MHz de largo alcance y bajo
+                            consumo. La alerta llega aunque no haya cobertura móvil,
+                            y queda registrada con GPS y sello de tiempo como evidencia.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 BOTÓN ANTERIOR
+                 ================================= -->
+
+            <button
+                class="carousel-control-prev btn-carrusel"
+                type="button"
+                data-bs-target="#sheroCarousel"
+                data-bs-slide="prev"
+                aria-label="Anterior"
+            >
+
+                <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                ></span>
+
+                <span class="visually-hidden">
+                    Anterior
+                </span>
+
+            </button>
+
+
+            <!-- =================================
+                 BOTÓN SIGUIENTE
+                 ================================= -->
+
+            <button
+                class="carousel-control-next btn-carrusel"
+                type="button"
+                data-bs-target="#sheroCarousel"
+                data-bs-slide="next"
+                aria-label="Siguiente"
+            >
+
+                <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                ></span>
+
+                <span class="visually-hidden">
+                    Siguiente
+                </span>
+
+            </button>
+
         </div>
 
-        <!-- Slide 2 -->
-        <div class="carousel-item">
-          <!-- Modificado para que use tus imágenes reales -->
-          <img src="/public/img/m2.jpg" alt="Confirmación silenciosa">
-          <div class="overlay-gradient"></div>
-          <div class="carousel-caption-custom">
-            <h4 class="slide-title-overlay">Confirmación silenciosa</h4>
-            <p class="slide-text-overlay">Una vibración corta y discreta confirma que la alerta se envió correctamente, sin luces ni sonidos que la delaten frente al agresor.</p>
-          </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="carousel-item">
-          <!-- Modificado para que use tus imágenes reales -->
-          <img src="/public/img/m3.jpg" alt="Modo acompáñame">
-          <div class="overlay-gradient"></div>
-          <div class="carousel-caption-custom">
-            <h4 class="slide-title-overlay">Modo "Acompáñame"</h4>
-            <p class="slide-text-overlay">Activación voluntaria para trayectos cortos: la pulsera comparte su ubicación con tus contactos de confianza cada cierto tiempo mientras caminas a casa. Uso diario, no solo de emergencia.</p>
-          </div>
-        </div>
-
-        <!-- Slide 4 -->
-        <div class="carousel-item">
-          <!-- Modificado para que use tus imágenes reales -->
-          <img src="/public/img/m4.jpg" alt="Funciona sin señal celular">
-          <div class="overlay-gradient"></div>
-          <div class="carousel-caption-custom">
-            <h4 class="slide-title-overlay">Funciona sin señal celular</h4>
-            <p class="slide-text-overlay">Comunicación LoRa 915 MHz de largo alcance y bajo consumo. La alerta llega aunque no haya cobertura móvil, y queda registrada con GPS y sello de tiempo como evidencia.</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Botones de navegación rediseñados -->
-      <button class="carousel-control-prev btn-carrusel" type="button" data-bs-target="#sheroCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-      </button>
-      <button class="carousel-control-next btn-carrusel" type="button" data-bs-target="#sheroCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
-      </button>
     </div>
-  </div>
+
 </section>
