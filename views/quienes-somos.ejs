@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Quiénes Somos? - Shero | Women Safety</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --brand-primary: #831843;
+      --brand-dark: #4c1d95;
+      --brand-light: #fdf2f8;
+      --brand-hover: #6b1236;
+    }
+
+    body { 
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
+      background-color: #fafafa; 
+      color: #1f2937;
+    }
+
+    .bg-brand-light { background-color: var(--brand-light); }
+    .text-brand { color: var(--brand-primary); }
+    
+    /* Botones con microinteracción */
+    .btn-brand { 
+      background-color: var(--brand-primary); 
+      color: white; 
+      border-radius: 50px; 
+      padding: 8px 22px; 
+      font-size: 0.9rem;
+      font-weight: 500; 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-brand:hover { 
+      background-color: var(--brand-hover); 
+      color: white; 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(131, 24, 67, 0.25);
+    }
+
+    /* Animaciones CSS suaves */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade {
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* IHC: Tarjetas Interactivas */
+    .card-interactive {
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 14px;
+      background-color: #ffffff;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-interactive:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 22px rgba(131, 24, 67, 0.08) !important;
+      border-color: rgba(131, 24, 67, 0.2);
+    }
+
+    .icon-box {
+      width: 46px;
+      height: 46px;
+      background-color: var(--brand-light);
+      color: var(--brand-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin: 0 auto 10px;
+      transition: transform 0.3s ease;
+    }
+    
+    .card-interactive:hover .icon-box {
+      transform: scale(1.1) rotate(5deg);
+      background-color: var(--brand-primary);
+      color: white;
+    }
+
+    /* Estilo para Nav Tabs IHC */
+    .nav-pills .nav-link {
+      color: #4b5563;
+      border-radius: 30px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .nav-pills .nav-link.active {
+      background-color: var(--brand-primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section Principal -->
+  <section class="py-4 text-center bg-brand-light border-bottom animate-fade">
+    <div class="container py-2">
+      <span class="badge rounded-pill bg-white border text-brand px-3 py-1 mb-2 fw-semibold" style="font-size: 0.75rem;">CONOCE A SHERO</span>
+      <h2 class="h3 fw-bold text-brand mb-2">Tecnología creada con propósito humano</h2>
+      <p class="text-muted small mx-auto mb-0" style="max-width: 620px; line-height: 1.5;">
+        Transformamos problemáticas reales de seguridad en soluciones tecnológicas accesibles, diseñadas por y para la tranquilidad de las mujeres.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pestañas Interactivas IHC (Misión / Visión / Impacto) -->
+  <section class="py-4 animate-fade">
+    <div class="container">
+      
+      <!-- Selector de Pestañas -->
+      <ul class="nav nav-pills justify-content-center mb-4 gap-1" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="pills-mision-tab" data-bs-toggle="pill" data-bs-target="#pills-mision" type="button" role="tab"><i class="bi bi-shield-check me-1"></i> Nuestra Misión</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="pills-vision-tab" data-bs-toggle="pill" data-bs-target="#pills-vision" type="button" role="tab"><i class="bi bi-eye me-1"></i> Nuestra Visión</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="pills-impacto-tab" data-bs-toggle="pill" data-bs-target="#pills-impacto" type="button" role="tab"><i class="bi bi-heart-pulse me-1"></i> Impacto Social</button>
+        </li>
+      </ul>
+
+      <!-- Contenido de Pestañas -->
+      <div class="tab-content" id="pills-tabContent">
+        
+        <div class="tab-pane fade show active" id="pills-mision" role="tabpanel">
+          <div class="p-4 bg-white rounded-4 shadow-sm border card-interactive max-w-2xl mx-auto text-center" style="max-width: 700px;">
+            <i class="bi bi-shield-check display-6 text-brand mb-2 d-block"></i>
+            <h5 class="fw-bold mb-2">Protección inmediata al alcance de un clic</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">
+              Desarrollar herramientas biométricas e inteligentes que brinden a las mujeres un canal de auxilio discreto y confiable en situaciones de riesgo, enlazando geolocalización en tiempo real con redes de apoyo.
+            </p>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-vision" role="tabpanel">
+          <div class="p-4 bg-white rounded-4 shadow-sm border card-interactive max-w-2xl mx-auto text-center" style="max-width: 700px;">
+            <i class="bi bi-cpu display-6 text-brand mb-2 d-block"></i>
+            <h5 class="fw-bold mb-2">Redefinir la seguridad personal con tecnología</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">
+              Aspiramos a consolidar una red integral donde la innovación en hardware y software reduzca significativamente los tiempos de respuesta ante emergencias en Hidalgo y en todo México.
+            </p>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-impacto" role="tabpanel">
+          <div class="p-4 bg-white rounded-4 shadow-sm border card-interactive max-w-2xl mx-auto text-center" style="max-width: 700px;">
+            <i class="bi bi-people display-6 text-brand mb-2 d-block"></i>
+            <h5 class="fw-bold mb-2">Empatía y responsabilidad comunitaria</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">
+              Buscamos que la tecnología deje de ser abstracta y se convierta en una herramienta usable, cercana y adaptable al día a día de estudiantes, trabajadoras y familias.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Presentación Interactiva del Producto Women Safety -->
+  <section class="py-4 bg-white border-top border-bottom animate-fade">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        
+        <div class="col-lg-7">
+          <span class="text-brand fw-bold text-uppercase small" style="font-size: 0.75rem; letter-spacing: 0.5px;">NUESTRA SOLUCIÓN</span>
+          <h3 class="h4 fw-bold mt-1 mb-2">Pulsera Inteligente Women Safety</h3>
+          <p class="text-muted small mb-3" style="line-height: 1.5;">
+            Diseñada con un enfoque de <strong>Usabilidad y Accesibilidad</strong>. Permite solicitar ayuda sin alertar a terceros mediante interacción física discreta.
+          </p>
+          
+          <div class="row g-2 mb-3">
+            <div class="col-sm-6">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center">
+                <i class="bi bi-hand-index-thumb text-brand fs-5 me-2"></i>
+                <span class="small fw-semibold">Activación por Pulsación</span>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center">
+                <i class="bi bi-geo-alt text-brand fs-5 me-2"></i>
+                <span class="small fw-semibold">GPS en Tiempo Real</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a href="/#servicios" class="btn btn-brand shadow-sm">
+              Ver especificaciones <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+            <a href="/mapa" class="btn btn-outline-secondary btn-sm rounded-pill px-3 align-self-center">
+              <i class="bi bi-map me-1"></i> Ver red de puntos
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-5 text-center">
+          <div class="p-4 bg-brand-light rounded-4 border text-center shadow-sm card-interactive">
+            <i class="bi bi-smartwatch text-brand display-4 d-block mb-2"></i>
+            <h6 class="fw-bold text-brand mb-1">Women Safety Hardware</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.8rem;">Diseño ergonómico, ligero y discreto.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Nuestros Valores (Grid de Tarjetas con Hover IHC) -->
+  <section class="py-4 bg-light animate-fade">
+    <div class="container">
+      <div class="text-center mb-3">
+        <h4 class="h5 fw-bold mb-1">Nuestros Valores</h4>
+        <p class="text-muted small mb-0">Principios de diseño e interacción enfocados en las personas.</p>
+      </div>
+
+      <div class="row g-3">
+        
+        <div class="col-md-4 col-6">
+          <div class="card card-interactive p-3 text-center h-100">
+            <div class="icon-box"><i class="bi bi-lightbulb"></i></div>
+            <h6 class="fw-bold mb-1">Innovación</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.78rem;">Tecnología adaptada a escenarios reales de uso.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 col-6">
+          <div class="card card-interactive p-3 text-center h-100">
+            <div class="icon-box"><i class="bi bi-shield-lock"></i></div>
+            <h6 class="fw-bold mb-1">Seguridad</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.78rem;">Confidencialidad y protección de datos en alertas.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 col-6">
+          <div class="card card-interactive p-3 text-center h-100">
+            <div class="icon-box"><i class="bi bi-people"></i></div>
+            <h6 class="fw-bold mb-1">Colaboración</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.78rem;">Trabajo conjunto con autoridades e instituciones.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-6">
+          <div class="card card-interactive p-3 text-center h-100">
+            <div class="icon-box"><i class="bi bi-heart text-danger"></i></div>
+            <h6 class="fw-bold mb-1">Empatía</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.78rem;">Diseño centrado en la experiencia emocional de la usuaria.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-12">
+          <div class="card card-interactive p-3 text-center h-100">
+            <div class="icon-box"><i class="bi bi-graph-up-arrow"></i></div>
+            <h6 class="fw-bold mb-1">Evolución Continua</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.78rem;">Pruebas constantes para mejorar la interfaz e interacción.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner Inferior Coordenado con la Pagina Principal -->
+  <!-- Banner Inferior Simplificado -->
+<section class="py-5 bg-brand-light text-center border-top">
+  <div class="container">
+    <h4 class="fw-bold text-brand mb-2">¿Quieres conocer más sobre Women Safety?</h4>
+    <p class="small text-muted mb-4 mx-auto" style="max-width: 500px;">
+      Descubre cómo la tecnología puede convertirse en tu mejor herramienta de seguridad.
+    </p>
+    <div class="d-flex justify-content-center">
+      <a href="/#servicios" class="btn btn-brand shadow-sm px-4 py-2">
+        Conocer producto
+      </a>
+    </div>
+  </div>
+</section>
+
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
