@@ -1,412 +1,598 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puntos de Atención y Mapa - Women Safety</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <!-- MapLibre GL CSS -->
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <title>Puntos de Atención y Mapa - WOMEN SAFETY</title>
 
-  <style>
-    :root {
-      --brand-primary: #831843;
-      --brand-dark: #4c1d95;
-      --brand-light: #fdf2f8;
-      --brand-accent: #db2777;
-    }
+    <!-- Google Fonts (identidad de marca, Bootstrap no las trae) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background-color: #fafafa;
-      color: #1f2937;
-    }
+    <!-- Bootstrap Icons (mismo set que el resto del sitio) -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-    .bg-brand-light { background-color: var(--brand-light); }
-    .text-brand { color: var(--brand-primary); }
+    <!-- Bootstrap 5 (reemplaza el CSS propio del archivo original) -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"
+    >
 
-    /* Botón Principal */
-    .btn-brand {
-      background-color: var(--brand-primary);
-      color: white;
-      border-radius: 50px;
-      font-weight: 500;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .btn-brand:hover {
-      background-color: #6b1236;
-      color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(131, 24, 67, 0.25);
-    }
+    <!-- Leaflet (OpenStreetMap / OpenFreeMap) -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
 
-    /* Contenedor Mapa */
-    #map {
-      height: 560px;
-      width: 100%;
-      border-radius: 16px;
-    }
+    <!--
+        Leaflet Routing Machine — traza la ruta SOBRE nuestro propio mapa
+        (en vez de mandar al usuario a Google Maps).
+        Nota de honestidad: no tengo 100% de certeza de que esta sea la
+        versión más reciente del paquete ni de que el CDN esté siempre
+        disponible; si algo no carga, conviene revisar
+        https://www.liedman.net/leaflet-routing-machine/ antes de publicar.
+    -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"
+    >
 
-    /* IHC: Tarjetas Interactivas */
-    .card-location {
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 14px;
-      background-color: #ffffff;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
+    <style>
+        /* =====================================================
+           Solo lo que Bootstrap NO puede resolver por sí solo:
+           tokens de marca (colores/tipografías) y el tamaño del
+           mapa. Todo lo demás (grid, tarjetas, botones, navbar)
+           se resuelve con clases de Bootstrap en el HTML.
+        ===================================================== */
+        :root {
+            --wine: #8e3a68;
+            --wine-dark: #67294c;
+            --pink-light: #f8e8f1;
+            --urgent: #a13454;
+        }
 
-    .card-location:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.07) !important;
-      border-color: rgba(131, 24, 67, 0.2);
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fffdfd;
+        }
 
-    /* Estado ACTIVO visual cuando la tarjeta es seleccionada */
-    .card-location.active-card {
-      border: 2px solid var(--brand-primary) !important;
-      background-color: #fffafc !important;
-      box-shadow: 0 6px 18px rgba(131, 24, 67, 0.12) !important;
-    }
+        h1, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
 
-    /* Chips de Categorías (UX Universal) */
-    .chip-filter {
-      font-size: 0.75rem;
-      border-radius: 20px;
-      padding: 5px 14px;
-      background-color: #ffffff;
-      color: #4b5563;
-      border: 1px solid #e5e7eb;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-      font-weight: 500;
-    }
-    .chip-filter:hover, .chip-filter.active {
-      background-color: var(--brand-primary);
-      color: white;
-      border-color: var(--brand-primary);
-    }
+        .text-wine { color: var(--wine) !important; }
+        .bg-wine { background-color: var(--wine) !important; }
+        .bg-wine-dark { background-color: var(--wine-dark) !important; }
+        .bg-pink-light { background-color: var(--pink-light) !important; }
+        .bg-urgent { background-color: var(--urgent) !important; }
+        .border-wine { border-color: var(--wine) !important; }
 
-    /* Popups MapLibre GL */
-    .maplibregl-popup-content {
-      border-radius: 12px !important;
-      padding: 12px 14px !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-    }
-  </style>
+        .btn-wine {
+            background-color: var(--wine);
+            border-color: var(--wine);
+            color: #fff;
+        }
+        .btn-wine:hover { background-color: var(--wine-dark); border-color: var(--wine-dark); color: #fff; }
+
+        .nav-link.is-active { color: var(--wine) !important; font-weight: 600; }
+
+        #ws-map {
+            height: 520px;
+            width: 100%;
+        }
+        @media (max-width: 991.98px) {
+            #ws-map { height: 380px; }
+        }
+
+        .place-list { max-height: 520px; overflow-y: auto; }
+        @media (max-width: 991.98px) { .place-list { max-height: none; } }
+
+        .place-card { cursor: pointer; transition: box-shadow .2s ease, border-color .2s ease; }
+        .place-card:hover, .place-card.selected {
+            border-color: var(--wine) !important;
+            box-shadow: 0 8px 20px rgba(103, 41, 76, .08);
+        }
+
+        .pulse { animation: pulse-soft 2.2s ease-in-out infinite; }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #9c9098; display: inline-block;
+        }
+        .status-dot.live {
+            background: #3fa96a;
+            box-shadow: 0 0 0 4px rgba(63, 169, 106, .15);
+        }
+
+        /* Oculta el panel de instrucciones paso a paso de la ruta:
+           mostramos solo la línea trazada + el resumen en nuestra tarjeta. */
+        .leaflet-routing-container { display: none; }
+    </style>
 </head>
+
 <body>
 
-  <!-- Header Banner -->
-  <section class="py-4 text-center bg-brand-light border-bottom">
-    <div class="container py-1">
-      <span class="badge rounded-pill bg-white border text-brand px-3 py-1 mb-2 fw-semibold" style="font-size: 0.75rem;">RED DE APOYO EN HIDALGO</span>
-      <h2 class="h3 fw-bold text-brand mb-1">Centros de Atención e Instancias</h2>
-      <p class="text-muted small mx-auto mb-0" style="max-width: 600px;">
-        Encuentra apoyo institucional seguro en Tlahuelipan, Mixquiahuala, Tula, Pachuca y todo el estado.
-      </p>
-      <a href="/" class="btn btn-brand mt-3 px-4">
-      <i class="bi bi-house-fill me-2"></i>
-         Volver al inicio
-      </a>
-    </div>
-  </section>
+    <!-- =========================================================
+         NAVBAR — componente navbar de Bootstrap
+    ========================================================= -->
 
-  <div class="container py-4 mb-4">
-    
-    <!-- Alerta de Emergencia Inmediata (Llamada 1 Clic) -->
-    <div class="alert alert-danger border-0 shadow-sm d-flex flex-wrap align-items-center justify-content-between p-3 mb-4 rounded-4" role="alert">
-      <div class="d-flex align-items-center mb-2 mb-md-0">
-        <div class="bg-white p-2 rounded-circle text-danger me-3 shadow-sm">
-          <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-        </div>
-        <div>
-          <h6 class="fw-bold mb-0 text-danger">¿Requieres asistencia inmediata de emergencia?</h6>
-          <p class="small mb-0 text-muted">Haz clic para realizar una llamada gratuita de ayuda activa 24/7.</p>
-        </div>
-      </div>
-      <div class="d-flex gap-2">
-        <a href="tel:911" class="btn btn-danger btn-sm rounded-pill fw-bold px-3 shadow-sm"><i class="bi bi-telephone-fill me-1"></i> Llamar 911</a>
-        <a href="tel:079" class="btn btn-dark btn-sm rounded-pill fw-bold px-3 shadow-sm"><i class="bi bi-telephone me-1"></i> Línea 079</a>
-      </div>
-    </div>
+    <nav class="navbar navbar-expand-md sticky-top bg-white border-bottom">
+        <div class="container">
 
-    <!-- Layout Interactivo principal -->
-    <div class="row g-4">
+            <a href="/" class="navbar-brand fw-bold text-dark">
+                <span class="text-wine fs-4 me-1">♀</span>WOMEN SAFETY
+            </a>
 
-      <!-- Columna Izquierda: Buscador, Acción Rápida IHC y Tarjetas -->
-      <div class="col-lg-5">
-        
-        <!-- IHC UX: Botón Prominente para "Instancia Más Cercana" -->
-        <button id="btnNearest" class="btn btn-brand w-100 mb-3 py-2 d-flex align-items-center justify-content-center shadow-sm" onclick="findNearestLocation()">
-          <i class="bi bi-geo-fill me-2 fs-5"></i>
-          <span>Ubicar mi Instancia más Cercana</span>
-        </button>
-
-        <!-- Buscador Accesible -->
-        <div class="input-group input-group-sm mb-2 shadow-sm rounded-3 overflow-hidden">
-          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-          <input type="text" id="searchInput" class="form-control border-start-0 py-2" placeholder="Buscar municipio (ej. Tlahuelipan, Mixquiahuala)..." onkeyup="filterLocations()">
-        </div>
-
-        <!-- Chips de Categoría Universales -->
-        <div class="d-flex gap-1 mb-3 align-items-center flex-wrap">
-          <span class="chip-filter active" onclick="applyFilter('todos', this)">Todos</span>
-          <span class="chip-filter" onclick="applyFilter('Municipal', this)">Instancias Municipales</span>
-          <span class="chip-filter" onclick="applyFilter('Justicia', this)">Justicia / Estatal</span>
-        </div>
-
-        <!-- Lista Scrollable con Tarjetas -->
-        <div class="overflow-auto pe-1" style="max-height: 420px;" id="locationList">
-          <!-- Tarjetas generadas dinámicamente -->
-        </div>
-
-      </div>
-
-      <!-- Columna Derecha: Mapa Interactivo Sticky -->
-      <div class="col-lg-7">
-        <div class="card border-0 shadow-sm p-2 rounded-4 sticky-top" style="top: 20px; z-index: 1;">
-          <div id="map"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-
-  <script>
-    let locations = <%- JSON.stringify(locations) %>;
-    let map, userLocation = null;
-    let markers = {};
-    let activeCardId = null;
-
-    function initMap() {
-      map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [-99.1500, 20.1200], // Centrado general en la región de Hidalgo
-        zoom: 9.5
-      });
-
-      map.addControl(new maplibregl.NavigationControl(), 'top-right');
-
-      // Intentar obtener ubicación inicial
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            userLocation = [pos.coords.longitude, pos.coords.latitude];
-            
-            new maplibregl.Marker({ color: '#2563eb' })
-              .setLngLat(userLocation)
-              .setPopup(new maplibregl.Popup().setHTML("<b class='small text-primary'><i class='bi bi-person-fill'></i> Tu ubicación actual</b>"))
-              .addTo(map);
-
-            calculateDistances();
-          }
-        );
-      }
-
-      // Marcadores del mapa
-      locations.forEach(loc => {
-        const popupHTML = `
-          <div class="p-1" style="max-width: 210px;">
-            <span class="badge bg-light text-dark border mb-1" style="font-size: 0.65rem;">${loc.category}</span>
-            <h6 class="fw-bold text-brand mb-1 small">${loc.name}</h6>
-            <p class="text-muted mb-1" style="font-size: 0.75rem;"><i class="bi bi-geo-alt"></i> ${loc.address}</p>
-            <p class="mb-2" style="font-size: 0.75rem;"><i class="bi bi-telephone"></i> ${loc.phone}</p>
-            <button class="btn btn-sm btn-brand w-100 py-1" style="font-size: 0.75rem;" onclick="drawRoute(${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-sign-turn-right me-1"></i> Cómo llegar
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#wsNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
-          </div>
-        `;
 
-        const marker = new maplibregl.Marker({ color: '#831843' })
-          .setLngLat([loc.coordinates.lng, loc.coordinates.lat])
-          .setPopup(new maplibregl.Popup().setHTML(popupHTML))
-          .addTo(map);
-
-        markers[loc.id] = marker;
-      });
-    }
-
-    // Fórmula Haversine para cálculo de distancia en km
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    function calculateDistances() {
-      if (!userLocation) return;
-      locations.forEach(loc => {
-        loc.distance = getDistance(userLocation[1], userLocation[0], loc.coordinates.lat, loc.coordinates.lng);
-      });
-    }
-
-    // Encuentra visual y matemáticamente la opción más cercana (IHC)
-    function findNearestLocation() {
-      if (!userLocation) {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              userLocation = [pos.coords.longitude, pos.coords.latitude];
-              findNearestLocation();
-            },
-            () => alert("Por favor concede permiso de ubicación para calcular la distancia.")
-          );
-        }
-        return;
-      }
-
-      calculateDistances();
-      // Ordenar lista por cercanía
-      locations.sort((a, b) => a.distance - b.distance);
-      
-      const nearest = locations[0];
-      renderCards(locations);
-      focusMap(nearest.id, nearest.coordinates.lng, nearest.coordinates.lat);
-      drawRoute(nearest.coordinates.lng, nearest.coordinates.lat);
-    }
-
-    // Renderizado dinámico de tarjetas
-    function renderCards(items) {
-      const container = document.getElementById('locationList');
-      container.innerHTML = '';
-
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-4 text-muted bg-white rounded-3 border">
-            <i class="bi bi-geo-fill display-6 d-block mb-2 text-black-50"></i>
-            <p class="small mb-0">No se encontraron instituciones en este municipio.</p>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(loc => {
-        const isActive = activeCardId === loc.id ? 'active-card' : '';
-        const distanceTag = loc.distance ? `<span class="badge bg-light text-dark border ms-2" style="font-size: 0.7rem;"><i class="bi bi-signpost-2 text-brand me-1"></i>${loc.distance.toFixed(1)} km</span>` : '';
-
-        const card = document.createElement('div');
-        card.className = `card card-location p-3 mb-2 shadow-sm ${isActive}`;
-        card.id = `card-${loc.id}`;
-        
-        card.onclick = (e) => {
-          if (!e.target.closest('button')) {
-            focusMap(loc.id, loc.coordinates.lng, loc.coordinates.lat);
-          }
-        };
-
-        card.innerHTML = `
-          <div class="d-flex justify-content-between align-items-start mb-1">
-            <div>
-              <span class="badge bg-brand-light text-brand fw-semibold" style="font-size: 0.7rem;">${loc.category}</span>
-              ${distanceTag}
+            <div class="collapse navbar-collapse" id="wsNav">
+                <div class="navbar-nav ms-auto gap-md-3">
+                    <a class="nav-link" href="/#quienes-somos">¿Quiénes somos?</a>
+                    <a class="nav-link" href="/#pulsera">La pulsera</a>
+                    <a class="nav-link" href="/#funcionalidades">Funcionalidades</a>
+                    <a class="nav-link" href="/#servicios">Servicios</a>
+                    <a class="nav-link is-active" href="/mapa">Ubicación</a>
+                    <a class="nav-link" href="/#contacto">Contacto</a>
+                </div>
             </div>
-            <small class="text-muted fw-bold" style="font-size: 0.75rem;"><i class="bi bi-geo-alt text-danger me-1"></i>${loc.municipality}</small>
-          </div>
-          <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.88rem;">${loc.name}</h6>
-          <p class="small text-muted mb-1" style="font-size: 0.78rem;"><i class="bi bi-house-door me-1"></i>${loc.address}</p>
-          <p class="small text-muted mb-1" style="font-size: 0.78rem;"><i class="bi bi-telephone me-1"></i>${loc.phone}</p>
-          <p class="small text-muted mb-3" style="font-size: 0.72rem;"><i class="bi bi-clock me-1"></i>${loc.hours}</p>
-          
-          <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary py-1 w-50" style="font-size: 0.75rem;" onclick="focusMap('${loc.id}', ${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-pin-map me-1"></i> Ubicar
-            </button>
-            <button class="btn btn-sm btn-brand py-1 w-50" style="font-size: 0.75rem;" onclick="drawRoute(${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-compass me-1"></i> Ruta
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
 
-    function focusMap(id, lng, lat) {
-      activeCardId = id;
-      document.querySelectorAll('.card-location').forEach(el => el.classList.remove('active-card'));
-      const activeEl = document.getElementById(`card-${id}`);
-      if (activeEl) activeEl.classList.add('active-card');
+        </div>
+    </nav>
 
-      map.flyTo({ center: [lng, lat], zoom: 14.5, speed: 1.2 });
-      if (markers[id]) markers[id].togglePopup();
-    }
 
-    async function drawRoute(destLng, destLat) {
-      if (!userLocation) {
-        alert("Por favor habilita la ubicación de tu navegador para trazar la ruta.");
-        return;
-      }
+    <!-- =========================================================
+         ENCABEZADO
+    ========================================================= -->
 
-      const url = `https://router.project-osrm.org/route/v1/driving/${userLocation[0]},${userLocation[1]};${destLng},${destLat}?overview=full&geometries=geojson`;
+    <header class="bg-pink-light bg-opacity-25 text-center py-5">
+        <div class="container">
+            <span class="text-wine fw-bold small text-uppercase" style="letter-spacing:.15em;">
+                Red de apoyo en Hidalgo
+            </span>
+            <h1 class="font-serif fw-medium my-3" style="font-size:clamp(2.1rem,4.5vw,3.2rem);">
+                Encuentra ayuda <span class="text-wine">cerca de ti.</span>
+            </h1>
+            <p class="text-muted mx-auto" style="max-width:560px;">
+                Localiza centros de atención e instancias de justicia en Hidalgo.
+                En cuanto compartas tu ubicación, trazamos la ruta automáticamente
+                hacia la más cercana.
+            </p>
+        </div>
+    </header>
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const route = data.routes[0].geometry;
 
-        if (map.getSource('route')) {
-          map.getSource('route').setData(route);
-        } else {
-          map.addSource('route', { type: 'geojson', data: route });
-          map.addLayer({
-            id: 'route',
-            type: 'line',
-            source: 'route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#831843', 'line-width': 5, 'line-opacity': 0.85 }
-          });
+    <!-- =========================================================
+         BARRA DE EMERGENCIA
+    ========================================================= -->
+
+    <div class="container mt-4">
+        <div class="bg-urgent text-white rounded-4 p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-exclamation-triangle-fill fs-3 pulse"></i>
+                <div>
+                    <strong class="d-block">¿Necesitas ayuda inmediata?</strong>
+                    <span class="text-white-50 small">Llamada gratuita, disponible las 24 horas.</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-light fw-bold rounded-pill text-urgent" href="tel:911">
+                    <i class="bi bi-telephone-fill"></i> Llamar al 911
+                </a>
+                <a class="btn btn-outline-light fw-bold rounded-pill" href="tel:079">
+                    <i class="bi bi-telephone-fill"></i> Línea 079
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         INSTANCIA MÁS CERCANA — se actualiza sola, sin botones
+         a servicios externos: la ruta se dibuja en nuestro mapa.
+    ========================================================= -->
+
+    <div class="container mt-3">
+        <div class="card border rounded-4 shadow-sm" id="nearestCard">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-pink-light text-wine rounded-3 d-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;font-size:1.3rem;">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-wine fw-bold small text-uppercase" style="letter-spacing:.1em;">Más cercana a ti</div>
+                        <div class="fw-bold" id="nearestName">Activa tu ubicación</div>
+                        <div class="text-muted small" id="nearestAddress">
+                            Te pediremos permiso para ubicarte y trazar la ruta hacia la instancia más próxima.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <div class="font-serif text-wine fs-3 lh-1" id="nearestKm">—</div>
+                    <small class="text-muted" id="nearestEta">distancia aprox.</small>
+                </div>
+
+                <div class="w-100 small text-muted d-flex align-items-center gap-2" id="nearestStatus">
+                    <span class="status-dot" id="nearestDot"></span>
+                    <span id="nearestStatusText">Ubicación no activada</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         MAPA + LISTADO
+    ========================================================= -->
+
+    <section class="py-5">
+        <div class="container">
+
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+
+                <div class="input-group flex-grow-1" style="max-width:360px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-wine"></i></span>
+                    <input
+                        type="text"
+                        id="mapSearch"
+                        class="form-control border-start-0"
+                        placeholder="Buscar municipio o instancia (ej. Tlahuelipan, Tula)..."
+                    >
+                </div>
+
+                <div class="btn-group" id="mapFilters" role="group">
+                    <button type="button" class="btn btn-wine btn-sm rounded-pill me-2" data-filter="todos">Todos</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill me-2" data-filter="municipal">Municipales</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-filter="estatal">Justicia / Estatal</button>
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-7">
+                    <div id="ws-map" class="rounded-4 border shadow-sm"></div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="place-list d-flex flex-column gap-2" id="placeList"></div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 align-items-start bg-pink-light rounded-3 p-3 mt-3 small text-wine">
+                <i class="bi bi-shield-lock mt-1"></i>
+                <span>
+                    Tu ubicación se usa solo en este navegador para calcular la ruta y la
+                    distancia; no se guarda ni se envía a ningún servidor.
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================= -->
+
+    <footer class="bg-dark text-white-50 text-center py-3 small">
+        © 2026 WOMEN SAFETY · Tecnología para la seguridad y el bienestar de las mujeres.
+    </footer>
+
+
+    <!-- Bootstrap JS (solo para el navbar colapsable) -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- Leaflet -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+
+    <!-- Leaflet Routing Machine: dibuja la ruta real sobre el mapa -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+
+        // =====================================================
+        // DATOS — arreglo fijo mientras se conecta la base de
+        // datos. ⚠️ direcciones, teléfonos y coordenadas son
+        // marcadores de ejemplo: verifícalos antes de publicar.
+        // =====================================================
+
+        const PLACES = [
+            { name: "Instancia Municipal de las Mujeres", category: "Municipal", tag: "municipal", municipio: "Tlahuelipan", address: "Plaza Principal S/N, Col. Centro, Tlahuelipan, Hgo.", phone: "", lat: 20.1339, lng: -99.0995 },
+            { name: "Instancia Municipal de la Mujer", category: "Municipal", tag: "municipal", municipio: "Mixquiahuala", address: "Palacio Municipal, Col. Centro, Mixquiahuala de Juárez, Hgo.", phone: "", lat: 20.2278, lng: -99.2153 },
+            { name: "Instancia Municipal de las Mujeres", category: "Municipal", tag: "municipal", municipio: "Tula de Allende", address: "Presidencia Municipal, Col. Centro, Tula de Allende, Hgo.", phone: "", lat: 20.0553, lng: -99.3428 },
+            { name: "Fiscalía Especializada en Delitos de Violencia contra las Mujeres", category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto", address: "Fiscalía General del Estado de Hidalgo, Pachuca de Soto, Hgo.", phone: "079", lat: 20.1234, lng: -98.7346 },
+            { name: "Centro de Justicia para las Mujeres de Hidalgo", category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto", address: "Pachuca de Soto, Hgo.", phone: "079", lat: 20.1011, lng: -98.7591 },
+            { name: "Instancia Municipal de las Mujeres", category: "Municipal", tag: "municipal", municipio: "Actopan", address: "Palacio Municipal, Col. Centro, Actopan, Hgo.", phone: "", lat: 20.2678, lng: -98.9436 },
+            { name: "Juzgado de lo Familiar", category: "Estatal", tag: "estatal", municipio: "Tulancingo de Bravo", address: "Tulancingo de Bravo, Hgo.", phone: "", lat: 20.0842, lng: -98.3667 },
+            { name: "Instancia Municipal de las Mujeres", category: "Municipal", tag: "municipal", municipio: "Ixmiquilpan", address: "Palacio Municipal, Col. Centro, Ixmiquilpan, Hgo.", phone: "", lat: 20.4842, lng: -99.2178 }
+        ];
+
+
+        // =====================================================
+        // MAPA — vista inicial: todo Hidalgo
+        // =====================================================
+
+        const HIDALGO_BOUNDS = [
+            [19.60, -99.90],
+            [21.40, -97.95]
+        ];
+
+        const map = L.map("ws-map", { zoomControl: true });
+        map.fitBounds(HIDALGO_BOUNDS);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const wineIcon = L.divIcon({
+            className: "",
+            html: '<div style="width:16px;height:16px;border-radius:50%;background:#8e3a68;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);"></div>',
+            iconSize: [16, 16], iconAnchor: [8, 8]
+        });
+
+        const userIcon = L.divIcon({
+            className: "",
+            html: '<div style="width:18px;height:18px;border-radius:50%;background:#3fa96a;border:3px solid white;box-shadow:0 0 0 6px rgba(63,169,106,.22);"></div>',
+            iconSize: [18, 18], iconAnchor: [9, 9]
+        });
+
+        const markers = {};
+
+        PLACES.forEach((place, i) => {
+            const marker = L.marker([place.lat, place.lng], { icon: wineIcon }).addTo(map);
+            marker.bindPopup("<strong>" + place.name + "</strong>" + place.address);
+            markers[i] = marker;
+        });
+
+        let userMarker = null;
+
+
+        // =====================================================
+        // UTILIDADES
+        // =====================================================
+
+        function haversineKm(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        const bounds = new maplibregl.LngLatBounds();
-        bounds.extend(userLocation);
-        bounds.extend([destLng, destLat]);
-        map.fitBounds(bounds, { padding: 60 });
+        function formatDistance(km) {
+            if (km < 1) return Math.round(km * 1000) + " m";
+            return km.toFixed(1) + " km";
+        }
 
-      } catch (e) {
-        console.error("Error calculando la ruta:", e);
-      }
-    }
+        function formatDuration(seconds) {
+            const min = Math.round(seconds / 60);
+            if (min < 60) return min + " min";
+            return Math.floor(min / 60) + " h " + (min % 60) + " min";
+        }
 
-    function filterLocations() {
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = locations.filter(loc => 
-        loc.name.toLowerCase().includes(term) || 
-        loc.municipality.toLowerCase().includes(term)
-      );
-      renderCards(filtered);
-    }
 
-    function applyFilter(category, chipElement) {
-      document.querySelectorAll('.chip-filter').forEach(el => el.classList.remove('active'));
-      chipElement.classList.add('active');
+        // =====================================================
+        // LISTADO + FILTROS + BÚSQUEDA
+        // =====================================================
 
-      if (category === 'todos') {
-        renderCards(locations);
-      } else {
-        const filtered = locations.filter(loc => loc.category.toLowerCase().includes(category.toLowerCase()));
-        renderCards(filtered);
-      }
-    }
+        let activeFilter = "todos";
+        let searchTerm = "";
+        let userPos = null;
+        let selectedIndex = null;
 
-    window.onload = () => {
-      initMap();
-      renderCards(locations);
-    };
-  </script>
+        function placesWithDistance() {
+            return PLACES.map((p, i) => ({
+                ...p, index: i,
+                distance: userPos ? haversineKm(userPos.lat, userPos.lng, p.lat, p.lng) : null
+            }));
+        }
+
+        function filteredPlaces() {
+            let list = placesWithDistance();
+            if (activeFilter !== "todos") list = list.filter(p => p.tag === activeFilter);
+            if (searchTerm.trim() !== "") {
+                const term = searchTerm.trim().toLowerCase();
+                list = list.filter(p => p.municipio.toLowerCase().includes(term) || p.name.toLowerCase().includes(term));
+            }
+            if (userPos) list.sort((a, b) => a.distance - b.distance);
+            return list;
+        }
+
+        function renderList() {
+            const list = filteredPlaces();
+            const container = document.getElementById("placeList");
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-4">No encontramos instancias con ese criterio.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(p => `
+                <article class="place-card card border rounded-4 p-3 ${p.index === selectedIndex ? 'selected' : ''}" data-index="${p.index}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="badge bg-pink-light text-wine">${p.category}</span>
+                        ${p.distance !== null ? `<span class="text-wine fw-bold small">${formatDistance(p.distance)}</span>` : ""}
+                    </div>
+                    <h4 class="h6 mt-2 mb-1">${p.name}</h4>
+                    <p class="text-muted small mb-1">${p.address}</p>
+                    <div class="text-muted small"><i class="bi bi-geo-alt text-wine"></i> ${p.municipio}</div>
+                </article>
+            `).join("");
+
+            container.querySelectorAll(".place-card").forEach(card => {
+                card.addEventListener("click", () => {
+                    const idx = Number(card.dataset.index);
+                    selectedIndex = idx;
+                    const p = PLACES[idx];
+                    map.flyTo([p.lat, p.lng], 14, { duration: 0.6 });
+                    markers[idx].openPopup();
+                    if (userPos) drawRoute(userPos, p);
+                    renderList();
+                });
+            });
+        }
+
+        document.getElementById("mapSearch").addEventListener("input", e => {
+            searchTerm = e.target.value;
+            renderList();
+        });
+
+        document.querySelectorAll("#mapFilters button").forEach(chip => {
+            chip.addEventListener("click", () => {
+                document.querySelectorAll("#mapFilters button").forEach(c => {
+                    c.classList.remove("btn-wine");
+                    c.classList.add("btn-outline-secondary");
+                });
+                chip.classList.remove("btn-outline-secondary");
+                chip.classList.add("btn-wine");
+                activeFilter = chip.dataset.filter;
+                renderList();
+            });
+        });
+
+        renderList();
+
+
+        // =====================================================
+        // RUTA EN EL MAPA (Leaflet Routing Machine + OSRM)
+        // Reemplaza el enlace a Google Maps: la ruta se traza
+        // aquí mismo, sobre OpenStreetMap / OpenFreeMap.
+        //
+        // Nota de honestidad: uso el servidor público de demo de
+        // OSRM (router.project-osrm.org). Es gratuito pero tiene
+        // límites de uso pensados para pruebas, no para tráfico
+        // de producción alto — antes de lanzar a producción real
+        // conviene revisar sus términos de uso o alojar tu propio
+        // servidor OSRM.
+        // =====================================================
+
+        let routingControl = null;
+
+        function drawRoute(from, to) {
+            const waypoints = [
+                L.latLng(from.lat, from.lng),
+                L.latLng(to.lat, to.lng)
+            ];
+
+            if (routingControl) {
+                routingControl.setWaypoints(waypoints);
+                return;
+            }
+
+            routingControl = L.Routing.control({
+                waypoints: waypoints,
+                router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
+                lineOptions: { styles: [{ color: "#8e3a68", weight: 5, opacity: 0.85 }] },
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                show: false,
+                createMarker: function () { return null; } // ya tenemos nuestros propios marcadores
+            }).addTo(map);
+
+            routingControl.on("routesfound", function (e) {
+                const summary = e.routes[0].summary;
+                document.getElementById("nearestKm").textContent = formatDistance(summary.totalDistance / 1000);
+                document.getElementById("nearestEta").textContent = "≈ " + formatDuration(summary.totalTime) + " en auto";
+            });
+
+            routingControl.on("routingerror", function () {
+                document.getElementById("nearestEta").textContent = "no se pudo calcular la ruta";
+            });
+        }
+
+
+        // =====================================================
+        // GEOLOCALIZACIÓN EN VIVO — sin botones, se actualiza sola
+        // =====================================================
+
+        const nearestName = document.getElementById("nearestName");
+        const nearestAddress = document.getElementById("nearestAddress");
+        const nearestStatusText = document.getElementById("nearestStatusText");
+        const nearestDot = document.getElementById("nearestDot");
+
+        let hasCentered = false;
+
+        function updateNearest() {
+            if (!userPos) return;
+            const withDist = placesWithDistance().sort((a, b) => a.distance - b.distance);
+            const nearest = withDist[0];
+
+            nearestName.textContent = nearest.name;
+            nearestAddress.textContent = nearest.address;
+
+            drawRoute(userPos, nearest);
+            renderList();
+        }
+
+        function onPosition(position) {
+            userPos = { lat: position.coords.latitude, lng: position.coords.longitude };
+
+            if (!userMarker) {
+                userMarker = L.marker([userPos.lat, userPos.lng], { icon: userIcon }).addTo(map);
+                userMarker.bindPopup("Tu ubicación");
+            } else {
+                userMarker.setLatLng([userPos.lat, userPos.lng]);
+            }
+
+            if (!hasCentered) {
+                map.flyTo([userPos.lat, userPos.lng], 12, { duration: 1 });
+                hasCentered = true;
+            }
+
+            nearestDot.classList.add("live");
+            nearestStatusText.textContent = "Ubicación activa — ruta actualizándose en vivo";
+
+            updateNearest();
+        }
+
+        function onPositionError() {
+            nearestStatusText.textContent = "No pudimos acceder a tu ubicación. Mostrando el mapa completo de Hidalgo.";
+            nearestName.textContent = "Activa tu ubicación para ver la más cercana";
+        }
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(onPosition, onPositionError, {
+                enableHighAccuracy: true,
+                maximumAge: 5000,
+                timeout: 10000
+            });
+        } else {
+            onPositionError();
+        }
+
+    </script>
+
 </body>
+
 </html>
