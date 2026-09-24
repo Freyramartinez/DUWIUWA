@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso | WOMEN SAFETY</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --wine: #8e3a68;
+            --wine-dark: #67294c;
+            --pink: #b34d83;
+            --pink-light: #f8e8f1;
+            --cream: #fff8fb;
+            --dark: #292329;
+            --gray: #6f6470;
+            --border: #eadbe4;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+            background:
+                radial-gradient(circle at 85% 15%, rgba(179, 77, 131, 0.14), transparent 30%),
+                linear-gradient(135deg, var(--cream), #fff 55%, var(--pink-light));
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Barra superior mínima */
+        .auth-top {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 22px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .auth-logo {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .auth-logo span { color: var(--wine); font-size: 1.3rem; margin-right: 5px; }
+
+        .auth-back {
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .auth-back:hover { color: var(--wine); }
+
+        /* Tarjeta principal */
+        .auth-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 20px 60px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 940px;
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            border-radius: 30px;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 60px rgba(103, 41, 76, 0.12);
+        }
+
+        /* Panel izquierdo */
+        .auth-side {
+            position: relative;
+            overflow: hidden;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: #fff;
+            background: linear-gradient(150deg, var(--pink), var(--wine-dark));
+        }
+
+        .auth-side::before {
+            content: "♀";
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            font-size: 15rem;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.13);
+        }
+
+        .auth-side h2 {
+            position: relative;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 500;
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        .auth-side p {
+            position: relative;
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        /* Panel del formulario */
+        .auth-form-wrap { padding: 44px 46px; }
+
+        .auth-tabs {
+            display: flex;
+            gap: 6px;
+            padding: 5px;
+            margin-bottom: 30px;
+            border-radius: 30px;
+            background: var(--pink-light);
+        }
+
+        .auth-tab {
+            flex: 1;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 25px;
+            background: transparent;
+            color: var(--wine-dark);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--wine);
+            color: #fff;
+        }
+
+        .auth-tab:focus-visible,
+        .auth-btn:focus-visible { outline: 3px solid rgba(179, 77, 131, 0.45); outline-offset: 2px; }
+
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        .auth-panel h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .auth-sub { color: var(--gray); font-size: 0.85rem; margin-bottom: 26px; }
+
+        .form-label { font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; }
+
+        .form-control {
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 4px rgba(179, 77, 131, 0.14);
+        }
+
+        .pass-group { position: relative; }
+        .pass-group .form-control { padding-right: 46px; }
+
+        .pass-toggle {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            padding: 6px 8px;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .pass-toggle:hover { color: var(--wine); }
+
+        .was-validated .pass-group:has(:invalid) + .invalid-feedback { display: block; }
+
+        .auth-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 13px;
+            border: none;
+            border-radius: 30px;
+            background: var(--wine);
+            color: #fff;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .auth-btn:hover {
+            background: var(--wine-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(142, 58, 104, 0.22);
+        }
+
+        .auth-switch { margin-top: 22px; text-align: center; font-size: 0.83rem; color: var(--gray); }
+
+        .auth-switch a { color: var(--wine); font-weight: 600; text-decoration: none; }
+        .auth-switch a:hover { text-decoration: underline; }
+
+        .auth-alert {
+            border-radius: 12px;
+            font-size: 0.83rem;
+            border: 1px solid #f0c2d4;
+            background: #fdecf3;
+            color: var(--wine-dark);
+        }
+
+        .auth-hint { font-size: 0.75rem; color: var(--gray); margin-top: 6px; }
+
+        @media (max-width: 800px) {
+            .auth-card { grid-template-columns: 1fr; }
+            .auth-side { display: none; }
+            .auth-form-wrap { padding: 34px 26px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="auth-top">
+        <a href="/" class="auth-logo"><span>♀</span>WOMEN SAFETY</a>
+        <a href="/" class="auth-back"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
+    </header>
+
+    <main class="auth-main">
+        <div class="auth-card">
+
+            <!-- Panel decorativo -->
+            <aside class="auth-side">
+                <h2>Tu seguridad también importa.</h2>
+                <p>Crea tu cuenta para acceder a recursos, redes de apoyo y herramientas pensadas para ti.</p>
+            </aside>
+
+            <!-- Formularios -->
+            <section class="auth-form-wrap">
+
+                <div class="auth-tabs" role="tablist">
+                    <button type="button" class="auth-tab active" id="tab-login" role="tab" aria-controls="panel-login" aria-selected="true">Iniciar sesión</button>
+                    <button type="button" class="auth-tab" id="tab-registro" role="tab" aria-controls="panel-registro" aria-selected="false">Crear cuenta</button>
+                </div>
+
+                <!-- LOGIN -->
+                <div class="auth-panel active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                    <h1>Bienvenida de nuevo</h1>
+                    <p class="auth-sub">Ingresa con tu correo y contraseña.</p>
+
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert auth-alert py-2 px-3 mb-3" role="alert"><%= error %></div>
+                    <% } %>
+
+                    <form action="/login" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="login-email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="login-email" name="email" autocomplete="email" required>
+                            <div class="invalid-feedback">Escribe un correo válido.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">Contraseña</label>
+                            <div class="pass-group">
+                                <input type="password" class="form-control" id="login-password" name="password" autocomplete="current-password" required>
+                                <button type="button" class="pass-toggle" data-target="login-password" aria-label="Mostrar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">Escribe tu contraseña.</div>
+                        </div>
+
+                        <button type="submit" class="auth-btn">Iniciar sesión</button>
+                    </form>
+
+                    <p class="auth-switch">¿No tienes cuenta? <a href="#registro" data-switch="registro">Crea una aquí</a></p>
+                </div>
+
+                <!-- REGISTRO -->
+                <div class="auth-panel" id="panel-registro" role="tabpanel" aria-labelledby="tab-registro">
+                    <h1>Crea tu cuenta</h1>
+                    <p class="auth-sub">Solo necesitamos unos datos básicos.</p>
+
+                    <form action="/registro" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="reg-nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="reg-nombre" name="nombre" autocomplete="name" minlength="2" required>
+                            <div class="invalid-feedback">Escribe tu nombre.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reg-email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="reg-email" name="email" autocomplete="email" required>
+                            <div class="invalid-feedback">Escribe un correo válido.</div>
+                        </div>
+
+                        <div class="row g-3 mb-1">
+                            <div class="col-md-6">
+                                <label for="reg-password" class="form-label">Contraseña</label>
+                                <div class="pass-group">
+                                    <input type="password" class="form-control" id="reg-password" name="password" autocomplete="new-password" minlength="8" required>
+                                    <button type="button" class="pass-toggle" data-target="reg-password" aria-label="Mostrar contraseña">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="reg-password2" class="form-label">Confirmar contraseña</label>
+                                <div class="pass-group">
+                                    <input type="password" class="form-control" id="reg-password2" name="password2" autocomplete="new-password" required>
+                                    <button type="button" class="pass-toggle" data-target="reg-password2" aria-label="Mostrar contraseña">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback" id="pass2-feedback">Las contraseñas no coinciden.</div>
+                            </div>
+                        </div>
+                        <p class="auth-hint">Usa al menos 8 caracteres.</p>
+
+                        <button type="submit" class="auth-btn">Crear cuenta</button>
+                    </form>
+
+                    <p class="auth-switch">¿Ya tienes cuenta? <a href="#login" data-switch="login">Inicia sesión</a></p>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Cambiar entre pestañas
+        const tabs = { login: document.getElementById('tab-login'), registro: document.getElementById('tab-registro') };
+        const panels = { login: document.getElementById('panel-login'), registro: document.getElementById('panel-registro') };
+
+        function showTab(name) {
+            Object.keys(tabs).forEach(key => {
+                const active = key === name;
+                tabs[key].classList.toggle('active', active);
+                tabs[key].setAttribute('aria-selected', active);
+                panels[key].classList.toggle('active', active);
+            });
+        }
+
+        Object.keys(tabs).forEach(key => tabs[key].addEventListener('click', () => showTab(key)));
+
+        document.querySelectorAll('[data-switch]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                showTab(link.dataset.switch);
+            });
+        });
+
+        // Permite abrir directo /login#registro
+        if (location.hash === '#registro') showTab('registro');
+
+        // Mostrar / ocultar contraseña
+        document.querySelectorAll('.pass-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            });
+        });
+
+        // Validación de Bootstrap + confirmación de contraseña
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                const p1 = form.querySelector('#reg-password');
+                const p2 = form.querySelector('#reg-password2');
+                if (p1 && p2) {
+                    p2.setCustomValidity(p1.value === p2.value ? '' : 'No coinciden');
+                }
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        });
+    </script>
+
+</body>
+
+</html>

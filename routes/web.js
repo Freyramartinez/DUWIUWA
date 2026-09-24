@@ -16,6 +16,11 @@ router.get('/quienes-somos', AboutController.getAboutPage);
 router.get('/mapa', MapController.getMapPage);
 router.get('/ubicacion', MapController.getMapPage);
 
+// Página de acceso (login y registro)
+router.get('/login', (req, res) => {
+  res.render('login', { error: null });
+});
+
 // Seed route - Renamed as requested
 router.get("/seed", async (req, res) => {
   try {
