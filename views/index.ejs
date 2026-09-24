@@ -1977,6 +1977,26 @@
         min-height: 250px;
     }
 }
+.ws-nav-links a.ws-nav-cta {
+    margin-left: 6px;
+    padding: 9px 22px;
+    border-radius: 30px;
+    background: var(--wine);
+    color: #fff;
+    font-weight: 600;
+    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ws-nav-links a.ws-nav-cta::after {
+    display: none;
+}
+
+.ws-nav-links a.ws-nav-cta:hover {
+    background: var(--wine-dark);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(142, 58, 104, 0.22);
+}
     </style>
 </head>
 
@@ -2026,6 +2046,10 @@
 
                 <a href="#contacto">
                     Contacto
+                </a>
+
+                <a href="/login" class="ws-nav-cta">
+                    Iniciar sesión
                 </a>
 
             </div>
