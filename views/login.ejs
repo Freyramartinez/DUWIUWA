@@ -84,44 +84,20 @@
             box-shadow: 0 25px 60px rgba(103, 41, 76, 0.12);
         }
 
-        /* Panel izquierdo */
         .auth-side {
-            position: relative;
-            overflow: hidden;
-            padding: 48px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            color: #fff;
-            background: linear-gradient(150deg, var(--pink), var(--wine-dark));
-        }
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: #ffffff;
+        border-right: 1px solid var(--border);
+    }
 
-        .auth-side::before {
-            content: "♀";
-            position: absolute;
-            top: -30px;
-            right: -20px;
-            font-size: 15rem;
-            line-height: 1;
-            color: rgba(255, 255, 255, 0.13);
-        }
-
-        .auth-side h2 {
-            position: relative;
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            font-weight: 500;
-            line-height: 1.15;
-            margin-bottom: 14px;
-        }
-
-        .auth-side p {
-            position: relative;
-            margin: 0;
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.82);
-        }
+    .auth-side img {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+    }
 
         /* Panel del formulario */
         .auth-form-wrap { padding: 44px 46px; }
@@ -259,8 +235,7 @@
 
             <!-- Panel decorativo -->
             <aside class="auth-side">
-                <h2>Tu seguridad también importa.</h2>
-                <p>Crea tu cuenta para acceder a recursos, redes de apoyo y herramientas pensadas para ti.</p>
+                <img src="/img/mujer-flor.svg" alt="Ilustración de una mujer sosteniendo una flor">
             </aside>
 
             <!-- Formularios -->
