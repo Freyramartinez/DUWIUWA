@@ -17,9 +17,12 @@ router.get('/mapa', MapController.getMapPage);
 router.get('/ubicacion', MapController.getMapPage);
 
 // Página de acceso (login y registro)
-router.get('/login', (req, res) => {
-  res.render('login', { error: null });
-});
+const AuthController = require('../controllers/AuthController');
+
+router.get('/login', AuthController.getLoginPage);
+router.post('/login', AuthController.login);
+router.post('/registro', AuthController.registrar);
+router.post('/logout', AuthController.logout);
 
 // Seed route - Renamed as requested
 router.get("/seed", async (req, res) => {

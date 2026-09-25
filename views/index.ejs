@@ -1153,7 +1153,7 @@
         }
         }
             /* =========================================================
-   LA PULSERA
+   LA PULSERAn
    ========================================================= */
 
 .ws-bracelet {
@@ -1997,6 +1997,52 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(142, 58, 104, 0.22);
 }
+
+.ws-nav-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: 8px;
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+}
+
+.ws-nav-avatar {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--wine);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.ws-nav-name {
+    color: #3d363d;
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.ws-nav-logout-inline button {
+    display: flex;
+    align-items: center;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    font-size: 1.05rem;
+    padding: 4px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ws-nav-logout-inline button:hover {
+    color: var(--wine);
+}
+
+
     </style>
 </head>
 
@@ -2048,9 +2094,25 @@
                     Contacto
                 </a>
 
-                <a href="/login" class="ws-nav-cta">
-                    Iniciar sesión
-                </a>
+                <% if (typeof user !== 'undefined' && user) { %>
+
+    <div class="ws-nav-account">
+        <span class="ws-nav-avatar"><%= user.nombre.charAt(0).toUpperCase() %></span>
+        <span class="ws-nav-name"><%= user.nombre.split(' ')[0] %></span>
+
+        <form action="/logout" method="POST" class="ws-nav-logout-inline">
+            <button type="submit" aria-label="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+
+<% } else { %>
+
+    <a href="/login" class="ws-nav-cta">Iniciar sesión</a>
+
+<% } %>
+                
 
             </div>
 
@@ -2089,10 +2151,10 @@
 
                 <h1>
 
-                    Tu seguridad
+                    ¿Eres mujer y
 
                     <span>
-                        también importa.
+                        necesitas apoyo?
                     </span>
 
                 </h1>
@@ -2100,10 +2162,7 @@
 
                 <p>
 
-                    WOMEN SAFETY es un espacio creado para acercar
-                    tecnología, información y recursos de apoyo
-                    a mujeres que buscan sentirse más seguras
-                    y acompañadas.
+                    Un espacio de acompañamiento para mujeres que buscan sentirse más seguras, fortalecer su autonomía y contar con herramientas ante situaciones de riesgo.
 
                 </p>
 
@@ -2166,15 +2225,22 @@
             </span>
 
             <h2>
-                Tecnología creada con
+                Soluciones tecnologicas credas con
                 <span>propósito humano.</span>
             </h2>
 
             <p>
-                WOMEN SAFETY nace como una iniciativa enfocada en comprender
-                y atender una problemática que afecta a millones de mujeres
-                en México: la violencia y las situaciones que pueden poner
-                en riesgo su seguridad.
+                WOMEN SAFETY nace como una iniciativa enfocada en una problemática que puede afectar la seguridad, libertad y autonomía de las mujeres: las situaciones de violencia y riesgo.
+            
+            </p>
+
+            <p>
+                Creemos que la tecnología puede ser una herramienta para acompañar, facilitar el acceso a recursos y fortalecer las redes de apoyo.
+            
+            </p>
+
+            <p>
+                Por ello, desarrollamos soluciones pensadas desde las necesidades de las personas, combinando tecnología, información y herramientas de seguridad.
             </p>
 
             </div>
@@ -2202,16 +2268,15 @@
                 </h3>
 
                 <p>
-                    Nuestro trabajo parte de una idea sencilla:
-                    la seguridad de las mujeres requiere información,
-                    prevención, acceso a redes de apoyo y soluciones
-                    pensadas desde sus necesidades.
+                    Las situaciones de violencia pueden limitar la libertad, seguridad y capacidad de decisión de una mujer. Ante estas circunstancias, contar con información, acompañamiento y recursos accesibles puede ser fundamental.
                 </p>
 
                 <p>
-                    Por ello, buscamos desarrollar propuestas que acerquen
-                    recursos y herramientas de seguridad de una manera
-                    accesible, clara y centrada en las personas.
+                    Nuestro propósito es acercar herramientas que permitan solicitar apoyo, acceder a recursos y mantenerse conectada con una red de personas e instituciones.
+                </p>
+                    
+                <p>
+                    La tecnología no sustituye el acompañamiento humano. Puede ayudar a fortalecerlo y facilitar el acceso a él.
                 </p>
 
                 <div class="ws-about-quote">
@@ -2236,7 +2301,7 @@
 
                 <span class="ws-floating-dot dot-one"></span>
                 <span class="ws-floating-dot dot-two"></span>
-                <span class="ws-floating-dot dot-three"></span>
+                <span Pclass="ws-floating-dot dot-three"></span>
 
                 </div>
 
@@ -2256,7 +2321,7 @@
 
                 <div>
                 <span class="ws-small-label">
-                    EL CONTEXTO
+                    EL PROBLEMA
                 </span>
 
                 <h3>
@@ -2500,26 +2565,28 @@
             <div class="ws-bracelet-text">
 
                 <span class="ws-section-label">
-                    NUESTRA TECNOLOGÍA
+                    NUESTRO TECNOLOGÍA
                 </span>
 
 
                 <h2>
 
-                    Una pulsera pensada
-                    para acompañarte.
+                Una pulsera pensada para acompañarte.
 
                 </h2>
 
 
                 <p>
 
-                    La pulsera inteligente WOMEN SAFETY busca
-                    brindar una herramienta accesible para
-                    solicitar ayuda en situaciones de emergencia,
-                    conectando tecnología y redes de apoyo.
+                Una herramienta tecnológica diseñada para solicitar apoyo ante situaciones de emergencia y facilitar la comunicación con una red de apoyo.
 
                 </p>
+
+               <p>
+                
+                Su objetivo es proporcionar una herramienta adicional que permita generar una alerta de manera rápida y discreta, sin sustituir la atención de personas o instituciones especializadas.
+
+               </p>
 
             </div>
 
