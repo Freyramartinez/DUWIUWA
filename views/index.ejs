@@ -305,71 +305,19 @@
         }
 
         .ws-hero-card {
-            min-height: 420px;
-
-            border-radius: 35px;
-
-            background:
-                radial-gradient(
-                    circle at 30% 20%,
-                    rgba(255,255,255,0.8),
-                    transparent 25%
-                ),
-                linear-gradient(
-                    145deg,
-                    #f4d9e7,
-                    #8e3a68
-                );
-
             display: flex;
-
             align-items: center;
             justify-content: center;
-
-            box-shadow:
-                0 25px 60px
-                rgba(100, 40, 75, 0.15);
-
-            position: relative;
-
-            overflow: hidden;
+            background: none;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+            overflow: visible;
         }
 
-        .ws-hero-card::before {
-            content: "♀";
 
-            position: absolute;
-
-            font-size: 19rem;
-            font-weight: 300;
-
-            color: rgba(255,255,255,0.16);
-        }
-
-        .ws-hero-card-content {
-            position: relative;
-            z-index: 2;
-
-            text-align: center;
-
-            color: white;
-
-            padding: 40px;
-        }
-
-        .ws-hero-card-content i {
-            font-size: 4rem;
-        }
-
-        .ws-hero-card-content h3 {
-            margin-top: 20px;
-
-            font-family: 'Playfair Display', serif;
-
-            font-size: 2rem;
-        }
                 /* =====================================================
-        ¿QUIÉNES SOMOS? — NUEVO DISEÑO
+        ¿QUIÉNES SOMOS?
         ===================================================== */
 
         .ws-about {
@@ -378,12 +326,11 @@
 
 
         /* =====================================================
-        INTRO
+        INTRO + RAZÓN DE SER (combinadas)
         ===================================================== */
 
         .ws-about-intro {
         padding: 95px 0 90px;
-        text-align: center;
 
         background:
             radial-gradient(
@@ -410,7 +357,7 @@
         .ws-about-intro h2 {
         max-width: 780px;
 
-        margin: 18px auto 22px;
+        margin: 18px 0 22px;
 
         color: var(--dark);
 
@@ -430,13 +377,13 @@
         .ws-about-intro p {
         max-width: 700px;
 
-        margin: auto;
-
         color: var(--gray);
 
         font-size: 0.95rem;
 
         line-height: 1.85;
+
+        margin-bottom: 16px;
         }
 
 
@@ -635,7 +582,7 @@
 
 
         /* =====================================================
-        ESTADÍSTICAS
+        VIOLENTÓMETRO (espacio reservado)
         ===================================================== */
 
         .ws-about-stats {
@@ -695,376 +642,24 @@
         line-height: 1.7;
         }
 
-
-        /* =====================================================
-        TARJETAS DE DATOS
-        ===================================================== */
-
-        .ws-stat-grid {
-        display: grid;
-
-        grid-template-columns: repeat(3, 1fr);
-
-        gap: 22px;
-
+        .ws-violentometro-placeholder {
         max-width: 1050px;
 
         margin: auto;
-        }
 
-        .ws-stat-card {
-        position: relative;
+        padding: 60px 30px;
 
-        min-height: 330px;
-
-        padding: 30px;
-
-        border: 1px solid var(--border);
+        border: 1.5px dashed rgba(142, 58, 104, 0.35);
 
         border-radius: 22px;
 
-        background: var(--white);
-
-        box-shadow:
-            0 8px 25px rgba(103, 41, 76, 0.04);
-
-        transition:
-            transform 0.35s ease,
-            box-shadow 0.35s ease,
-            background 0.35s ease;
-        }
-
-        .ws-stat-card:hover {
-        transform: translateY(-8px);
-
-        background: var(--wine);
-
-        box-shadow:
-            0 20px 45px rgba(103, 41, 76, 0.18);
-        }
-
-        .ws-stat-top {
-        display: flex;
-
-        justify-content: space-between;
-
-        align-items: center;
-
-        margin-bottom: 40px;
-
-        color: var(--gray);
-
-        font-size: 0.7rem;
-
-        font-weight: 800;
-        }
-
-        .ws-stat-top i {
-        width: 40px;
-        height: 40px;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
-
-        border-radius: 12px;
-
-        color: var(--wine);
-
-        background: var(--pink-light);
-
-        font-size: 1rem;
-
-        transition:
-            color 0.35s ease,
-            background 0.35s ease;
-        }
-
-        .ws-stat-card:hover .ws-stat-top {
-        color: rgba(255,255,255,0.55);
-        }
-
-        .ws-stat-card:hover .ws-stat-top i {
-        color: var(--wine);
-
-        background: var(--white);
-        }
-
-        .ws-stat-card strong {
-        display: block;
-
-        margin-bottom: 12px;
-
-        color: var(--wine);
-
-        font-size: 3.4rem;
-
-        font-weight: 800;
-
-        letter-spacing: -0.05em;
-
-        line-height: 1;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-stat-card:hover strong {
-        color: var(--white);
-        }
-
-        .ws-stat-card h4 {
-        margin-bottom: 12px;
-
-        color: var(--dark);
-
-        font-size: 0.95rem;
-
-        font-weight: 800;
-
-        line-height: 1.35;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-stat-card p {
-        margin: 0;
-
-        color: var(--gray);
-
-        font-size: 0.78rem;
-
-        line-height: 1.7;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-stat-card:hover h4 {
-        color: var(--white);
-        }
-
-        .ws-stat-card:hover p {
-        color: rgba(255,255,255,0.75);
-        }
-
-
-        /* Fuente */
-
-        .ws-stat-source {
-        display: flex;
-
-        justify-content: center;
-
-        align-items: center;
-
-        gap: 8px;
-
-        margin-top: 30px;
-
-        color: var(--gray);
-
-        font-size: 0.68rem;
-        }
-
-        .ws-stat-source i {
-        color: var(--wine);
-        }
-
-
-        /* =====================================================
-        NUESTRO ENFOQUE
-        ===================================================== */
-
-        .ws-about-focus {
-        padding: 100px 0;
-
-        background: var(--white);
-        }
-
-        .ws-focus-title {
-        max-width: 700px;
-
-        margin: 0 auto 50px;
+        background: rgba(255,255,255,0.5);
 
         text-align: center;
-        }
-
-        .ws-focus-title h3 {
-        margin: 14px 0 16px;
-
-        color: var(--dark);
-
-        font-family: "Playfair Display", serif;
-
-        font-size: clamp(2.1rem, 4vw, 3.2rem);
-
-        font-weight: 500;
-
-        line-height: 1.1;
-        }
-
-        .ws-focus-title h3 span {
-        color: var(--wine);
-        }
-
-        .ws-focus-title p {
-        max-width: 600px;
-
-        margin: auto;
 
         color: var(--gray);
 
         font-size: 0.85rem;
-
-        line-height: 1.8;
-        }
-
-
-        /* =====================================================
-        ENFOQUE — TARJETAS
-        ===================================================== */
-
-        .ws-focus-grid {
-        display: grid;
-
-        grid-template-columns: repeat(3, 1fr);
-
-        gap: 22px;
-
-        max-width: 1050px;
-
-        margin: auto;
-        }
-
-        .ws-focus-card {
-        position: relative;
-
-        min-height: 300px;
-
-        padding: 32px;
-
-        border-radius: 22px;
-
-        background: var(--cream);
-
-        border: 1px solid var(--border);
-
-        transition:
-            transform 0.35s ease,
-            background 0.35s ease,
-            box-shadow 0.35s ease;
-        }
-
-        .ws-focus-card:hover {
-        transform: translateY(-8px);
-
-        background: var(--wine-dark);
-
-        box-shadow:
-            0 20px 45px rgba(103, 41, 76, 0.18);
-        }
-
-        .ws-focus-number {
-        position: absolute;
-
-        top: 28px;
-        right: 28px;
-
-        color: #d9c7d2;
-
-        font-size: 0.7rem;
-
-        font-weight: 800;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-focus-card:hover .ws-focus-number {
-        color: rgba(255,255,255,0.35);
-        }
-
-        .ws-focus-icon {
-        width: 55px;
-        height: 55px;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
-
-        margin-bottom: 45px;
-
-        border-radius: 15px;
-
-        color: var(--wine);
-
-        background: var(--pink-light);
-
-        font-size: 1.25rem;
-
-        transition:
-            background 0.35s ease,
-            color 0.35s ease;
-        }
-
-        .ws-focus-card:hover .ws-focus-icon {
-        color: var(--wine);
-
-        background: var(--white);
-        }
-
-        .ws-focus-card h4 {
-        margin-bottom: 12px;
-
-        color: var(--dark);
-
-        font-size: 1.05rem;
-
-        font-weight: 800;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-focus-card p {
-        margin: 0;
-
-        color: var(--gray);
-
-        font-size: 0.8rem;
-
-        line-height: 1.75;
-
-        transition: color 0.35s ease;
-        }
-
-        .ws-focus-card:hover h4 {
-        color: var(--white);
-        }
-
-        .ws-focus-card:hover p {
-        color: rgba(255,255,255,0.75);
-        }
-
-        .ws-focus-line {
-        position: absolute;
-
-        left: 32px;
-        bottom: 28px;
-
-        width: 35px;
-        height: 2px;
-
-        background: var(--pink);
-
-        transition:
-            width 0.35s ease,
-            background 0.35s ease;
-        }
-
-        .ws-focus-card:hover .ws-focus-line {
-        width: 70px;
-
-        background: var(--white);
         }
 
 
@@ -1094,15 +689,6 @@
 
             align-items: flex-start;
         }
-
-        .ws-stat-grid,
-        .ws-focus-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .ws-stat-card {
-            min-height: 280px;
-        }
         }
 
 
@@ -1117,8 +703,7 @@
         }
 
         .ws-about-reason,
-        .ws-about-stats,
-        .ws-about-focus {
+        .ws-about-stats {
             padding: 70px 0;
         }
 
@@ -1143,17 +728,9 @@
             width: 255px;
             height: 255px;
         }
-
-        .ws-stat-card {
-            min-height: 300px;
-        }
-
-        .ws-stat-card strong {
-            font-size: 3rem;
-        }
         }
             /* =========================================================
-   LA PULSERAn
+   LA PULSERA
    ========================================================= */
 
 .ws-bracelet {
@@ -1875,10 +1452,6 @@
         gap: 50px;
     }
 
-    .ws-hero-card {
-        min-height: 330px;
-    }
-
     .ws-bracelet-inner {
         grid-template-columns: 1fr;
 
@@ -1925,16 +1498,6 @@
 
     .ws-hero h1 {
         font-size: 3rem;
-    }
-
-    .ws-hero-card {
-        min-height: 280px;
-
-        border-radius: 25px;
-    }
-
-    .ws-hero-card-content {
-        padding: 25px;
     }
 
     .ws-bracelet,
@@ -2042,6 +1605,22 @@
     color: var(--wine);
 }
 
+.ws-hero-illustration {
+    width: 115%;
+    max-width: none;
+    height: auto;
+    border-radius: 0;
+    margin-right: -15%;
+}
+
+@media (max-width: 900px) {
+
+    .ws-hero-illustration {
+        width: 100%;
+        margin-right: 0;
+    }
+
+}
 
     </style>
 </head>
@@ -2112,7 +1691,7 @@
     <a href="/login" class="ws-nav-cta">Iniciar sesión</a>
 
 <% } %>
-                
+
 
             </div>
 
@@ -2166,52 +1745,27 @@
 
                 </p>
 
-
-                <a
-                    href="#quienes-somos"
-                    class="ws-primary-button"
-                >
-
-                    Conócenos
-
-                    <i class="bi bi-arrow-down"></i>
-
+                <a href="/mapa" class="ws-primary-button">
+                    Encuentra tu instancia más cercana
+                    <i class="bi bi-geo-alt"></i>
                 </a>
 
-            </div>
-
-
+            </div>   <!-- aquí cierra el bloque de texto -->
 
             <div class="ws-hero-card">
 
-                <div class="ws-hero-card-content">
-
-                    <i class="bi bi-shield-heart"></i>
-
-
-                    <!-- CAMBIO -->
-                    <h3>
-                        Tu seguridad también importa.
-                    </h3>
-
-
-                    <p>
-
-                        Tecnología pensada para brindar
-                        apoyo, protección y tranquilidad.
-
-                    </p>
-
-                </div>
+                <img
+                    src="/img/inicio-mujeres.png"
+                    alt="Tres mujeres tomadas de la mano, en señal de apoyo mutuo"
+                    class="ws-hero-illustration"
+                >
 
             </div>
-
-        </div>
 
     </section>
 
             <!-- =====================================================
-            ¿QUIÉNES SOMOS?
+            ¿QUIÉNES SOMOS? (combinada con "Nuestra razón de ser")
             ===================================================== -->
         <section id="quienes-somos" class="ws-about">
 
@@ -2231,12 +1785,10 @@
 
             <p>
                 WOMEN SAFETY nace como una iniciativa enfocada en una problemática que puede afectar la seguridad, libertad y autonomía de las mujeres: las situaciones de violencia y riesgo.
-            
             </p>
 
             <p>
                 Creemos que la tecnología puede ser una herramienta para acompañar, facilitar el acceso a recursos y fortalecer las redes de apoyo.
-            
             </p>
 
             <p>
@@ -2248,7 +1800,7 @@
         </div>
 
 
-        <!-- NUESTRA RAZÓN DE SER -->
+        <!-- NUESTRA RAZÓN DE SER (combinada aquí) -->
         <div class="ws-about-reason">
 
             <div class="container">
@@ -2274,7 +1826,7 @@
                 <p>
                     Nuestro propósito es acercar herramientas que permitan solicitar apoyo, acceder a recursos y mantenerse conectada con una red de personas e instituciones.
                 </p>
-                    
+
                 <p>
                     La tecnología no sustituye el acompañamiento humano. Puede ayudar a fortalecerlo y facilitar el acceso a él.
                 </p>
@@ -2301,7 +1853,7 @@
 
                 <span class="ws-floating-dot dot-one"></span>
                 <span class="ws-floating-dot dot-two"></span>
-                <span Pclass="ws-floating-dot dot-three"></span>
+                <span class="ws-floating-dot dot-three"></span>
 
                 </div>
 
@@ -2312,7 +1864,7 @@
         </div>
 
 
-        <!-- ESTADÍSTICAS -->
+        <!-- VIOLENTÓMETRO (espacio reservado, se arma en otro paso) -->
         <div class="ws-about-stats">
 
             <div class="container">
@@ -2321,213 +1873,23 @@
 
                 <div>
                 <span class="ws-small-label">
-                    EL PROBLEMA
+                    HERRAMIENTA DE APOYO
                 </span>
 
                 <h3>
-                    Una problemática que
-                    <span>no podemos ignorar.</span>
+                    Violentómetro, para
+                    <span>todo público.</span>
                 </h3>
                 </div>
 
                 <p>
-                Datos de la Encuesta Nacional sobre la Dinámica
-                de las Relaciones en los Hogares.
+                Una herramienta visual para identificar el nivel de riesgo en una relación.
                 </p>
 
             </div>
 
-
-            <div class="ws-stat-grid">
-
-                <!-- 70.1 -->
-                <article class="ws-stat-card">
-
-                <div class="ws-stat-top">
-                    <span>01</span>
-
-                    <i class="bi bi-shield-exclamation"></i>
-                </div>
-
-                <strong>70.1%</strong>
-
-                <h4>
-                    Mujeres que han experimentado violencia
-                </h4>
-
-                <p>
-                    Mujeres de 15 años y más que declararon haber
-                    experimentado al menos una situación de violencia
-                    a lo largo de su vida.
-                </p>
-
-                </article>
-
-
-                <!-- 51.6 -->
-                <article class="ws-stat-card">
-
-                <div class="ws-stat-top">
-                    <span>02</span>
-
-                    <i class="bi bi-chat-heart"></i>
-                </div>
-
-                <strong>51.6%</strong>
-
-                <h4>
-                    Violencia psicológica
-                </h4>
-
-                <p>
-                    Porcentaje correspondiente a experiencias de
-                    violencia psicológica a lo largo de la vida.
-                </p>
-
-                </article>
-
-
-                <!-- 49.7 -->
-                <article class="ws-stat-card">
-
-                <div class="ws-stat-top">
-                    <span>03</span>
-
-                    <i class="bi bi-person-heart"></i>
-                </div>
-
-                <strong>49.7%</strong>
-
-                <h4>
-                    Violencia sexual
-                </h4>
-
-                <p>
-                    Porcentaje correspondiente a experiencias de
-                    violencia sexual a lo largo de la vida.
-                </p>
-
-                </article>
-
-            </div>
-
-
-            <div class="ws-stat-source">
-                <i class="bi bi-info-circle"></i>
-
-                <span>
-                Fuente: INEGI — ENDIREH 2021.
-                </span>
-            </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- NUESTRO ENFOQUE -->
-        <div class="ws-about-focus">
-
-            <div class="container">
-
-            <div class="ws-focus-title">
-
-                <span class="ws-about-label">
-                NUESTRO ENFOQUE
-                </span>
-
-                <h3>
-                Seguridad desde
-                <span>tres perspectivas.</span>
-                </h3>
-
-                <p>
-                Cada propuesta parte de las necesidades de las mujeres
-                y busca acercar herramientas que puedan generar apoyo.
-                </p>
-
-            </div>
-
-
-            <div class="ws-focus-grid">
-
-                <!-- PREVENCIÓN -->
-                <article class="ws-focus-card">
-
-                <span class="ws-focus-number">
-                    01
-                </span>
-
-                <div class="ws-focus-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-
-                <h4>
-                    Prevención
-                </h4>
-
-                <p>
-                    Promover información y herramientas que permitan
-                    reconocer situaciones de riesgo y actuar de manera
-                    oportuna.
-                </p>
-
-                <div class="ws-focus-line"></div>
-
-                </article>
-
-
-                <!-- ACCESO -->
-                <article class="ws-focus-card">
-
-                <span class="ws-focus-number">
-                    02
-                </span>
-
-                <div class="ws-focus-icon">
-                    <i class="bi bi-people"></i>
-                </div>
-
-                <h4>
-                    Acceso
-                </h4>
-
-                <p>
-                    Facilitar el acceso a recursos, instituciones y
-                    redes de apoyo para que encontrar ayuda sea más
-                    sencillo.
-                </p>
-
-                <div class="ws-focus-line"></div>
-
-                </article>
-
-
-                <!-- SEGURIDAD -->
-                <article class="ws-focus-card">
-
-                <span class="ws-focus-number">
-                    03
-                </span>
-
-                <div class="ws-focus-icon">
-                    <i class="bi bi-heart"></i>
-                </div>
-
-                <h4>
-                    Seguridad
-                </h4>
-
-                <p>
-                    Desarrollar propuestas orientadas a acompañar
-                    y brindar herramientas ante situaciones donde
-                    una mujer pueda necesitar apoyo.
-                </p>
-
-                <div class="ws-focus-line"></div>
-
-                </article>
-
+            <div class="ws-violentometro-placeholder">
+                Aquí se integrará el violentómetro y la cartilla de la mujer. (Pendiente por definir contenido.)
             </div>
 
             </div>
@@ -2723,21 +2085,6 @@
 
 
     <!-- =========================================================
-         SLIDER DE ANDREA
-    ========================================================= -->
-
-    <section
-        id="slider"
-        class="ws-slider-section"
-    >
-
-        <%- include('partials/slider') %>
-
-    </section>
-
-
-
-    <!-- =========================================================
          SERVICIOS / CATÁLOGO
     ========================================================= -->
 
@@ -2874,8 +2221,8 @@
 
                 <h2>
 
-                    Encuentra apoyo
-                    cerca de ti.
+                    Mapa, instancias y
+                    líneas de apoyo.
 
                 </h2>
 
@@ -2884,7 +2231,7 @@
 
                     Consulta nuestro mapa para encontrar
                     centros de atención, instituciones y
-                    espacios de apoyo para mujeres.
+                    líneas telefónicas de apoyo para mujeres.
 
                 </p>
 
