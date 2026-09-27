@@ -1,0 +1,86 @@
+<!-- =========================================================
+     NAVBAR OFICIAL — WOMEN SAFETY
+     Este partial va en views/partials/navbar.ejs
+     Se incluye en cada vista con un include hacia
+     partials/navbar (ver footer.ejs para el mismo patrón).
+
+     Requiere que la vista reciba (o tenga disponible por
+     res.locals) la variable "user" para saber si hay sesión
+     iniciada. Si la vista no la pasa explícitamente, no pasa
+     nada: el bloque de abajo ya contempla que no exista.
+========================================================= -->
+<nav class="ws-navbar">
+
+    <div class="ws-navbar-inner">
+
+        <a href="/" class="ws-logo">
+
+            <span class="ws-logo-symbol">♀</span>
+
+            WOMEN SAFETY
+
+        </a>
+
+
+        <div class="ws-nav-links" id="wsNav">
+
+            <a href="/#quienes-somos">
+                ¿Quiénes somos?
+            </a>
+
+            <a href="/#pulsera">
+                La pulsera
+            </a>
+
+            <a href="/#funcionalidades">
+                Funcionalidades
+            </a>
+
+            <a href="/#servicios">
+                Servicios
+            </a>
+
+            <a href="/mapa">
+                Ubicación
+            </a>
+
+            <a href="/contacto">
+                Líneas de apoyo
+            </a>
+
+            <% if (typeof user !== 'undefined' && user) { %>
+
+                <div class="ws-nav-account">
+                    <span class="ws-nav-avatar"><%= user.nombre.charAt(0).toUpperCase() %></span>
+                    <span class="ws-nav-name"><%= user.nombre.split(' ')[0] %></span>
+
+                    <form action="/logout" method="POST" class="ws-nav-logout-inline">
+                        <button type="submit" aria-label="Cerrar sesión">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+
+            <% } else { %>
+
+                <a href="/login" class="ws-nav-cta">Iniciar sesión</a>
+
+            <% } %>
+
+        </div>
+
+
+        <button
+            class="ws-menu-button"
+            type="button"
+            aria-label="Abrir menú"
+            onclick="toggleMenu()"
+        >
+
+            <i class="bi bi-list"></i>
+
+        </button>
+
+    </div>
+
+</nav>
