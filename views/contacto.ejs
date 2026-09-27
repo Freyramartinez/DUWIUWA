@@ -1,114 +1,393 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SHERO - Contacto y Ubicación</title>
-  <!-- Bootstrap 5.3 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <!-- MapLibre GL CSS -->
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Líneas de apoyo | WOMEN SAFETY</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Estilos compartidos: reset, paleta, navbar, botón, footer -->
+    <link rel="stylesheet" href="/css/main.css">
+
+    <style>
+
+        /* =====================================================
+           SOLO LO PROPIO DE ESTA PÁGINA
+        ===================================================== */
+
+        .ws-support-header {
+            padding: 90px 28px 60px;
+            text-align: center;
+
+            background:
+                radial-gradient(circle at 20% 20%, rgba(179, 77, 131, 0.14), transparent 30%),
+                var(--cream);
+        }
+
+        .ws-support-header h1 {
+            max-width: 700px;
+            margin: 14px auto 18px;
+
+            color: var(--dark);
+
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.3rem, 4.5vw, 3.6rem);
+            font-weight: 500;
+            line-height: 1.1;
+        }
+
+        .ws-support-header h1 span {
+            color: var(--wine);
+        }
+
+        .ws-support-header p {
+            max-width: 600px;
+            margin: 0 auto;
+
+            color: var(--gray);
+
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* Aviso de emergencia inmediata */
+        .ws-emergency-banner {
+            max-width: 950px;
+            margin: -30px auto 0;
+            padding: 0 28px;
+        }
+
+        .ws-emergency-box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+
+            padding: 26px 30px;
+
+            border-radius: 22px;
+
+            background: linear-gradient(135deg, var(--wine-dark), var(--wine));
+
+            color: #fff;
+
+            box-shadow: 0 20px 45px rgba(103, 41, 76, 0.2);
+        }
+
+        .ws-emergency-box .ws-emergency-text strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .ws-emergency-box .ws-emergency-text span {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .ws-emergency-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .ws-emergency-actions a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 11px 20px;
+
+            border-radius: 30px;
+
+            font-size: 0.85rem;
+            font-weight: 700;
+
+            text-decoration: none;
+
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .ws-emergency-actions a.ws-call-primary {
+            background: #fff;
+            color: var(--wine);
+        }
+
+        .ws-emergency-actions a.ws-call-secondary {
+            background: transparent;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            color: #fff;
+        }
+
+        .ws-emergency-actions a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tarjetas de líneas de apoyo */
+        .ws-lines-section {
+            padding: 80px 28px 100px;
+        }
+
+        .ws-lines-grid {
+            max-width: 950px;
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .ws-line-card {
+            padding: 30px;
+
+            border: 1px solid var(--border);
+            border-radius: 22px;
+
+            background: var(--white);
+
+            box-shadow: 0 8px 25px rgba(103, 41, 76, 0.04);
+        }
+
+        .ws-line-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            margin-bottom: 16px;
+        }
+
+        .ws-line-icon {
+            width: 46px;
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background: var(--pink-light);
+            color: var(--wine);
+
+            font-size: 1.3rem;
+        }
+
+        .ws-line-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--wine);
+        }
+
+        .ws-line-card h3 {
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .ws-line-card p {
+            margin-bottom: 16px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+
+        .ws-line-card a.ws-call-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 10px 18px;
+
+            border-radius: 30px;
+
+            background: var(--wine);
+            color: #fff;
+
+            font-size: 0.82rem;
+            font-weight: 700;
+
+            text-decoration: none;
+
+            transition: background 0.25s ease;
+        }
+
+        .ws-line-card a.ws-call-link:hover {
+            background: var(--wine-dark);
+        }
+
+        .ws-lines-note {
+            max-width: 950px;
+            margin: 26px auto 0;
+            padding: 18px 22px;
+
+            border-left: 3px solid var(--wine);
+            background: var(--pink-light);
+
+            color: var(--wine-dark);
+
+            font-size: 0.8rem;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 700px) {
+
+            .ws-lines-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ws-emergency-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
 </head>
-<body class="bg-light">
 
-  <!-- Navegación -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold text-danger" href="/">
-        <i class="bi bi-shield-lock-fill me-2"></i>SHERO S.A.P.I.
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/">Catálogo</a></li>
-          <li class="nav-item"><a class="nav-link" href="/quienes-somos">¿Quiénes Somos?</a></li>
-          <li class="nav-item"><a class="nav-link active" href="/contacto">Contacto y Ubicación</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<body>
 
-  <div class="container my-5">
-    <div class="text-center mb-4">
-      <h1 class="fw-bold text-dark"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Contacto y Cobertura</h1>
-      <p class="text-muted"><%= infoContacto.institucion %></p>
-    </div>
+    <%- include('partials/navbar') %>
 
-    <div class="row g-4">
-      <!-- Columna Formulario de Contacto -->
-      <div class="col-lg-5">
-        <div class="card border-0 shadow-sm p-4 h-100">
-          <h4 class="fw-bold text-dark mb-3"><i class="bi bi-envelope-fill text-primary me-2"></i>Envíanos un mensaje</h4>
-          <form>
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Nombre Completo / Dependencia</label>
-              <input type="text" class="form-control" placeholder="Ej. Ayuntamiento de Mixquiahuala" required>
+
+    <!-- =========================================================
+         ENCABEZADO
+    ========================================================= -->
+
+    <header class="ws-support-header">
+
+        <span class="ws-about-label">LÍNEAS DE APOYO</span>
+
+        <h1>¿Necesitas hablar con <span>alguien ahora mismo?</span></h1>
+
+        <p>
+            Estas líneas están disponibles para orientarte, acompañarte o
+            enviarte ayuda inmediata. Llamar no tiene costo y puedes hacerlo
+            en cualquier momento.
+        </p>
+
+    </header>
+
+
+    <!-- =========================================================
+         AVISO DE EMERGENCIA INMEDIATA
+    ========================================================= -->
+
+    <div class="ws-emergency-banner">
+        <div class="ws-emergency-box">
+
+            <div class="ws-emergency-text">
+                <strong>¿Estás en peligro en este momento?</strong>
+                <span>Llama directo, no esperes a llenar ningún formulario.</span>
             </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Correo Electrónico</label>
-              <input type="email" class="form-control" placeholder="correo@ejemplo.com" required>
+
+            <div class="ws-emergency-actions">
+                <a href="tel:911" class="ws-call-primary">
+                    <i class="bi bi-telephone-fill"></i> Llamar al 911
+                </a>
+                <a href="tel:079" class="ws-call-secondary">
+                    <i class="bi bi-telephone-fill"></i> Llamar al 079
+                </a>
             </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Asunto</label>
-              <select class="form-select">
-                <option selected>Cotización de Kits B2G</option>
-                <option>Soporte Técnico Wearable IoT</option>
-                <option>Información General</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Mensaje</label>
-              <textarea class="form-control" rows="4" placeholder="Escribe tu consulta aquí..." required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 fw-bold">
-              <i class="bi bi-send-fill me-2"></i>Enviar Mensaje
-            </button>
-          </form>
+
         </div>
-      </div>
-
-      <!-- Columna Mapa Interactivo -->
-      <div class="col-lg-7">
-        <div class="card border-0 shadow-sm p-3 h-100">
-          <h4 class="fw-bold text-dark mb-2"><i class="bi bi-map-fill text-warning me-2"></i>Mapa de Cobertura e Instalaciones</h4>
-          <p class="text-muted small mb-3">Ubicación del centro de desarrollo y nodos receptores en Hidalgo.</p>
-          
-          <!-- Contenedor del Mapa -->
-          <div id="map" class="rounded shadow-sm" style="width: 100%; height: 420px;"></div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <footer class="bg-dark text-white text-center py-4 mt-auto">
-    <p class="mb-0">&copy; 2026 SHERO S.A.P.I. de C.V. - ITSOEH</p>
-  </footer>
 
-  <!-- MapLibre GL JS -->
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-  <script>
-    // Inicialización del Mapa con MapLibre GL (Coordenadas ITSOEH / Mixquiahuala)
-    const map = new maplibregl.Map({
-      container: 'map',
-      style: 'https://demotiles.maplibre.org/style.json', // Estilo de mapa libre de llaves API
-      center: [-99.2155, 20.2286], // Coordenadas aproximadas Mixquiahuala, Hgo.
-      zoom: 12
-    });
+    <!-- =========================================================
+         TARJETAS DE LÍNEAS DE APOYO
+    ========================================================= -->
 
-    // Agregar controles de navegación (Zoom / Brújula)
-    map.addControl(new maplibregl.NavigationControl());
+    <section class="ws-lines-section">
 
-    // Agregar un Marcador en la ubicación principal
-    new maplibregl.Marker({ color: '#dc3545' })
-      .setLngLat([-99.2155, 20.2286])
-      .setPopup(new maplibregl.Popup().setHTML('<b>SHERO S.A.P.I. - ITSOEH</b><br>Sede de Desarrollo IoT'))
-      .addTo(map);
-  </script>
+        <div class="ws-lines-grid">
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- 911 -->
+            <article class="ws-line-card">
+
+                <div class="ws-line-top">
+                    <div class="ws-line-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="ws-line-number">911</div>
+                </div>
+
+                <h3>Emergencias</h3>
+
+                <p>
+                    Línea nacional para cualquier emergencia que ponga en
+                    riesgo tu vida o tu integridad de forma inmediata:
+                    policía, bomberos o ambulancia.
+                </p>
+
+                <a href="tel:911" class="ws-call-link">
+                    <i class="bi bi-telephone-fill"></i> Llamar ahora
+                </a>
+
+            </article>
+
+
+            <!-- 079 - Línea de las Mujeres -->
+            <article class="ws-line-card">
+
+                <div class="ws-line-top">
+                    <div class="ws-line-icon">
+                        <i class="bi bi-heart-fill"></i>
+                    </div>
+                    <div class="ws-line-number">079</div>
+                </div>
+
+                <h3>Línea de las Mujeres</h3>
+
+                <p>
+                    Opción 1. Atención nacional para mujeres en situaciones
+                    de violencia: orientación sobre tus derechos, primer
+                    contacto legal, contención emocional y conexión con
+                    instituciones de apoyo. Disponible las 24 horas, sin
+                    costo.
+                </p>
+
+                <a href="tel:079" class="ws-call-link">
+                    <i class="bi bi-telephone-fill"></i> Llamar ahora
+                </a>
+
+            </article>
+
+        </div>
+
+        <p class="ws-lines-note">
+            <i class="bi bi-info-circle"></i>
+            Estamos por agregar líneas y refugios específicos de Hidalgo a
+            este listado. Si conoces una línea local que deba estar aquí,
+            confírmala con la instancia correspondiente antes de
+            publicarla en el sitio.
+        </p>
+
+    </section>
+
+
+    <%- include('partials/footer') %>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>

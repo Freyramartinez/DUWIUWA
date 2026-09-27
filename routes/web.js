@@ -12,6 +12,11 @@ router.get("/", ProductController.getAll);
 
 router.get('/quienes-somos', AboutController.getAboutPage);
 
+//Contacto
+const ContactController = require('../controllers/ContactController');
+router.get('/contacto', ContactController.getContactPage);
+
+
 // Alias para el mapa (soporta tanto /mapa como /ubicacion)
 router.get('/mapa', MapController.getMapPage);
 router.get('/ubicacion', MapController.getMapPage);
