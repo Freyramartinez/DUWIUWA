@@ -18,8 +18,11 @@ router.get('/contacto', ContactController.getContactPage);
 
 
 // Alias para el mapa (soporta tanto /mapa como /ubicacion)
-router.get('/mapa', MapController.getMapPage);
-router.get('/ubicacion', MapController.getMapPage);
+const { getMap, getPlaces } = require('../controllers/MapController');
+
+router.get('/mapa', getMap);
+router.get('/api/places', getPlaces); // opcional, para futuras peticiones AJAX
+
 
 // Página de acceso (login y registro)
 const AuthController = require('../controllers/AuthController');
