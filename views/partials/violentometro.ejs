@@ -1,0 +1,494 @@
+<!-- =========================================================
+     VIOLENTÓMETRO (solo Bootstrap + variables de tu paleta)
+========================================================= -->
+<!-- =========================================================
+     VIOLENTÓMETRO (solo Bootstrap + variables de tu paleta)
+========================================================= -->
+
+<div id="vio" class="row g-4">
+
+    <!-- ===================== MEDIDOR ===================== -->
+    <div class="col-lg-5">
+        <div class="card h-100 border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 d-flex flex-column">
+
+                <span class="ws-section-label mb-2">Niveles del violentómetro</span>
+                <p class="small text-secondary mb-4">
+                    El medidor sube según las señales que identifiques. Cada nivel indica qué tan pronto conviene buscar apoyo.
+                </p>
+
+                <div class="d-flex gap-3 flex-fill" style="min-height: 300px;">
+
+                    <!-- Columna del medidor -->
+                    <div class="position-relative overflow-hidden rounded-pill border flex-shrink-0 align-self-stretch" style="width: 46px;">
+                        <div class="d-flex flex-column h-100">
+                            <div class="flex-fill" style="background: var(--bs-danger);"></div>
+                            <div class="flex-fill" style="background: var(--bs-orange);"></div>
+                            <div class="flex-fill" style="background: var(--bs-warning);"></div>
+                            <div class="flex-fill" style="background: var(--bs-success);"></div>
+                        </div>
+                        <!-- Cubierta: al bajar su altura, el medidor "sube" -->
+                        <div id="vio-cover" class="position-absolute top-0 start-0 w-100 bg-body-secondary" style="height: 100%;"></div>
+                    </div>
+
+                    <!-- Leyenda -->
+                    <div class="d-flex flex-column flex-fill gap-2">
+
+                        <div id="vio-lvl-4" class="flex-fill p-2 rounded-3 d-flex flex-column justify-content-center">
+                            <div class="fw-semibold small"><i class="bi bi-circle-fill text-danger me-2"></i>Riesgo alto</div>
+                            <div class="small text-secondary">Hay señales de peligro para tu integridad. Busca ayuda de inmediato.</div>
+                        </div>
+
+                        <div id="vio-lvl-3" class="flex-fill p-2 rounded-3 d-flex flex-column justify-content-center">
+                            <div class="fw-semibold small"><i class="bi bi-circle-fill me-2" style="color: var(--bs-orange);"></i>Riesgo medio-alto</div>
+                            <div class="small text-secondary">La violencia es frecuente o severa. Necesitas orientación y acompañamiento.</div>
+                        </div>
+
+                        <div id="vio-lvl-2" class="flex-fill p-2 rounded-3 d-flex flex-column justify-content-center">
+                            <div class="fw-semibold small"><i class="bi bi-circle-fill text-warning me-2"></i>Señales de violencia</div>
+                            <div class="small text-secondary">Hay conductas que conviene revisar antes de que escalen.</div>
+                        </div>
+
+                        <div id="vio-lvl-1" class="flex-fill p-2 rounded-3 d-flex flex-column justify-content-center">
+                            <div class="fw-semibold small"><i class="bi bi-circle-fill text-success me-2"></i>Sin señales de alerta</div>
+                            <div class="small text-secondary">No se detectaron señales relevantes.</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===================== TEST ===================== -->
+    <div class="col-lg-7">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+
+            <div class="card-header border-0 text-white px-4 py-3" style="background: var(--wine);">
+                <span class="fw-semibold"><i class="bi bi-shield-heart me-2"></i>Test de orientación</span>
+            </div>
+
+            <div class="progress rounded-0" style="height: 6px;" role="progressbar" aria-label="Avance del test" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="vio-progress">
+                <div id="vio-bar" class="progress-bar" style="width: 0%; background: var(--wine);"></div>
+            </div>
+
+            <div class="card-body p-4">
+
+                <!-- Bienvenida -->
+                <div id="vio-welcome" class="fade show">
+                    <h4 class="h5 fw-bold mb-1">Antes de comenzar</h4>
+                    <p class="text-secondary mb-4">Este es un espacio seguro y confidencial.</p>
+
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Solo toca una opción, no tienes que escribir nada.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Puedes omitir cualquier pregunta.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Puedes salir en cualquier momento presionando la tecla Esc.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>No es un diagnóstico: es una guía para orientarte.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Tus respuestas no se guardan ni se envían.</li>
+                    </ul>
+
+                    <button type="button" class="ws-primary-button border-0" id="vio-start">
+                        Comenzar<i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Pregunta -->
+                <div id="vio-test" class="fade d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span id="vio-dim-badge" class="badge rounded-pill fw-semibold px-3 py-2" style="background: var(--pink-light); color: var(--wine-dark);"></span>
+                        <span id="vio-count" class="small text-secondary"></span>
+                    </div>
+
+                    <p id="vio-dim-desc" class="small text-secondary mb-2"></p>
+                    <h4 id="vio-q" class="h5 fw-bold mb-4" aria-live="polite"></h4>
+
+                    <div id="vio-options" class="row g-2 mb-4" role="radiogroup"></div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" id="vio-prev">
+                            <i class="bi bi-arrow-left me-1"></i>Anterior
+                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-link text-secondary text-decoration-none" id="vio-skip">Omitir</button>
+                            <button type="button" class="ws-primary-button border-0 opacity-50 pe-none" id="vio-next" disabled>Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultado -->
+                <div id="vio-result" class="fade d-none"></div>
+
+            </div>
+
+            <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0 small text-secondary">
+                Esta herramienta orienta, no sustituye la atención profesional. Si estás en peligro, llama al 911.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    /* ---------- Datos ---------- */
+
+    const DIM = {
+        psicologica: { nombre: "Violencia psicológica", icono: "bi-chat-heart",        desc: "Insultos, humillaciones, amenazas y culpa que dañan tu autoestima." },
+        fisica:      { nombre: "Violencia física",      icono: "bi-bandaid",           desc: "Agresiones que afectan tu cuerpo o buscan intimidarte." },
+        sexual:      { nombre: "Violencia sexual",      icono: "bi-shield-exclamation",desc: "Cualquier acto sexual sin tu consentimiento o que limite tu decisión sobre tu cuerpo." },
+        economica:   { nombre: "Violencia económica",   icono: "bi-wallet2",           desc: "Control del dinero, del trabajo o de tus bienes para hacerte depender." },
+        digital:     { nombre: "Violencia digital",     icono: "bi-phone",             desc: "Vigilancia, acoso o difusión de contenido a través de medios digitales." },
+        control:     { nombre: "Control y aislamiento", icono: "bi-lock",              desc: "Conductas que limitan tu libertad y te alejan de tus redes de apoyo." },
+        riesgo:      { nombre: "Factores de riesgo",    icono: "bi-exclamation-triangle", desc: "Situaciones que aumentan la posibilidad de un daño grave." }
+    };
+
+    const P = [
+        { id: "1.1", dim: "psicologica", t: "¿Tu pareja te humilla, insulta o te hace sentir menos?" },
+        { id: "1.2", dim: "psicologica", t: "¿Te dice que sin él/ella no eres nada o que no vales?" },
+        { id: "1.3", dim: "psicologica", t: "¿Te compara con otras personas para hacerte sentir mal?" },
+        { id: "1.4", dim: "psicologica", t: "¿Te amenaza con hacerte daño a ti o a alguien que quieres?" },
+        { id: "1.5", dim: "psicologica", t: "¿Te hace sentir culpa por cosas que no son tu responsabilidad?" },
+
+        { id: "2.1", dim: "fisica", t: "¿Te ha empujado, jalado o sujetado con fuerza?" },
+        { id: "2.2", dim: "fisica", t: "¿Te ha golpeado, abofeteado o pateado?" },
+        { id: "2.3", dim: "fisica", t: "¿Te ha aventado objetos o ha destruido cosas para intimidarte?" },
+        { id: "2.4", dim: "fisica", t: "¿Te ha amenazado con un objeto, arma o sustancia?" },
+        { id: "2.5", dim: "fisica", t: "¿Te ha causado lesiones que requirieron atención médica?" },
+
+        { id: "3.1", dim: "sexual", t: "¿Te ha obligado a tener relaciones sexuales cuando no quieres?" },
+        { id: "3.2", dim: "sexual", t: "¿Te ha presionado o manipulado para tener relaciones sexuales?" },
+        { id: "3.3", dim: "sexual", t: "¿Te ha tocado sin tu consentimiento?" },
+        { id: "3.4", dim: "sexual", t: "¿Te ha obligado a ver material sexual que no deseas?" },
+        { id: "3.5", dim: "sexual", t: "¿Te ha impedido usar métodos anticonceptivos o decidir sobre tu cuerpo?" },
+
+        { id: "4.1", dim: "economica", t: "¿Te controla el dinero que ganas o te da?" },
+        { id: "4.2", dim: "economica", t: "¿Te impide trabajar o estudiar?" },
+        { id: "4.3", dim: "economica", t: "¿Te quita o destruye tus documentos personales?" },
+        { id: "4.4", dim: "economica", t: "¿Te obliga a pedirle dinero para tus necesidades básicas?" },
+        { id: "4.5", dim: "economica", t: "¿Te ha dejado sin recursos económicos a ti o a tus hijos?" },
+
+        { id: "5.1", dim: "digital", t: "¿Revisa tus mensajes, redes sociales o correo sin tu permiso?" },
+        { id: "5.2", dim: "digital", t: "¿Te exige que le compartas tus contraseñas?" },
+        { id: "5.3", dim: "digital", t: "¿Te acosa o amenaza por WhatsApp, redes o llamadas?" },
+        { id: "5.4", dim: "digital", t: "¿Ha difundido o amenazado con difundir imágenes íntimas tuyas?" },
+        { id: "5.5", dim: "digital", t: "¿Te controla a través de la ubicación GPS o cámaras?" },
+
+        { id: "6.1", dim: "control", t: "¿Te impide ver a tu familia o amistades?" },
+        { id: "6.2", dim: "control", t: "¿Te cela o acusa de infidelidad sin razón?" },
+        { id: "6.3", dim: "control", t: "¿Decide por ti lo que puedes o no hacer, vestir o decir?" },
+        { id: "6.4", dim: "control", t: "¿Te monitorea o persigue?" },
+        { id: "6.5", dim: "control", t: "¿Te ha encerrado o impedido salir de tu casa?" },
+
+        // Riesgo: "critica" = un solo "Sí" ya implica riesgo alto
+        { id: "7.1", dim: "riesgo", bin: true, critica: true,  t: "¿Tu pareja ha amenazado con matarte o matarse?" },
+        { id: "7.2", dim: "riesgo", bin: true, critica: true,  t: "¿Tienes miedo de que pueda matarte o hacerte daño grave?" },
+        { id: "7.3", dim: "riesgo", bin: true, critica: true,  t: "¿Tiene acceso a armas (fuego, punzocortantes)?" },
+        { id: "7.4", dim: "riesgo", bin: true, critica: true,  t: "¿Ha ejercido violencia en el embarazo?" },
+        { id: "7.5", dim: "riesgo", bin: true, critica: true,  t: "¿Ha intentado estrangularte o asfixiarte?" },
+        { id: "7.6", dim: "riesgo", bin: true, critica: true,  t: "¿Ha amenazado o dañado a tus hijos o mascotas?" },
+        { id: "7.7", dim: "riesgo", bin: true, critica: false, t: "¿Consume alcohol o drogas de forma problemática?" },
+        { id: "7.8", dim: "riesgo", bin: true, critica: false, t: "¿Tiene antecedentes penales o denuncias previas?" },
+        { id: "7.9", dim: "riesgo", bin: true, critica: true,  t: "¿Has pensado en quitarte la vida o has tenido ideación suicida?" }
+    ];
+
+    const FREC = [
+        { v: 0, t: "Nunca" }, { v: 1, t: "A veces" }, { v: 2, t: "Casi siempre" }, { v: 3, t: "Siempre" }
+    ];
+    const BIN = [ { v: 0, t: "No" }, { v: 1, t: "Sí" } ];
+
+    const NIVELES = {
+        rojo: {
+            idx: 4, icono: "bi-exclamation-octagon-fill", color: "var(--bs-danger)", texto: "text-white",
+            titulo: "Riesgo alto",
+            mensaje: "Tu seguridad es lo más importante. Detectamos señales que requieren atención inmediata. No estás sola.",
+            pasos: [
+                "Si estás en peligro inmediato, llama al 911.",
+                "Busca un lugar seguro y avisa a una persona de confianza.",
+                "Comunícate con una línea de apoyo para recibir orientación.",
+                "Acude a la instancia de atención más cercana."
+            ]
+        },
+        naranja: {
+            idx: 3, icono: "bi-exclamation-triangle-fill", color: "var(--bs-orange)", texto: "text-white",
+            titulo: "Riesgo medio-alto",
+            mensaje: "Detectamos señales de violencia que requieren atención. Puedes recibir acompañamiento.",
+            pasos: [
+                "Habla con una persona de confianza sobre lo que estás viviendo.",
+                "Solicita orientación jurídica y psicológica en una instancia cercana.",
+                "Guarda mensajes, fotos y documentos importantes en un lugar seguro.",
+                "Identifica a quién podrías recurrir si la situación empeora."
+            ]
+        },
+        amarillo: {
+            idx: 2, icono: "bi-info-circle-fill", color: "var(--bs-warning)", texto: "text-dark",
+            titulo: "Señales de violencia",
+            mensaje: "Detectamos algunas señales que vale la pena revisar. La violencia puede aumentar con el tiempo.",
+            pasos: [
+                "Comparte lo que sientes con alguien de confianza.",
+                "Consulta una instancia de orientación para conocer tus opciones.",
+                "Presta atención a si estas conductas se repiten o se intensifican."
+            ]
+        },
+        verde: {
+            idx: 1, icono: "bi-check-circle-fill", color: "var(--bs-success)", texto: "text-white",
+            titulo: "Sin señales de alerta",
+            mensaje: "No detectamos señales relevantes de violencia en tus respuestas.",
+            pasos: [
+                "Una relación sana se basa en respeto, libertad y buen trato.",
+                "Si algo cambia o te incomoda, puedes volver a hacer el test.",
+                "Comparte esta herramienta con quien pueda necesitarla."
+            ]
+        }
+    };
+
+    /* ---------- Estilos Bootstrap con la paleta del sitio ---------- */
+
+    const OPT = "--bs-btn-color:var(--dark);--bs-btn-border-color:var(--border);" +
+                "--bs-btn-hover-color:var(--wine-dark);--bs-btn-hover-bg:var(--pink-light);--bs-btn-hover-border-color:var(--wine);" +
+                "--bs-btn-active-color:#fff;--bs-btn-active-bg:var(--wine);--bs-btn-active-border-color:var(--wine);";
+
+    const $ = id => document.getElementById(id);
+    const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function habilitarSiguiente(si) {
+        const b = $("vio-next");
+        b.disabled = !si;
+        b.classList.toggle("opacity-50", !si);
+        b.classList.toggle("pe-none", !si);
+    }
+
+    $("vio-cover").style.transition = reducido ? "none" : "height 1.8s cubic-bezier(.22,1,.36,1)";
+
+    /* ---------- Estado ---------- */
+
+    let est = { i: 0, r: {}, activo: false };
+
+    const pantallas = ["vio-welcome", "vio-test", "vio-result"];
+
+    function mostrar(id) {
+        pantallas.forEach(s => $(s).classList.add("d-none"));
+        const el = $(id);
+        el.classList.remove("d-none", "show");
+        el.classList.add("fade");
+        void el.offsetWidth;
+        el.classList.add("show");
+    }
+
+    function setProgreso(pct) {
+        $("vio-bar").style.width = pct + "%";
+        $("vio-progress").setAttribute("aria-valuenow", Math.round(pct));
+    }
+
+    function setMedidor(idx) {
+        $("vio-cover").style.height = (100 - idx * 25) + "%";
+        for (let n = 1; n <= 4; n++) {
+            const li = $("vio-lvl-" + n);
+            li.classList.toggle("bg-body-tertiary", idx === n);
+            li.classList.toggle("opacity-50", idx !== 0 && idx !== n);
+        }
+    }
+
+    /* ---------- Flujo del test ---------- */
+
+    function iniciar() {
+        est = { i: 0, r: {}, activo: true };
+        setMedidor(0);
+        mostrar("vio-test");
+        pintarPregunta();
+    }
+
+    function pintarPregunta() {
+        const p = P[est.i];
+        const d = DIM[p.dim];
+        const opciones = p.bin ? BIN : FREC;
+        const guardada = est.r[p.id];
+
+        $("vio-count").textContent = "Pregunta " + (est.i + 1) + " de " + P.length;
+        $("vio-dim-badge").innerHTML = '<i class="bi ' + d.icono + ' me-1"></i>' + d.nombre;
+        $("vio-dim-desc").textContent = d.desc;
+        $("vio-q").textContent = p.t;
+        setProgreso((est.i / P.length) * 100);
+
+        const cont = $("vio-options");
+        cont.innerHTML = "";
+        opciones.forEach((op, k) => {
+            const col = document.createElement("div");
+            col.className = "col-6";
+            const inputId = "vio-o-" + k;
+            col.innerHTML =
+                '<input type="radio" class="btn-check" name="vio-opt" id="' + inputId + '" autocomplete="off"' +
+                (guardada === op.v ? " checked" : "") + '>' +
+                '<label class="btn w-100 text-start py-3 rounded-3 border" style="' + OPT + '" for="' + inputId + '">' + op.t + '</label>';
+            col.querySelector("input").addEventListener("change", () => {
+                est.r[p.id] = op.v;
+                habilitarSiguiente(true);
+            });
+            cont.appendChild(col);
+        });
+
+        $("vio-prev").disabled = est.i === 0;
+        habilitarSiguiente(guardada !== undefined && guardada !== null);
+        $("vio-next").textContent = est.i === P.length - 1 ? "Ver resultado" : "Siguiente";
+        mostrar("vio-test");
+    }
+
+    function avanzar() {
+        if (est.i === P.length - 1) return finalizar();
+        est.i++;
+        pintarPregunta();
+    }
+
+    function omitir() {
+        est.r[P[est.i].id] = null;
+        avanzar();
+    }
+
+    function retroceder() {
+        if (est.i > 0) { est.i--; pintarPregunta(); }
+    }
+
+    /* ---------- Resultado ---------- */
+
+    function calcular() {
+        const s = { psicologica: 0, fisica: 0, sexual: 0, economica: 0, digital: 0, control: 0 };
+        let criticos = 0, contexto = 0, ideacion = false;
+
+        P.forEach(p => {
+            const v = est.r[p.id];
+            if (!v) return;
+            if (p.bin) {
+                if (p.critica) criticos++; else contexto++;
+                if (p.id === "7.9") ideacion = true;
+            } else {
+                s[p.dim] += v;
+            }
+        });
+
+        s.total = s.psicologica + s.fisica + s.sexual + s.economica + s.digital + s.control;
+        return { s, criticos, contexto, ideacion };
+    }
+
+    function clasificar(c) {
+        const s = c.s;
+        if (c.criticos > 0) return "rojo";
+        if (s.fisica >= 8 || s.sexual >= 8) return "rojo";
+        if (s.fisica >= 3 || s.sexual >= 3 || c.contexto === 2) return "naranja";
+
+        const moderadas = [s.psicologica, s.economica, s.digital, s.control].filter(v => v >= 8).length;
+        if (moderadas >= 2 || s.total >= 20) return "naranja";
+        if (s.total >= 5) return "amarillo";
+        return "verde";
+    }
+
+    function etiqueta(pct) {
+        if (pct === 0) return "Sin señales";
+        if (pct < 34) return "Leve";
+        if (pct < 67) return "Moderada";
+        return "Alta";
+    }
+
+    function finalizar() {
+        const c = calcular();
+        const clave = clasificar(c);
+        const n = NIVELES[clave];
+
+        setProgreso(100);
+
+        const barras = ["psicologica", "fisica", "sexual", "economica", "digital", "control"].map(k => {
+            const pct = Math.round((c.s[k] / 15) * 100);
+            const d = DIM[k];
+            return '<div class="mb-3">' +
+                '<div class="d-flex justify-content-between small mb-1">' +
+                    '<span><i class="bi ' + d.icono + ' me-2" style="color: var(--wine);"></i>' + d.nombre + '</span>' +
+                    '<span class="text-secondary">' + etiqueta(pct) + '</span>' +
+                '</div>' +
+                '<div class="progress" style="height: 8px;" role="progressbar" aria-label="' + d.nombre + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '">' +
+                    '<div class="progress-bar" data-w="' + pct + '" style="width: 0%; background: var(--wine);"></div>' +
+                '</div></div>';
+        }).join("");
+
+        const pasos = n.pasos.map(t =>
+            '<li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>' + t + '</li>'
+        ).join("");
+
+        let alertas = "";
+        if (c.criticos > 0 || c.contexto > 0) {
+            alertas += '<div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">' +
+                '<i class="bi bi-exclamation-triangle-fill"></i>' +
+                '<div>Marcaste <strong>' + (c.criticos + c.contexto) + '</strong> factor(es) de riesgo. Estos factores aumentan la posibilidad de un daño grave.</div></div>';
+        }
+        if (c.ideacion) {
+            alertas += '<div class="alert alert-info d-flex gap-2 align-items-start" role="alert">' +
+                '<i class="bi bi-heart-pulse-fill"></i>' +
+                '<div>Mereces acompañamiento en este momento. Puedes hablar con la <a class="alert-link" href="tel:8009112000">Línea de la Vida: 800 911 2000</a>.</div></div>';
+        }
+
+        const btnEmergencia = clave === "rojo"
+            ? '<a href="tel:911" class="btn btn-danger btn-lg rounded-pill"><i class="bi bi-telephone-fill me-2"></i>Llamar al 911</a>'
+            : "";
+
+        $("vio-result").innerHTML =
+            '<div class="text-center mb-4">' +
+                '<div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 ' + n.texto + '" style="width: 84px; height: 84px; font-size: 2.4rem; background: ' + n.color + ';">' +
+                    '<i class="bi ' + n.icono + '"></i>' +
+                '</div>' +
+                '<h4 class="h4 fw-bold mb-2">' + n.titulo + '</h4>' +
+                '<p class="text-secondary mb-0">' + n.mensaje + '</p>' +
+            '</div>' +
+            alertas +
+            '<h5 class="h6 fw-bold mt-4 mb-3">Señales por tipo de violencia</h5>' + barras +
+            '<h5 class="h6 fw-bold mt-4 mb-2">Qué puedes hacer</h5>' +
+            '<ul class="list-group list-group-flush mb-4">' + pasos + '</ul>' +
+            '<div class="d-grid gap-2">' +
+                btnEmergencia +
+                '<a href="tel:8001084053" class="ws-primary-button justify-content-center"><i class="bi bi-telephone"></i>Línea de apoyo 800 10 84 053</a>' +
+                '<a href="/mapa" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-geo-alt me-2"></i>Ver instancias cercanas</a>' +
+                '<button type="button" class="btn btn-link text-secondary text-decoration-none" id="vio-restart"><i class="bi bi-arrow-repeat me-1"></i>Repetir el test</button>' +
+            '</div>';
+
+        $("vio-restart").addEventListener("click", reiniciar);
+        mostrar("vio-result");
+
+        if (window.innerWidth < 992) {
+            $("vio").scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
+        }
+
+        // Animación: el medidor sube y las barras se llenan
+        setTimeout(() => setMedidor(n.idx), reducido ? 0 : 350);
+        setTimeout(() => {
+            $("vio-result").querySelectorAll("[data-w]").forEach(b => { b.style.width = b.dataset.w + "%"; });
+        }, reducido ? 0 : 600);
+    }
+
+    function reiniciar() {
+        est = { i: 0, r: {}, activo: false };
+        setMedidor(0);
+        setProgreso(0);
+        mostrar("vio-welcome");
+    }
+
+    /* ---------- Salida rápida ---------- */
+
+    function salir() {
+        est = { i: 0, r: {}, activo: false };
+        $("vio-result").innerHTML = "";
+        window.location.replace("https://www.google.com.mx");
+    }
+
+    /* ---------- Eventos ---------- */
+
+    $("vio-start").addEventListener("click", iniciar);
+    $("vio-next").addEventListener("click", avanzar);
+    $("vio-prev").addEventListener("click", retroceder);
+    $("vio-skip").addEventListener("click", omitir);
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && est.activo) salir();
+    });
+
+})();
+</script>
