@@ -7,8 +7,8 @@ const User = require("../models/User");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER || "tu-correo@gmail.com",
-    pass: process.env.EMAIL_PASS || "tu-password-de-aplicacion"
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -41,20 +41,20 @@ exports.registrar = async (req, res) => {
     // Guardamos el usuario con isVerified: false
     await User.create({
       nombre,
-      email,
+      email: email.toLowerCase(),
       password: hash,
       verificationToken: token,
       isVerified: false
     });
 
-    // Construimos el enlace de activación de correo
+    // Enlace de activación de correo
     const domain = req.headers.host;
     const protocol = req.protocol;
     const linkVerificacion = `${protocol}://${domain}/verify/${token}`;
 
-    // Correo de activación
+    // Correo de activación (USANDO TUS VARIABLES EN EMAIL_USER)
     const mailOptions = {
-      from: '"WOMEN SAFETY" <no-reply@womensafety.org>',
+      from: `"WOMEN SAFETY" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Verifica tu cuenta - WOMEN SAFETY",
       html: `
@@ -68,16 +68,17 @@ exports.registrar = async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    console.log("📩 Intentando enviar correo a:", email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ CORREO ENVIADO CON ÉXITO:", info.response);
 
-    // Renderizamos la vista avisándole que revise su correo (sin iniciar sesión automáticamente aún)
     res.render("login", { 
       success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión." 
     });
 
   } catch (err) {
-    console.error(err);
-    res.render("login", { error: "Ocurrió un error. Intenta de nuevo." });
+    console.error("❌ ERROR DETALLADO AL ENVIAR CORREO / REGISTRAR:", err);
+    res.render("login", { error: "Ocurrió un error al procesar el registro. Intenta de nuevo." });
   }
 };
 

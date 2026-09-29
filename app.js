@@ -1,8 +1,8 @@
+require("dotenv").config(); // Carga las variables al inicio
+
 const express = require("express");
 const path = require("path");
 const app = express();
-
-
 const session = require("express-session");
 
 app.use(session({
@@ -15,8 +15,6 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
 });
-
-require("dotenv").config();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -43,5 +41,4 @@ const startServer = async () => {
 };
 
 startServer();
-
 
