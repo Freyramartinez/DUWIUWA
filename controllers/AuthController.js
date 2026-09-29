@@ -3,9 +3,11 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const User = require("../models/User");
 
-// Configuración del servicio de correo (Nodemailer)
+// Configuración del servicio de correo con puerto 465 (SSL) explícito para Railway
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // SSL activado
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -52,7 +54,7 @@ exports.registrar = async (req, res) => {
     const protocol = req.protocol;
     const linkVerificacion = `${protocol}://${domain}/verify/${token}`;
 
-    // Correo de activación (USANDO TUS VARIABLES EN EMAIL_USER)
+    // Correo de activación
     const mailOptions = {
       from: `"WOMEN SAFETY" <${process.env.EMAIL_USER}>`,
       to: email,
