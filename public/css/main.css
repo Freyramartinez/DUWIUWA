@@ -48,6 +48,7 @@ section {
     --gray: #6f6470;
     --white: #ffffff;
     --border: #eadbe4;
+    --gob-guinda: #611232;
 }
 
 
@@ -68,6 +69,20 @@ section {
     border-bottom: 1px solid rgba(142, 58, 104, 0.12);
 
     transition: box-shadow 0.3s ease;
+}
+
+.ws-footer {
+    padding: 25px 28px;
+ 
+    background: var(--gob-guinda);
+ 
+    color: rgba(255, 255, 255, 0.85);
+ 
+    text-align: center;
+ 
+    font-size: 0.72rem;
+ 
+    letter-spacing: 0.02em;
 }
 
 .ws-navbar:hover {
