@@ -1,18 +1,10 @@
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const { Resend } = require("resend");
 const User = require("../models/User");
 
-// Configuración del servicio de correo con puerto 465 (SSL) explícito para Railway
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL activado
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Inicialización de Resend con la API Key guardada en tus variables de entorno
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // GET /login
 exports.getLoginPage = (req, res) => {
@@ -54,9 +46,11 @@ exports.registrar = async (req, res) => {
     const protocol = req.protocol;
     const linkVerificacion = `${protocol}://${domain}/verify/${token}`;
 
-    // Correo de activación
-    const mailOptions = {
-      from: `"WOMEN SAFETY" <${process.env.EMAIL_USER}>`,
+    console.log("📩 Intentando enviar correo vía Resend API a:", email);
+
+    // Envío del correo usando Resend API
+    const data = await resend.emails.send({
+      from: "WOMEN SAFETY <onboarding@resend.dev>", // Remitente de prueba de Resend
       to: email,
       subject: "Verifica tu cuenta - WOMEN SAFETY",
       html: `
@@ -68,18 +62,16 @@ exports.registrar = async (req, res) => {
           <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
         </div>
       `
-    };
+    });
 
-    console.log("📩 Intentando enviar correo a:", email);
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ CORREO ENVIADO CON ÉXITO:", info.response);
+    console.log("✅ CORREO ENVIADO CON ÉXITO VÍA RESEND:", data);
 
     res.render("login", { 
       success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión." 
     });
 
   } catch (err) {
-    console.error("❌ ERROR DETALLADO AL ENVIAR CORREO / REGISTRAR:", err);
+    console.error("❌ ERROR DETALLADO AL ENVIAR CORREO / REGISTRAR CON RESEND:", err);
     res.render("login", { error: "Ocurrió un error al procesar el registro. Intenta de nuevo." });
   }
 };
