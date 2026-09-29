@@ -4,15 +4,21 @@ const User = require("../models/User");
 
 // Envío de correo vía API HTTP de Brevo (puerto 443, Railway no lo bloquea)
 async function enviarCorreoBrevo({ to, nombre, subject, html }) {
+  const apiKey = (process.env.BREVO_API_KEY || "").trim();
+  const sender = (process.env.EMAIL_FROM || "").trim();
+
+  if (!apiKey) throw new Error("Falta la variable BREVO_API_KEY en el servidor");
+  if (!sender) throw new Error("Falta la variable EMAIL_FROM en el servidor");
+
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
       accept: "application/json",
       "content-type": "application/json",
-      "api-key": process.env.BREVO_API_KEY
+      "api-key": apiKey
     },
     body: JSON.stringify({
-      sender: { name: "WOMEN SAFETY", email: process.env.EMAIL_FROM },
+      sender: { name: "WOMEN SAFETY", email: sender },
       to: [{ email: to, name: nombre }],
       subject,
       htmlContent: html
@@ -78,11 +84,13 @@ exports.registrar = async (req, res) => {
     // Enviamos el correo sin romper el registro si falla
     console.log("📩 Enviando correo vía Brevo a:", email);
     let correoEnviado = true;
+    let errorMail = "";
     try {
       const info = await enviarCorreoBrevo({ to: email, nombre, subject, html });
       console.log("✅ CORREO ENVIADO:", info.messageId);
     } catch (mailErr) {
       correoEnviado = false;
+      errorMail = mailErr.message;
       console.error("⚠️ Error enviando correo (el usuario sí se guardó):", mailErr.message);
     }
 
@@ -91,8 +99,11 @@ exports.registrar = async (req, res) => {
         success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión."
       });
     }
+
+    // TEMPORAL: muestra el detalle técnico en pantalla para depurar.
+    // Cuando funcione, cambia esta línea por el mensaje sin "Detalle".
     return res.render("login", {
-      error: "Cuenta creada, pero no pudimos enviar el correo de activación. Intenta más tarde."
+      error: `Cuenta creada, pero no pudimos enviar el correo de activación. Detalle: ${errorMail}`
     });
 
   } catch (err) {
