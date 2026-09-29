@@ -1,10 +1,30 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { Resend } = require("resend");
 const User = require("../models/User");
 
-// Inicialización de Resend con la API Key guardada en tus variables de entorno
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Envío de correo vía API HTTP de Brevo (puerto 443, Railway no lo bloquea)
+async function enviarCorreoBrevo({ to, nombre, subject, html }) {
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "api-key": process.env.BREVO_API_KEY
+    },
+    body: JSON.stringify({
+      sender: { name: "WOMEN SAFETY", email: process.env.EMAIL_FROM },
+      to: [{ email: to, name: nombre }],
+      subject,
+      htmlContent: html
+    }),
+    signal: AbortSignal.timeout(10000) // corta a los 10 s, nunca se queda colgado
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Brevo ${resp.status}: ${await resp.text()}`);
+  }
+  return resp.json();
+}
 
 // GET /login
 exports.getLoginPage = (req, res) => {
@@ -42,36 +62,41 @@ exports.registrar = async (req, res) => {
     });
 
     // Enlace de activación de correo
-    const domain = req.headers.host;
-    const protocol = req.protocol;
-    const linkVerificacion = `${protocol}://${domain}/verify/${token}`;
+    const linkVerificacion = `${req.protocol}://${req.headers.host}/verify/${token}`;
 
-    console.log("📩 Intentando enviar correo vía Resend API a:", email);
+    const subject = "Verifica tu cuenta - WOMEN SAFETY";
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #292329;">
+        <h2 style="color: #8e3a68;">¡Hola ${nombre}!</h2>
+        <p>Gracias por registrarte en <strong>WOMEN SAFETY</strong>.</p>
+        <p>Para activar tu cuenta y poder iniciar sesión, haz clic en el siguiente enlace:</p>
+        <a href="${linkVerificacion}" style="display: inline-block; padding: 12px 20px; background-color: #8e3a68; color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">Validar mi correo electrónico</a>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
+      </div>
+    `;
 
-    // Envío del correo usando Resend API
-    const data = await resend.emails.send({
-      from: "WOMEN SAFETY <onboarding@resend.dev>", // Remitente de prueba de Resend
-      to: email,
-      subject: "Verifica tu cuenta - WOMEN SAFETY",
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #292329;">
-          <h2 style="color: #8e3a68;">¡Hola ${nombre}!</h2>
-          <p>Gracias por registrarte en <strong>WOMEN SAFETY</strong>.</p>
-          <p>Para activar tu cuenta y poder iniciar sesión, haz clic en el siguiente enlace:</p>
-          <a href="${linkVerificacion}" style="display: inline-block; padding: 12px 20px; background-color: #8e3a68; color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">Validar mi correo electrónico</a>
-          <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
-        </div>
-      `
-    });
+    // Enviamos el correo sin romper el registro si falla
+    console.log("📩 Enviando correo vía Brevo a:", email);
+    let correoEnviado = true;
+    try {
+      const info = await enviarCorreoBrevo({ to: email, nombre, subject, html });
+      console.log("✅ CORREO ENVIADO:", info.messageId);
+    } catch (mailErr) {
+      correoEnviado = false;
+      console.error("⚠️ Error enviando correo (el usuario sí se guardó):", mailErr.message);
+    }
 
-    console.log("✅ CORREO ENVIADO CON ÉXITO VÍA RESEND:", data);
-
-    res.render("login", { 
-      success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión." 
+    if (correoEnviado) {
+      return res.render("login", {
+        success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión."
+      });
+    }
+    return res.render("login", {
+      error: "Cuenta creada, pero no pudimos enviar el correo de activación. Intenta más tarde."
     });
 
   } catch (err) {
-    console.error("❌ ERROR DETALLADO AL ENVIAR CORREO / REGISTRAR CON RESEND:", err);
+    console.error("❌ ERROR GENERAL EN REGISTRO:", err);
     res.render("login", { error: "Ocurrió un error al procesar el registro. Intenta de nuevo." });
   }
 };
@@ -116,8 +141,8 @@ exports.login = async (req, res) => {
 
     // BLOQUEO SI NO ESTÁ VERIFICADO
     if (!usuario.isVerified) {
-      return res.render("login", { 
-        error: "Debes validar tu correo electrónico primero. Revisa tu bandeja de entrada." 
+      return res.render("login", {
+        error: "Debes validar tu correo electrónico primero. Revisa tu bandeja de entrada."
       });
     }
 
