@@ -85,19 +85,19 @@
         }
 
         .auth-side {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        background: #ffffff;
-        border-right: 1px solid var(--border);
-    }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+        }
 
-    .auth-side img {
-        width: 100%;
-        max-width: 340px;
-        height: auto;
-    }
+        .auth-side img {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+        }
 
         /* Panel del formulario */
         .auth-form-wrap { padding: 44px 46px; }
@@ -251,8 +251,17 @@
                     <h1>Bienvenida de nuevo</h1>
                     <p class="auth-sub">Ingresa con tu correo y contraseña.</p>
 
+                    <!-- SECCIÓN DE ALERTAS (ERROR Y ÉXITO) -->
                     <% if (typeof error !== 'undefined' && error) { %>
-                        <div class="alert auth-alert py-2 px-3 mb-3" role="alert"><%= error %></div>
+                        <div class="alert alert-danger py-2 px-3 mb-3 text-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error %>
+                        </div>
+                    <% } %>
+
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="alert alert-success py-2 px-3 mb-3 text-center" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i><%= success %>
+                        </div>
                     <% } %>
 
                     <form action="/login" method="POST" class="needs-validation" novalidate>
