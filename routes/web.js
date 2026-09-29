@@ -10,7 +10,7 @@ const MapController = require('../controllers/MapController');
 // Home route
 router.get("/", ProductController.getAll);
 
-router.get('/quienes-somos', AboutController.getAboutPage);
+router.get('/quiens-somos', AboutController.getAboutPage);
 
 // Alias para el mapa (soporta tanto /mapa como /ubicacion)
 router.get('/mapa', MapController.getMapPage);
