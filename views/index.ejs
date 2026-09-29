@@ -4,181 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WOMEN SAFETY: tecnología, información y red de apoyo para la seguridad de las mujeres en Hidalgo.">
 
-    <title>WOMEN SAFETY</title>
+    <title>WOMEN SAFETY · Tecnología para la seguridad de las mujeres</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <!-- Bootstrap + Iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Bootstrap Icons -->
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
+    <!-- Estilos compartidos (paleta, navbar, botón principal, footer) -->
+    <link rel="stylesheet" href="/css/main.css">
 
     <style>
-
         /* =========================================================
-           CONFIGURACIÓN GENERAL
+           ESTILOS ORIGINALES DEL INDEX (conservados completos)
+           Lo idéntico a /css/main.css (reset, paleta, navbar,
+           .ws-primary-button, footer, .ws-section-label y estilos
+           de cuenta/login) NO se repite aquí porque main.css ya
+           se carga arriba.
         ========================================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #fffdfd;
-            color: #292329;
-        }
-
-        section {
-            scroll-margin-top: 85px;
-        }
-
-
-        /* =========================================================
-           PALETA
-        ========================================================= */
-
-        :root {
-            --wine: #8e3a68;
-            --wine-dark: #67294c;
-            --pink: #b34d83;
-            --pink-light: #f8e8f1;
-            --cream: #fff8fb;
-            --dark: #292329;
-            --gray: #6f6470;
-            --white: #ffffff;
-            --border: #eadbe4;
-        }
-
-
-        /* =========================================================
-           NAVBAR
-        ========================================================= */
-
-        .ws-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 2000;
-            width: 100%;
-
-            background: rgba(255, 255, 255, 0.94);
-
-            backdrop-filter: blur(14px);
-
-            border-bottom: 1px solid rgba(142, 58, 104, 0.12);
-
-            transition: box-shadow 0.3s ease;
-        }
-
-        .ws-navbar:hover {
-            box-shadow: 0 5px 25px rgba(80, 40, 65, 0.08);
-        }
-
-        .ws-navbar-inner {
-            max-width: 1250px;
-            min-height: 74px;
-
-            margin: 0 auto;
-            padding: 0 28px;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .ws-logo {
-            text-decoration: none;
-            color: var(--dark);
-
-            font-size: 1.05rem;
-            font-weight: 700;
-
-            letter-spacing: 0.08em;
-            white-space: nowrap;
-        }
-
-        .ws-logo-symbol {
-            color: var(--wine);
-            font-size: 1.35rem;
-            margin-right: 5px;
-        }
-
-        .ws-nav-links {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .ws-nav-links a {
-            position: relative;
-
-            text-decoration: none;
-            color: #3d363d;
-
-            font-size: 0.86rem;
-            font-weight: 500;
-
-            padding: 8px 0;
-
-            transition: color 0.25s ease;
-        }
-
-        .ws-nav-links a::after {
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-            bottom: 1px;
-
-            width: 0;
-            height: 2px;
-
-            background: var(--wine);
-
-            transition: width 0.25s ease;
-        }
-
-        .ws-nav-links a:hover {
-            color: var(--wine);
-        }
-
-        .ws-nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .ws-menu-button {
-            display: none;
-
-            border: none;
-            background: transparent;
-
-            font-size: 1.7rem;
-            color: var(--dark);
-
-            cursor: pointer;
-        }
 
 
         /* =========================================================
@@ -268,42 +117,6 @@
             margin-bottom: 32px;
         }
 
-        .ws-primary-button {
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            padding: 14px 25px;
-
-            border-radius: 30px;
-
-            background: var(--wine);
-
-            color: white;
-
-            text-decoration: none;
-
-            font-size: 0.9rem;
-
-            font-weight: 600;
-
-            transition: all 0.3s ease;
-        }
-
-        .ws-primary-button:hover {
-            background: var(--wine-dark);
-
-            color: white;
-
-            transform: translateY(-3px);
-
-            box-shadow:
-                0 10px 25px
-                rgba(142, 58, 104, 0.22);
-        }
-
         .ws-hero-card {
             display: flex;
             align-items: center;
@@ -316,7 +129,7 @@
         }
 
 
-                /* =====================================================
+        /* =====================================================
         ¿QUIÉNES SOMOS?
         ===================================================== */
 
@@ -664,7 +477,7 @@
 
 
         /* =====================================================
-        RESPONSIVE
+        RESPONSIVE (quiénes somos)
         ===================================================== */
 
         @media (max-width: 900px) {
@@ -729,1677 +542,1794 @@
             height: 255px;
         }
         }
-            /* =========================================================
-   LA PULSERA
-   ========================================================= */
-
-.ws-bracelet {
-    padding: 110px 0;
-    background:
-        radial-gradient(
-            circle at 15% 50%,
-            rgba(179, 77, 131, 0.12),
-            transparent 30%
-        ),
-        #fffdfd;
-}
-
-.ws-bracelet-inner {
-    max-width: 1150px;
-    margin: 0 auto;
-    padding: 0 28px;
-
-    display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 80px;
-
-    align-items: center;
-}
-
-.ws-bracelet-visual {
-    min-height: 390px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
-    border-radius: 35px;
 
-    background:
-        radial-gradient(
-            circle at 50% 35%,
-            rgba(255,255,255,0.75),
-            transparent 30%
-        ),
-        linear-gradient(
-            145deg,
-            #f4d9e7,
-            #ead0df
-        );
+        /* =========================================================
+           LA PULSERA
+        ========================================================= */
+
+        .ws-bracelet {
+            padding: 110px 0;
+            background:
+                radial-gradient(
+                    circle at 15% 50%,
+                    rgba(179, 77, 131, 0.12),
+                    transparent 30%
+                ),
+                #fffdfd;
+        }
+
+        .ws-bracelet-inner {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 0 28px;
 
-    box-shadow:
-        0 25px 60px rgba(103, 41, 76, 0.10);
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 80px;
 
-    position: relative;
-    overflow: hidden;
-}
+            align-items: center;
+        }
 
-.ws-bracelet-visual::before,
-.ws-bracelet-visual::after {
-    content: "";
-    position: absolute;
+        .ws-bracelet-visual {
+            min-height: 390px;
 
-    border: 1px solid rgba(142, 58, 104, 0.16);
-    border-radius: 50%;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-.ws-bracelet-visual::before {
-    width: 280px;
-    height: 280px;
-}
+            border-radius: 35px;
 
-.ws-bracelet-visual::after {
-    width: 390px;
-    height: 390px;
-}
+            background:
+                radial-gradient(
+                    circle at 50% 35%,
+                    rgba(255,255,255,0.75),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    145deg,
+                    #f4d9e7,
+                    #ead0df
+                );
 
-.ws-bracelet-icon {
-    position: relative;
-    z-index: 2;
+            box-shadow:
+                0 25px 60px rgba(103, 41, 76, 0.10);
 
-    width: 155px;
-    height: 155px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        .ws-bracelet-visual::before,
+        .ws-bracelet-visual::after {
+            content: "";
+            position: absolute;
 
-    border-radius: 50%;
+            border: 1px solid rgba(142, 58, 104, 0.16);
+            border-radius: 50%;
+        }
 
-    background:
-        linear-gradient(
-            145deg,
-            var(--wine-dark),
-            var(--wine)
-        );
+        .ws-bracelet-visual::before {
+            width: 280px;
+            height: 280px;
+        }
 
-    color: white;
+        .ws-bracelet-visual::after {
+            width: 390px;
+            height: 390px;
+        }
 
-    font-size: 4.2rem;
+        .ws-bracelet-icon {
+            position: relative;
+            z-index: 2;
 
-    box-shadow:
-        0 20px 45px rgba(103, 41, 76, 0.25);
+            width: 155px;
+            height: 155px;
 
-    transition: transform 0.4s ease;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-.ws-bracelet-visual:hover .ws-bracelet-icon {
-    transform: scale(1.08) rotate(-4deg);
-}
+            border-radius: 50%;
 
-.ws-bracelet-text {
-    max-width: 600px;
-}
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--wine-dark),
+                    var(--wine)
+                );
 
-.ws-section-label {
-    display: inline-block;
+            color: white;
 
-    margin-bottom: 18px;
+            font-size: 4.2rem;
 
-    color: var(--wine);
+            box-shadow:
+                0 20px 45px rgba(103, 41, 76, 0.25);
 
-    font-size: 0.72rem;
-    font-weight: 800;
+            transition: transform 0.4s ease;
+        }
 
-    letter-spacing: 0.18em;
+        .ws-bracelet-visual:hover .ws-bracelet-icon {
+            transform: scale(1.08) rotate(-4deg);
+        }
 
-    text-transform: uppercase;
-}
+        .ws-bracelet-text {
+            max-width: 600px;
+        }
 
-.ws-bracelet-text h2 {
-    margin: 0 0 24px;
+        .ws-bracelet-text h2 {
+            margin: 0 0 24px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: clamp(2.3rem, 4vw, 4rem);
+            font-size: clamp(2.3rem, 4vw, 4rem);
 
-    font-weight: 500;
+            font-weight: 500;
 
-    line-height: 1.08;
-}
+            line-height: 1.08;
+        }
 
-.ws-bracelet-text p {
-    max-width: 560px;
+        .ws-bracelet-text p {
+            max-width: 560px;
 
-    margin: 0;
+            margin: 0;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.95rem;
+            font-size: 0.95rem;
 
-    line-height: 1.9;
-}
+            line-height: 1.9;
+        }
 
 
-/* =========================================================
-   FUNCIONALIDADES
-   ========================================================= */
+        /* =========================================================
+           FUNCIONALIDADES
+        ========================================================= */
 
-.ws-features {
-    padding: 105px 28px;
+        .ws-features {
+            padding: 105px 28px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #f8e8f1,
-            #fff8fb
-        );
-}
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8e8f1,
+                    #fff8fb
+                );
+        }
 
-.ws-features-header {
-    max-width: 720px;
+        .ws-features-header {
+            max-width: 720px;
 
-    margin: 0 auto 55px;
+            margin: 0 auto 55px;
 
-    text-align: center;
-}
+            text-align: center;
+        }
 
-.ws-features-header h2 {
-    margin: 10px 0 18px;
+        .ws-features-header h2 {
+            margin: 10px 0 18px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: clamp(2.3rem, 4vw, 3.5rem);
+            font-size: clamp(2.3rem, 4vw, 3.5rem);
 
-    font-weight: 500;
+            font-weight: 500;
 
-    line-height: 1.08;
-}
+            line-height: 1.08;
+        }
 
-.ws-features-header p {
-    max-width: 620px;
+        .ws-features-header p {
+            max-width: 620px;
 
-    margin: auto;
+            margin: auto;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.9rem;
+            font-size: 0.9rem;
 
-    line-height: 1.8;
-}
+            line-height: 1.8;
+        }
 
-.ws-feature-grid {
-    max-width: 1100px;
+        .ws-feature-grid {
+            max-width: 1100px;
 
-    margin: auto;
+            margin: auto;
 
-    display: grid;
+            display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr);
 
-    gap: 24px;
-}
+            gap: 24px;
+        }
 
-.ws-feature-card {
-    position: relative;
+        .ws-feature-card {
+            position: relative;
 
-    min-height: 280px;
+            min-height: 280px;
 
-    padding: 34px;
+            padding: 34px;
 
-    border: 1px solid var(--border);
+            border: 1px solid var(--border);
 
-    border-radius: 24px;
+            border-radius: 24px;
 
-    background: rgba(255,255,255,0.82);
+            background: rgba(255,255,255,0.82);
 
-    box-shadow:
-        0 10px 30px rgba(103, 41, 76, 0.05);
+            box-shadow:
+                0 10px 30px rgba(103, 41, 76, 0.05);
 
-    transition:
-        transform 0.35s ease,
-        background 0.35s ease,
-        box-shadow 0.35s ease;
-}
+            transition:
+                transform 0.35s ease,
+                background 0.35s ease,
+                box-shadow 0.35s ease;
+        }
 
-.ws-feature-card:hover {
-    transform: translateY(-8px);
+        .ws-feature-card:hover {
+            transform: translateY(-8px);
 
-    background: var(--wine);
+            background: var(--wine);
 
-    box-shadow:
-        0 20px 45px rgba(103, 41, 76, 0.18);
-}
+            box-shadow:
+                0 20px 45px rgba(103, 41, 76, 0.18);
+        }
 
-.ws-feature-icon {
-    width: 58px;
-    height: 58px;
+        .ws-feature-icon {
+            width: 58px;
+            height: 58px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    margin-bottom: 45px;
+            margin-bottom: 45px;
 
-    border-radius: 16px;
+            border-radius: 16px;
 
-    background: var(--pink-light);
+            background: var(--pink-light);
 
-    color: var(--wine);
+            color: var(--wine);
 
-    font-size: 1.35rem;
+            font-size: 1.35rem;
 
-    transition:
-        background 0.35s ease,
-        color 0.35s ease;
-}
+            transition:
+                background 0.35s ease,
+                color 0.35s ease;
+        }
 
-.ws-feature-card:hover .ws-feature-icon {
-    background: white;
-    color: var(--wine);
-}
+        .ws-feature-card:hover .ws-feature-icon {
+            background: white;
+            color: var(--wine);
+        }
 
-.ws-feature-card h3 {
-    margin-bottom: 12px;
+        .ws-feature-card h3 {
+            margin-bottom: 12px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-size: 1.05rem;
-    font-weight: 800;
+            font-size: 1.05rem;
+            font-weight: 800;
 
-    transition: color 0.35s ease;
-}
+            transition: color 0.35s ease;
+        }
 
-.ws-feature-card p {
-    margin: 0;
+        .ws-feature-card p {
+            margin: 0;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.8rem;
+            font-size: 0.8rem;
 
-    line-height: 1.75;
+            line-height: 1.75;
 
-    transition: color 0.35s ease;
-}
+            transition: color 0.35s ease;
+        }
 
-.ws-feature-card:hover h3 {
-    color: white;
-}
+        .ws-feature-card:hover h3 {
+            color: white;
+        }
 
-.ws-feature-card:hover p {
-    color: rgba(255,255,255,0.78);
-}
+        .ws-feature-card:hover p {
+            color: rgba(255,255,255,0.78);
+        }
 
 
-/* =========================================================
-   SERVICIOS / CATÁLOGO
-   ========================================================= */
+        /* =========================================================
+           SERVICIOS / CATÁLOGO
+        ========================================================= */
 
-.ws-services {
-    padding: 110px 28px;
+        .ws-services {
+            padding: 110px 28px;
 
-    background: #fffdfd;
-}
+            background: #fffdfd;
+        }
 
-.ws-services-header {
-    max-width: 750px;
+        .ws-services-header {
+            max-width: 750px;
 
-    margin: 0 auto 55px;
+            margin: 0 auto 55px;
 
-    text-align: center;
-}
+            text-align: center;
+        }
 
-.ws-services-header h2 {
-    margin: 10px 0 16px;
+        .ws-services-header h2 {
+            margin: 10px 0 16px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: clamp(2.3rem, 4vw, 3.5rem);
+            font-size: clamp(2.3rem, 4vw, 3.5rem);
 
-    font-weight: 500;
+            font-weight: 500;
 
-    line-height: 1.1;
-}
+            line-height: 1.1;
+        }
 
-.ws-services-header p {
-    max-width: 620px;
+        .ws-services-header p {
+            max-width: 620px;
 
-    margin: auto;
+            margin: auto;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.88rem;
+            font-size: 0.88rem;
 
-    line-height: 1.8;
-}
+            line-height: 1.8;
+        }
 
-.ws-services-grid {
-    max-width: 1150px;
+        .ws-services-grid {
+            max-width: 1150px;
 
-    margin: auto;
-}
+            margin: auto;
+        }
 
-.ws-service-card {
-    height: 100%;
+        .ws-service-card {
+            height: 100%;
 
-    overflow: hidden;
+            overflow: hidden;
 
-    border: 1px solid var(--border);
+            border: 1px solid var(--border);
 
-    border-radius: 22px;
+            border-radius: 22px;
 
-    background: white;
+            background: white;
 
-    box-shadow:
-        0 8px 25px rgba(103, 41, 76, 0.05);
+            box-shadow:
+                0 8px 25px rgba(103, 41, 76, 0.05);
 
-    transition:
-        transform 0.35s ease,
-        box-shadow 0.35s ease;
-}
+            transition:
+                transform 0.35s ease,
+                box-shadow 0.35s ease;
+        }
 
-.ws-service-card:hover {
-    transform: translateY(-8px);
+        .ws-service-card:hover {
+            transform: translateY(-8px);
 
-    box-shadow:
-        0 20px 45px rgba(103, 41, 76, 0.13);
-}
+            box-shadow:
+                0 20px 45px rgba(103, 41, 76, 0.13);
+        }
 
-.ws-service-card img {
-    width: 100%;
-    height: 210px;
+        .ws-service-card img {
+            width: 100%;
+            height: 210px;
 
-    display: block;
+            display: block;
 
-    object-fit: cover;
+            object-fit: cover;
 
-    background: var(--pink-light);
-}
+            background: var(--pink-light);
+        }
 
-.ws-service-body {
-    padding: 28px;
-}
+        .ws-service-body {
+            padding: 28px;
+        }
 
-.ws-service-category {
-    display: inline-block;
+        .ws-service-category {
+            display: inline-block;
 
-    margin-bottom: 10px;
+            margin-bottom: 10px;
 
-    color: var(--wine);
+            color: var(--wine);
 
-    font-size: 0.68rem;
-    font-weight: 800;
+            font-size: 0.68rem;
+            font-weight: 800;
 
-    letter-spacing: 0.12em;
+            letter-spacing: 0.12em;
 
-    text-transform: uppercase;
-}
+            text-transform: uppercase;
+        }
 
-.ws-service-body h3 {
-    margin-bottom: 12px;
+        .ws-service-body h3 {
+            margin-bottom: 12px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: 1.45rem;
+            font-size: 1.45rem;
 
-    font-weight: 600;
+            font-weight: 600;
 
-    line-height: 1.2;
-}
+            line-height: 1.2;
+        }
 
-.ws-service-body p {
-    margin-bottom: 18px;
+        .ws-service-body p {
+            margin-bottom: 18px;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.8rem;
+            font-size: 0.8rem;
 
-    line-height: 1.7;
-}
+            line-height: 1.7;
+        }
 
-.ws-service-body ul {
-    margin: 0;
-    padding-left: 18px;
+        .ws-service-body ul {
+            margin: 0;
+            padding-left: 18px;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.75rem;
+            font-size: 0.75rem;
 
-    line-height: 1.8;
-}
+            line-height: 1.8;
+        }
 
-.ws-service-body li::marker {
-    color: var(--pink);
-}
+        .ws-service-body li::marker {
+            color: var(--pink);
+        }
 
 
-/* =========================================================
-   UBICACIÓN
-   ========================================================= */
+        /* =========================================================
+           UBICACIÓN
+        ========================================================= */
 
-.ws-location {
-    padding: 100px 28px;
+        .ws-location {
+            padding: 100px 28px;
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--wine-dark),
-            var(--wine)
-        );
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--wine-dark),
+                    var(--wine)
+                );
 
-    color: white;
-}
+            color: white;
+        }
 
-.ws-location-inner {
-    max-width: 1100px;
+        .ws-location-inner {
+            max-width: 1100px;
 
-    margin: auto;
+            margin: auto;
 
-    display: grid;
+            display: grid;
 
-    grid-template-columns: 1.1fr 0.9fr;
+            grid-template-columns: 1.1fr 0.9fr;
 
-    gap: 70px;
+            gap: 70px;
 
-    align-items: center;
-}
+            align-items: center;
+        }
 
-.ws-location .ws-section-label {
-    color: #f2c5db;
-}
+        .ws-location .ws-section-label {
+            color: #f2c5db;
+        }
 
-.ws-location h2 {
-    max-width: 650px;
+        .ws-location h2 {
+            max-width: 650px;
 
-    margin: 8px 0 20px;
+            margin: 8px 0 20px;
 
-    color: white;
+            color: white;
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: clamp(2.4rem, 4vw, 4rem);
+            font-size: clamp(2.4rem, 4vw, 4rem);
 
-    font-weight: 500;
+            font-weight: 500;
 
-    line-height: 1.05;
-}
+            line-height: 1.05;
+        }
 
-.ws-location p {
-    max-width: 550px;
+        .ws-location p {
+            max-width: 550px;
 
-    margin-bottom: 28px;
+            margin-bottom: 28px;
 
-    color: rgba(255,255,255,0.78);
+            color: rgba(255,255,255,0.78);
 
-    font-size: 0.9rem;
+            font-size: 0.9rem;
 
-    line-height: 1.8;
-}
+            line-height: 1.8;
+        }
 
-.ws-location .ws-primary-button {
-    background: white;
-    color: var(--wine);
-}
+        .ws-location .ws-primary-button {
+            background: white;
+            color: var(--wine);
+        }
 
-.ws-location .ws-primary-button:hover {
-    background: var(--pink-light);
+        .ws-location .ws-primary-button:hover {
+            background: var(--pink-light);
 
-    color: var(--wine-dark);
-}
+            color: var(--wine-dark);
+        }
 
-.ws-location-box {
-    min-height: 300px;
+        .ws-location-box {
+            min-height: 300px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    padding: 40px;
+            padding: 40px;
 
-    border: 1px solid rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.18);
 
-    border-radius: 30px;
+            border-radius: 30px;
 
-    background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.08);
 
-    backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
 
-    text-align: center;
-}
+            text-align: center;
+        }
 
-.ws-location-box i {
-    display: block;
+        .ws-location-box i {
+            display: block;
 
-    margin-bottom: 20px;
+            margin-bottom: 20px;
 
-    color: #f2c5db;
+            color: #f2c5db;
 
-    font-size: 3.5rem;
-}
+            font-size: 3.5rem;
+        }
 
-.ws-location-box h4 {
-    margin-bottom: 8px;
+        .ws-location-box h4 {
+            margin-bottom: 8px;
 
-    color: white;
+            color: white;
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: 1.6rem;
-}
+            font-size: 1.6rem;
+        }
 
-.ws-location-box p {
-    margin: 0;
+        .ws-location-box p {
+            margin: 0;
 
-    color: rgba(255,255,255,0.7);
-}
+            color: rgba(255,255,255,0.7);
+        }
 
 
-/* =========================================================
-   CONTACTO
-   ========================================================= */
+        /* =========================================================
+           CONTACTO
+        ========================================================= */
 
-.ws-contact {
-    padding: 110px 28px;
+        .ws-contact {
+            padding: 110px 28px;
 
-    background:
-        radial-gradient(
-            circle at 20% 20%,
-            rgba(179,77,131,0.15),
-            transparent 30%
-        ),
-        var(--cream);
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    rgba(179,77,131,0.15),
+                    transparent 30%
+                ),
+                var(--cream);
 
-    text-align: center;
-}
+            text-align: center;
+        }
 
-.ws-contact-inner {
-    max-width: 750px;
+        .ws-contact-inner {
+            max-width: 750px;
 
-    margin: auto;
-}
+            margin: auto;
+        }
 
-.ws-contact h2 {
-    margin: 12px 0 20px;
+        .ws-contact h2 {
+            margin: 12px 0 20px;
 
-    color: var(--dark);
+            color: var(--dark);
 
-    font-family: "Playfair Display", serif;
+            font-family: "Playfair Display", serif;
 
-    font-size: clamp(2.4rem, 4vw, 3.8rem);
+            font-size: clamp(2.4rem, 4vw, 3.8rem);
 
-    font-weight: 500;
+            font-weight: 500;
 
-    line-height: 1.08;
-}
+            line-height: 1.08;
+        }
 
-.ws-contact p {
-    max-width: 600px;
+        .ws-contact p {
+            max-width: 600px;
 
-    margin: 0 auto 30px;
+            margin: 0 auto 30px;
 
-    color: var(--gray);
+            color: var(--gray);
 
-    font-size: 0.9rem;
+            font-size: 0.9rem;
 
-    line-height: 1.8;
-}
+            line-height: 1.8;
+        }
 
-.ws-contact-button {
-    display: inline-flex;
+        .ws-contact-button {
+            display: inline-flex;
 
-    align-items: center;
+            align-items: center;
 
-    gap: 10px;
+            gap: 10px;
 
-    padding: 14px 24px;
+            padding: 14px 24px;
 
-    border-radius: 30px;
+            border-radius: 30px;
 
-    background: var(--wine);
+            background: var(--wine);
 
-    color: white;
+            color: white;
 
-    text-decoration: none;
+            text-decoration: none;
 
-    font-size: 0.85rem;
-    font-weight: 700;
+            font-size: 0.85rem;
+            font-weight: 700;
 
-    transition: all 0.3s ease;
-}
+            transition: all 0.3s ease;
+        }
 
-.ws-contact-button:hover {
-    background: var(--wine-dark);
+        .ws-contact-button:hover {
+            background: var(--wine-dark);
 
-    color: white;
+            color: white;
 
-    transform: translateY(-3px);
+            transform: translateY(-3px);
 
-    box-shadow:
-        0 10px 25px rgba(142,58,104,0.2);
-}
+            box-shadow:
+                0 10px 25px rgba(142,58,104,0.2);
+        }
 
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
+        /* =========================================================
+           RESPONSIVE (páginas)
+        ========================================================= */
 
-.ws-footer {
-    padding: 25px 28px;
+        @media (max-width: 900px) {
 
-    background: #292329;
+            .ws-hero-inner {
+                grid-template-columns: 1fr;
 
-    color: rgba(255,255,255,0.65);
+                gap: 50px;
+            }
 
-    text-align: center;
+            .ws-bracelet-inner {
+                grid-template-columns: 1fr;
 
-    font-size: 0.72rem;
+                gap: 50px;
+            }
 
-    letter-spacing: 0.02em;
-}
+            .ws-bracelet-text {
+                max-width: 700px;
+            }
 
+            .ws-feature-grid {
+                grid-template-columns: 1fr;
+            }
 
-/* =========================================================
-   MENÚ MÓVIL
-   ========================================================= */
+            .ws-location-inner {
+                grid-template-columns: 1fr;
 
-@media (max-width: 900px) {
+                gap: 45px;
+            }
+        }
 
-    .ws-nav-links {
-        position: absolute;
 
-        top: 74px;
-        left: 0;
+        @media (max-width: 600px) {
 
-        width: 100%;
+            .ws-hero {
+                min-height: auto;
+            }
 
-        padding: 20px 28px;
+            .ws-hero-inner {
+                padding: 80px 20px;
+            }
 
-        display: none;
+            .ws-hero h1 {
+                font-size: 3rem;
+            }
 
-        flex-direction: column;
+            .ws-bracelet,
+            .ws-features,
+            .ws-services,
+            .ws-location,
+            .ws-contact {
+                padding-top: 75px;
+                padding-bottom: 75px;
+            }
 
-        align-items: flex-start;
+            .ws-bracelet-inner {
+                padding: 0 20px;
+            }
 
-        gap: 8px;
+            .ws-bracelet-visual {
+                min-height: 280px;
+            }
 
-        background: white;
+            .ws-bracelet-icon {
+                width: 120px;
+                height: 120px;
 
-        border-bottom: 1px solid var(--border);
+                font-size: 3.2rem;
+            }
 
-        box-shadow:
-            0 15px 30px rgba(80,40,65,0.08);
-    }
+            .ws-features,
+            .ws-services,
+            .ws-location,
+            .ws-contact {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
 
-    .ws-nav-links.active {
-        display: flex;
-    }
+            .ws-service-card img {
+                height: 190px;
+            }
 
-    .ws-menu-button {
-        display: block;
-    }
+            .ws-location-box {
+                min-height: 250px;
+            }
+        }
 
-    .ws-hero-inner {
-        grid-template-columns: 1fr;
+        .ws-hero-illustration {
+            width: 115%;
+            max-width: none;
+            height: auto;
+            border-radius: 0;
+            margin-right: -15%;
+        }
 
-        gap: 50px;
-    }
+        @media (max-width: 900px) {
 
-    .ws-bracelet-inner {
-        grid-template-columns: 1fr;
+            .ws-hero-illustration {
+                width: 100%;
+                margin-right: 0;
+            }
 
-        gap: 50px;
-    }
+        }
 
-    .ws-bracelet-text {
-        max-width: 700px;
-    }
+        /* Colores y texto */
+        .ws-text-gray      { color: var(--gray); }
+        .ws-text-wine-dark { color: var(--wine); }
+        .ws-bg-pink-light  { background: var(--pink-light); }
+        .ws-border-wine    { border-color: var(--wine) !important; }
+        .ws-serif          { font-family: 'Playfair Display', serif; }
 
-    .ws-feature-grid {
-        grid-template-columns: 1fr;
-    }
+        /* Círculo rosa */
+        .ws-download-circle {
+            width: 145px;
+            height: 145px;
+            font-size: 3rem;
+            background: linear-gradient(145deg, var(--wine-dark), var(--wine));
+            transition: transform 0.4s ease;
+        }
 
-    .ws-location-inner {
-        grid-template-columns: 1fr;
+        .ws-download:hover .ws-download-circle {
+            transform: scale(1.08) rotate(-4deg);
+        }
 
-        gap: 45px;
-    }
-}
+        .ws-download:focus-visible {
+            outline: 3px solid var(--pink);
+            outline-offset: 8px;
+            border-radius: 30px;
+        }
 
 
-@media (max-width: 600px) {
+        /* =========================================================
+           NUEVOS ESTILOS (UX, componentes nuevos y animaciones)
+           Van después de los originales para complementarlos.
+        ========================================================= */
 
-    .ws-navbar-inner {
-        min-height: 65px;
 
-        padding: 0 18px;
-    }
+        /* =========================================================
+           SOLO LO ESPECÍFICO DEL INDEX
+           (paleta, navbar, .ws-primary-button, .ws-section-label
+           y footer vienen de /css/main.css)
+        ========================================================= */
 
-    .ws-nav-links {
-        top: 65px;
+        /* ---------- Accesibilidad ---------- */
+        .ws-skip {
+            position: absolute;
+            left: -999px;
+            top: 0;
+            z-index: 3000;
+            padding: 10px 18px;
+            border-radius: 0 0 12px 0;
+            background: var(--wine);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .ws-skip:focus { left: 0; color: #fff; }
 
-        padding: 18px;
-    }
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid var(--pink);
+            outline-offset: 3px;
+        }
 
-    .ws-hero {
-        min-height: auto;
-    }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            * { transition: none !important; }
+        }
 
-    .ws-hero-inner {
-        padding: 80px 20px;
-    }
+        /* ---------- Barra de emergencia ---------- */
+        .ws-emergency-bar {
+            padding: 8px 16px;
+            background: var(--wine-dark);
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .ws-emergency-bar a {
+            color: #fff;
+            font-weight: 700;
+            text-decoration: underline;
+        }
 
-    .ws-hero h1 {
-        font-size: 3rem;
-    }
+        /* ---------- Utilidades ---------- */
+        .ws-section { padding: 96px 0; }
 
-    .ws-bracelet,
-    .ws-features,
-    .ws-services,
-    .ws-location,
-    .ws-contact {
-        padding-top: 75px;
-        padding-bottom: 75px;
-    }
+        .ws-heading {
+            margin: 6px 0 20px;
+            color: var(--dark);
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-weight: 500;
+            line-height: 1.1;
+        }
+        .ws-heading span { color: var(--wine); }
 
-    .ws-bracelet-inner {
-        padding: 0 20px;
-    }
+        .ws-lead {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.85;
+        }
 
-    .ws-bracelet-visual {
-        min-height: 280px;
-    }
+        .ws-text-gray      { color: var(--gray); }
+        .ws-text-wine      { color: var(--wine); }
+        .ws-bg-pink-light  { background: var(--pink-light); }
+        .ws-border-wine    { border-color: var(--wine) !important; }
+        .ws-serif          { font-family: 'Playfair Display', serif; }
 
-    .ws-bracelet-icon {
-        width: 120px;
-        height: 120px;
+        .ws-quote {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 18px;
+            border-left: 3px solid var(--wine);
+            background: var(--pink-light);
+            color: var(--wine-dark);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
 
-        font-size: 3.2rem;
-    }
+        .ws-secondary-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 24px;
+            border: 1.5px solid var(--wine);
+            border-radius: 30px;
+            color: var(--wine);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .ws-secondary-button:hover {
+            background: var(--pink-light);
+            color: var(--wine-dark);
+            transform: translateY(-3px);
+        }
 
-    .ws-features,
-    .ws-services,
-    .ws-location,
-    .ws-contact {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
+        /* ---------- Hero ---------- */
+        .ws-hero {
+            position: relative;
+            overflow: hidden;
+            padding: 90px 0;
+            background:
+                radial-gradient(circle at 80% 20%, rgba(179, 77, 131, 0.16), transparent 30%),
+                linear-gradient(135deg, #fff8fb 0%, #ffffff 55%, #f8e8f1 100%);
+        }
+        .ws-hero h1 {
+            max-width: 720px;
+            margin-bottom: 26px;
+            color: var(--dark);
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 7vw, 5.6rem);
+            line-height: 1;
+        }
+        .ws-hero h1 span { color: var(--wine); }
+        .ws-hero p {
+            max-width: 580px;
+            margin-bottom: 32px;
+            color: var(--gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+        .ws-hero-illustration {
+            width: 115%;
+            max-width: none;
+            height: auto;
+            margin-right: -15%;
+        }
 
-    .ws-service-card img {
-        height: 190px;
-    }
+        /* ---------- Red de apoyo ---------- */
+        .ws-location {
+            background: linear-gradient(135deg, var(--wine-dark), var(--wine));
+            color: #fff;
+        }
+        .ws-location .ws-section-label { color: #f2c5db; }
+        .ws-location .ws-heading { color: #fff; }
+        .ws-location .ws-lead { color: rgba(255, 255, 255, 0.8); }
+        .ws-location .ws-primary-button { background: #fff; color: var(--wine); }
+        .ws-location .ws-primary-button:hover { background: var(--pink-light); color: var(--wine-dark); }
 
-    .ws-location-box {
-        min-height: 250px;
-    }
-}
-.ws-nav-links a.ws-nav-cta {
-    margin-left: 6px;
-    padding: 9px 22px;
-    border-radius: 30px;
-    background: var(--wine);
-    color: #fff;
-    font-weight: 600;
-    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-}
+        .ws-support-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 26px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+        .ws-support-card > i { margin-bottom: 18px; color: #f2c5db; font-size: 2.4rem; }
+        .ws-support-card h3 {
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #fff;
+        }
+        .ws-support-card p {
+            margin-bottom: 24px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 0.88rem;
+            line-height: 1.75;
+        }
+        .ws-support-card .ws-primary-button { margin-top: auto; }
 
-.ws-nav-links a.ws-nav-cta::after {
-    display: none;
-}
+        .ws-alert-911 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 34px;
+            padding: 16px 22px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-size: 0.92rem;
+        }
+        .ws-alert-911 i { font-size: 1.5rem; color: #f2c5db; }
 
-.ws-nav-links a.ws-nav-cta:hover {
-    background: var(--wine-dark);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(142, 58, 104, 0.22);
-}
+        /* ---------- Cartilla (círculo de descarga) ---------- */
+        .ws-reason-visual {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            min-height: 380px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+        }
+        .ws-orbit {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(142, 58, 104, 0.22);
+            border-radius: 50%;
+        }
+        .orbit-one { width: 230px; height: 230px; }
+        .orbit-two { width: 330px; height: 330px; border-color: rgba(179, 77, 131, 0.14); }
 
-.ws-nav-account {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    margin-left: 8px;
-    padding-left: 14px;
-    border-left: 1px solid var(--border);
-}
+        .ws-floating-dot {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--pink);
+            box-shadow: 0 0 0 7px rgba(179, 77, 131, 0.10);
+        }
+        .dot-one   { top: 20px; right: 55px; }
+        .dot-two   { bottom: 90px; left: 45px; width: 9px; height: 9px; }
+        .dot-three { top: 95px; left: 15px; width: 7px; height: 7px; }
 
-.ws-nav-avatar {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--wine);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
+        .ws-download {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 22px;
+            text-decoration: none;
+        }
+        .ws-download-circle {
+            width: 145px;
+            height: 145px;
+            font-size: 3rem;
+            background: linear-gradient(145deg, var(--wine-dark), var(--wine));
+            box-shadow: 0 20px 45px rgba(103, 41, 76, 0.25);
+            transition: transform 0.4s ease;
+        }
+        .ws-download:hover .ws-download-circle { transform: scale(1.08) rotate(-4deg); }
 
-.ws-nav-name {
-    color: #3d363d;
-    font-size: 0.86rem;
-    font-weight: 500;
-}
+        /* ---------- Violentómetro ---------- */
+        .ws-about-stats {
+            background: linear-gradient(135deg, var(--pink-light), #fff8fb);
+        }
 
-.ws-nav-logout-inline button {
-    display: flex;
-    align-items: center;
-    border: none;
-    background: transparent;
-    color: var(--gray);
-    font-size: 1.05rem;
-    padding: 4px;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
+        /* ---------- Quiénes somos ---------- */
+        .ws-about-intro {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(179, 77, 131, 0.10), transparent 28%),
+                var(--cream);
+        }
 
-.ws-nav-logout-inline button:hover {
-    color: var(--wine);
-}
-
-.ws-hero-illustration {
-    width: 115%;
-    max-width: none;
-    height: auto;
-    border-radius: 0;
-    margin-right: -15%;
-}
-
-@media (max-width: 900px) {
-
-    .ws-hero-illustration {
-        width: 100%;
-        margin-right: 0;
-    }
-
-}
-
-    </style>
+        /* ---------- Funcionalidades ---------- */
+        .ws-features { background: linear-gradient(135deg, #f8e8f1, #fff8fb); }
+
+        .ws-feature-card {
+            height: 100%;
+            min-height: 270px;
+            padding: 34px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 10px 30px rgba(103, 41, 76, 0.05);
+            transition: transform 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+        }
+        .ws-feature-card:hover {
+            transform: translateY(-8px);
+            background: var(--wine);
+            box-shadow: 0 20px 45px rgba(103, 41, 76, 0.18);
+        }
+        .ws-feature-icon {
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            border-radius: 16px;
+            background: var(--pink-light);
+            color: var(--wine);
+            font-size: 1.35rem;
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+        .ws-feature-card:hover .ws-feature-icon { background: #fff; }
+        .ws-feature-card h3 {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.05rem;
+            font-weight: 800;
+            transition: color 0.35s ease;
+        }
+        .ws-feature-card p {
+            margin: 0;
+            color: var(--gray);
+            font-size: 0.85rem;
+            line-height: 1.75;
+            transition: color 0.35s ease;
+        }
+        .ws-feature-card:hover h3 { color: #fff; }
+        .ws-feature-card:hover p  { color: rgba(255, 255, 255, 0.82); }
+
+        /* ---------- Servicios ---------- */
+        .ws-service-card {
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 8px 25px rgba(103, 41, 76, 0.05);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .ws-service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 45px rgba(103, 41, 76, 0.13);
+        }
+        .ws-service-card img {
+            width: 100%;
+            height: 210px;
+            display: block;
+            object-fit: cover;
+            background: var(--pink-light);
+        }
+        .ws-service-body { padding: 28px; }
+        .ws-service-category {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: var(--wine);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .ws-service-body h3 {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .ws-service-body p { margin-bottom: 18px; color: var(--gray); font-size: 0.85rem; line-height: 1.7; }
+        .ws-service-body ul { margin: 0; padding-left: 18px; color: var(--gray); font-size: 0.8rem; line-height: 1.8; }
+        .ws-service-body li::marker { color: var(--pink); }
+
+        /* ---------- Aviso importante y privacidad ---------- */
+        .ws-notice {
+            padding: 40px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--wine);
+            border-radius: 22px;
+            background: var(--cream);
+        }
+        .ws-notice-icon {
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: var(--pink-light);
+            color: var(--wine);
+            font-size: 1.4rem;
+        }
+        .ws-privacy { background: linear-gradient(135deg, #f8e8f1, #fff8fb); }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .ws-hero-illustration { width: 100%; margin-right: 0; }
+        }
+        @media (max-width: 600px) {
+            .ws-section { padding: 70px 0; }
+            .ws-hero { padding: 70px 0; }
+            .ws-hero h1 { font-size: 2.9rem; }
+            .ws-notice { padding: 28px 22px; }
+            .ws-service-card img { height: 190px; }
+        }
+
+        /* =========================================================
+           ANIMACIONES FLUIDAS (hover / focus) PARA TODOS LOS ELEMENTOS
+        ========================================================= */
+        :root { --ease: cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+        /* Botones: elevación + flecha/ícono que se desliza */
+        .ws-primary-button,
+        .ws-secondary-button,
+        .ws-contact-button,
+        .btn {
+            transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+                        background 0.3s ease, color 0.3s ease;
+        }
+        .ws-primary-button i,
+        .ws-secondary-button i { transition: transform 0.35s var(--ease); }
+        .ws-primary-button:hover i,
+        .ws-secondary-button:hover i { transform: translateX(5px); }
+        .ws-primary-button:active,
+        .ws-secondary-button:active { transform: translateY(-1px) scale(0.98); }
+        .btn-light:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(142, 58, 104, 0.22) !important; }
+
+        /* Hero: la ilustración reacciona suavemente */
+        .ws-hero-illustration { transition: transform 0.6s var(--ease); }
+        .ws-hero-illustration:hover { transform: scale(1.03) translateY(-6px); }
+
+        /* Red de apoyo: tarjetas de vidrio */
+        .ws-support-card {
+            transition: transform 0.4s var(--ease), background 0.4s ease,
+                        border-color 0.4s ease, box-shadow 0.4s var(--ease);
+        }
+        .ws-support-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.18);
+        }
+        .ws-support-card > i { transition: transform 0.4s var(--ease); }
+        .ws-support-card:hover > i { transform: scale(1.15) rotate(-6deg); }
+        .ws-alert-911 { transition: transform 0.35s var(--ease), background 0.35s ease; }
+        .ws-alert-911:hover { transform: translateX(6px); background: rgba(255, 255, 255, 0.22); }
+
+        /* Cartilla: órbitas y puntos que se mueven */
+        .ws-orbit { transition: transform 0.9s var(--ease), border-color 0.4s ease; }
+        .ws-reason-visual:hover .orbit-one { transform: translate(-50%, -50%) rotate(25deg) scale(1.05); border-color: rgba(142, 58, 104, 0.4); }
+        .ws-reason-visual:hover .orbit-two { transform: translate(-50%, -50%) rotate(-25deg) scale(1.04); }
+        .ws-floating-dot { transition: transform 0.6s var(--ease); }
+        .ws-reason-visual:hover .dot-one   { transform: translate(-8px, 10px); }
+        .ws-reason-visual:hover .dot-two   { transform: translate(10px, -8px); }
+        .ws-reason-visual:hover .dot-three { transform: translate(8px, 8px); }
+        .ws-quote { transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease); }
+        .ws-quote:hover { transform: translateX(8px); box-shadow: 0 8px 22px rgba(142, 58, 104, 0.15); }
+
+        /* Quiénes somos: tarjetas Bootstrap */
+        #quienes-somos .card {
+            transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+        }
+        #quienes-somos .card:hover {
+            transform: translateX(-8px) translateY(-3px);
+            box-shadow: 0 18px 40px rgba(103, 41, 76, 0.16) !important;
+        }
+        #quienes-somos .card .rounded-3 { transition: background 0.35s ease, color 0.35s ease, transform 0.35s var(--ease); }
+        #quienes-somos .card:hover .rounded-3 { background: var(--wine) !important; color: #fff !important; transform: scale(1.08) rotate(-4deg); }
+
+        /* Funcionalidades y servicios: íconos e imágenes */
+        .ws-feature-icon { transition: background 0.35s ease, color 0.35s ease, transform 0.4s var(--ease); }
+        .ws-feature-card:hover .ws-feature-icon { transform: scale(1.1) rotate(-6deg); }
+        .ws-service-card img { transition: transform 0.7s var(--ease); }
+        .ws-service-card:hover img { transform: scale(1.07); }
+        .ws-service-card { transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+
+        /* Aviso y privacidad */
+        .ws-notice { transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+        .ws-notice:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(103, 41, 76, 0.10); }
+        .ws-notice-icon { transition: background 0.35s ease, color 0.35s ease, transform 0.4s var(--ease); }
+        .ws-notice:hover .ws-notice-icon { background: var(--wine); color: #fff; transform: rotate(-8deg) scale(1.08); }
+
+        /* Barra superior de emergencia */
+        .ws-emergency-bar a { transition: opacity 0.25s ease; }
+        .ws-emergency-bar a:hover { opacity: 0.75; }
+
+        .ws-location .text-center h2,
+        .ws-location .text-center p { margin-left: auto; margin-right: auto; max-width: 720px; }
+        .ws-location .ws-support-card p { max-width: none; }
+   :root { --gob-guinda: #611232; }
+
+    .ws-emergency-bar { background: var(--gob-guinda); color: #fff; }
+    .ws-footer        { background: var(--gob-guinda); color: rgba(255, 255, 255, 0.85); }
+    
+   </style>
 </head>
 
 
 <body>
 
+    <a href="#contenido" class="ws-skip">Saltar al contenido</a>
+
+    <!-- Barra de emergencia -->
+    <div class="ws-emergency-bar" role="note">
+        <i class="bi bi-telephone-fill me-1"></i>
+        Si existe una emergencia inmediata, comunícate al <a href="tel:911">911</a>.
+    </div>
+
 
     <!-- =========================================================
-         MENÚ
+         NAVBAR
     ========================================================= -->
-
-    <nav class="ws-navbar">
-
+    <nav class="ws-navbar" aria-label="Navegación principal">
         <div class="ws-navbar-inner">
 
             <a href="#inicio" class="ws-logo">
-
                 <span class="ws-logo-symbol">♀</span>
-
                 WOMEN SAFETY
-
             </a>
-
 
             <div class="ws-nav-links" id="wsNav">
 
-                <a href="#quienes-somos">
-                    ¿Quiénes somos?
-                </a>
-
-                <a href="#pulsera">
-                    La pulsera
-                </a>
-
-                <a href="#funcionalidades">
-                    Funcionalidades
-                </a>
-
-                <a href="#servicios">
-                    Servicios
-                </a>
-
-                <!-- Página real del mapa -->
-                <a href="/mapa">
-                    Ubicación
-                </a>
-
-                <a href="#contacto">
-                    Líneas de apoyo
-                </a>
+                <a href="#quienes-somos">¿Quiénes somos?</a>
+                <a href="#pulsera">La pulsera</a>
+                <a href="#funcionalidades">Funcionalidades</a>
+                <a href="#servicios">Servicios</a>
+                <a href="#red-de-apoyo">Red de apoyo</a>
+                <a href="/contacto">Líneas de apoyo</a>
 
                 <% if (typeof user !== 'undefined' && user) { %>
 
-    <div class="ws-nav-account">
-        <span class="ws-nav-avatar"><%= user.nombre.charAt(0).toUpperCase() %></span>
-        <span class="ws-nav-name"><%= user.nombre.split(' ')[0] %></span>
+                    <div class="ws-nav-account">
+                        <span class="ws-nav-avatar"><%= user.nombre.charAt(0).toUpperCase() %></span>
+                        <span class="ws-nav-name"><%= user.nombre.split(' ')[0] %></span>
 
-        <form action="/logout" method="POST" class="ws-nav-logout-inline">
-            <button type="submit" aria-label="Cerrar sesión">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </form>
-    </div>
+                        <form action="/logout" method="POST" class="ws-nav-logout-inline">
+                            <button type="submit" aria-label="Cerrar sesión">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
 
-<% } else { %>
+                <% } else { %>
 
-    <a href="/login" class="ws-nav-cta">Iniciar sesión</a>
+                    <a href="/login" class="ws-nav-cta">Iniciar sesión</a>
 
-<% } %>
-
+                <% } %>
 
             </div>
-
 
             <button
                 class="ws-menu-button"
                 type="button"
                 aria-label="Abrir menú"
+                aria-controls="wsNav"
+                aria-expanded="false"
                 onclick="toggleMenu()"
             >
-
                 <i class="bi bi-list"></i>
-
             </button>
 
         </div>
-
     </nav>
 
 
+    <main id="contenido">
 
-    <!-- =========================================================
-         HERO / INICIO
-    ========================================================= -->
+        <!-- =========================================================
+             HERO / INICIO
+        ========================================================= -->
+        <section id="inicio" class="ws-hero">
+            <div class="container">
+                <div class="row align-items-center g-5">
 
-    <section id="inicio" class="ws-hero">
+                    <div class="col-lg-6">
 
-        <div class="ws-hero-inner">
+                        <span class="ws-section-label">TECNOLOGÍA PARA LA SEGURIDAD</span>
 
-            <div>
+                        <h1>
+                            ¿Eres mujer y
+                            <span>necesitas apoyo?</span>
+                        </h1>
 
-                <span class="ws-label">
-                    TECNOLOGÍA PARA LA SEGURIDAD
-                </span>
+                        <p>
+                            Un espacio de acompañamiento para mujeres que buscan sentirse más seguras,
+                            fortalecer su autonomía y contar con herramientas y recursos ante situaciones de riesgo.
+                        </p>
 
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="/mapa" class="ws-primary-button">
+                                Encuentra apoyo cerca de ti
+                                <i class="bi bi-geo-alt"></i>
+                            </a>
+                            <a href="/contacto" class="ws-secondary-button">
+                                Líneas de apoyo
+                                <i class="bi bi-telephone"></i>
+                            </a>
+                        </div>
 
-                <h1>
+                    </div>
 
-                    ¿Eres mujer y
+                    <div class="col-lg-6 d-flex justify-content-center">
+                        <img
+                            src="/img/inicio-mujeres.png"
+                            alt="Tres mujeres tomadas de la mano, en señal de apoyo mutuo"
+                            class="ws-hero-illustration"
+                        >
+                    </div>
 
-                    <span>
-                        necesitas apoyo?
-                    </span>
-
-                </h1>
-
-
-                <p>
-
-                    Un espacio de acompañamiento para mujeres que buscan sentirse más seguras, fortalecer su autonomía y contar con herramientas ante situaciones de riesgo.
-
-                </p>
-
-                <a href="/mapa" class="ws-primary-button">
-                    Encuentra tu instancia más cercana
-                    <i class="bi bi-geo-alt"></i>
-                </a>
-
-            </div>   <!-- aquí cierra el bloque de texto -->
-
-            <div class="ws-hero-card">
-
-                <img
-                    src="/img/inicio-mujeres.png"
-                    alt="Tres mujeres tomadas de la mano, en señal de apoyo mutuo"
-                    class="ws-hero-illustration"
-                >
-
+                </div>
             </div>
-
-    </section>
-
-            <!-- =====================================================
-            ¿QUIÉNES SOMOS? (combinada con "Nuestra razón de ser")
-            ===================================================== -->
-        <section id="quienes-somos" class="ws-about">
+        </section>
 
 
-        <!-- INTRO -->
-        <div class="ws-about-intro">
-
+        <!-- =========================================================
+             RED DE APOYO
+        ========================================================= -->
+        <section id="red-de-apoyo" class="ws-section ws-location">
             <div class="container">
 
-            <span class="ws-about-label">
-                ¿QUIÉNES SOMOS?
-            </span>
+                <div class="text-center mx-auto mb-5" style="max-width: 720px;">
+                    <span class="ws-section-label">RED DE APOYO</span>
+                    <h2 class="ws-heading">Mapa, instancias y líneas de apoyo.</h2>
+                    <p class="ws-lead mb-2">La seguridad también implica saber dónde encontrar ayuda.</p>
+                    <p class="ws-lead mb-0">
+                        Consulta nuestro mapa para localizar centros de atención, instituciones y
+                        servicios de apoyo para mujeres en Hidalgo.
+                    </p>
+                </div>
 
-            <h2>
-                Soluciones tecnologicas credas con
-                <span>propósito humano.</span>
-            </h2>
+                <div class="row g-4">
 
-            <p>
-                WOMEN SAFETY nace como una iniciativa enfocada en una problemática que puede afectar la seguridad, libertad y autonomía de las mujeres: las situaciones de violencia y riesgo.
-            </p>
+                    <div class="col-md-6">
+                        <div class="ws-support-card">
+                            <i class="bi bi-geo-alt"></i>
+                            <h3>Centros de atención</h3>
+                            <p>Conoce las instituciones y espacios donde puedes solicitar orientación y atención especializada.</p>
+                            <a href="/mapa" class="ws-primary-button">
+                                Ver ubicación
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
 
-            <p>
-                Creemos que la tecnología puede ser una herramienta para acompañar, facilitar el acceso a recursos y fortalecer las redes de apoyo.
-            </p>
+                    <div class="col-md-6" id="lineas-apoyo">
+                        <div class="ws-support-card">
+                            <i class="bi bi-telephone"></i>
+                            <h3>Líneas de apoyo</h3>
+                            <p>Ten a la mano números de atención y emergencia que pueden ser útiles ante una situación de riesgo.</p>
+                            <a href="/contacto" class="ws-primary-button">
+                                Ver líneas de apoyo
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
 
-            <p>
-                Por ello, desarrollamos soluciones pensadas desde las necesidades de las personas, combinando tecnología, información y herramientas de seguridad.
-            </p>
+                </div>
+
+                <div class="ws-alert-911" role="note">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Si existe una emergencia inmediata, comunícate al <strong>911</strong>.</span>
+                </div>
 
             </div>
+        </section>
 
-        </div>
+
+        <!-- =========================================================
+             CARTILLA DE DERECHOS
+        ========================================================= -->
+        <section id="cartilla" class="ws-section bg-white">
+            <div class="container">
+                <div class="row align-items-center g-5">
+
+                    <div class="col-lg-7">
+
+                        <span class="ws-section-label">CARTILLA DE DERECHOS</span>
+
+                        <h2 class="ws-heading">Conocer tus derechos también es una forma de cuidarte.</h2>
+
+                        <p class="ws-lead mb-3">
+                            La Cartilla de Derechos de las Mujeres es un recurso informativo que reúne derechos
+                            relacionados con distintos ámbitos de la vida, incluido el derecho a una vida libre de violencia.
+                        </p>
+
+                        <p class="ws-lead mb-3">
+                            Conocerlos puede ayudarte a identificar qué derechos te respaldan y qué opciones tienes
+                            cuando necesitas orientación o apoyo.
+                        </p>
+
+                        <p class="ws-lead mb-4">
+                            Descárgala, guárdala en tu celular y compártela con quien pueda necesitarla.
+                        </p>
+
+                        <div class="ws-quote">
+                            <i class="bi bi-quote fs-5"></i>
+                            <span>Conocer tus derechos también es conocer tus opciones.</span>
+                        </div>
+
+                        <p class="small ws-text-gray mt-4 mb-0">
+                            Fuente: Secretaría de las Mujeres / Gobierno de México.
+                        </p>
+
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="ws-reason-visual">
+
+                            <div class="ws-orbit orbit-one"></div>
+                            <div class="ws-orbit orbit-two"></div>
+
+                            <a href="/pdf/cartilla-mujer.pdf"
+                               download="Cartilla-de-Derechos-de-las-Mujeres.pdf"
+                               class="ws-download"
+                               aria-label="Descargar la Cartilla de Derechos de las Mujeres en PDF">
+
+                                <span class="ws-download-circle d-flex align-items-center justify-content-center rounded-circle text-white shadow-lg">
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                </span>
+
+                                <span class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm ws-text-wine text-nowrap">
+                                    Descargar cartilla (PDF)
+                                </span>
+                            </a>
+
+                            <span class="ws-floating-dot dot-one"></span>
+                            <span class="ws-floating-dot dot-two"></span>
+                            <span class="ws-floating-dot dot-three"></span>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
 
 
-        <!-- NUESTRA RAZÓN DE SER (combinada aquí) -->
-        <div class="ws-about-reason">
-
+        <!-- =========================================================
+             VIOLENTÓMETRO
+             (los niveles y el "Test de orientación" viven en el parcial)
+        ========================================================= -->
+        <section id="violentometro" class="ws-section ws-about-stats">
             <div class="container">
 
-            <div class="ws-reason-grid">
-
-                <div class="ws-reason-text">
-
-                <span class="ws-small-label">
-                    NUESTRA RAZÓN DE SER
-                </span>
-
-                <h3>
-                    La seguridad de las mujeres
-                    también necesita nuevas formas
-                    de apoyo.
-                </h3>
-
-                <p>
-                    Las situaciones de violencia pueden limitar la libertad, seguridad y capacidad de decisión de una mujer. Ante estas circunstancias, contar con información, acompañamiento y recursos accesibles puede ser fundamental.
-                </p>
-
-                <p>
-                    Nuestro propósito es acercar herramientas que permitan solicitar apoyo, acceder a recursos y mantenerse conectada con una red de personas e instituciones.
-                </p>
-
-                <p>
-                    La tecnología no sustituye el acompañamiento humano. Puede ayudar a fortalecerlo y facilitar el acceso a él.
-                </p>
-
-                <div class="ws-about-quote">
-                    <i class="bi bi-quote"></i>
-
-                    <span>
-                    Tecnología con propósito humano.
-                    </span>
+                <div class="row align-items-end g-4 mb-5">
+                    <div class="col-lg-7">
+                        <span class="ws-section-label">HERRAMIENTA DE APOYO</span>
+                        <h2 class="ws-heading mb-0">
+                            Violentómetro, para <span>todo público.</span>
+                        </h2>
+                    </div>
+                    <div class="col-lg-5">
+                        <p class="ws-lead mb-0">
+                            Una herramienta visual para reconocer diferentes manifestaciones de violencia
+                            que pueden presentarse en una relación.
+                        </p>
+                    </div>
                 </div>
 
-                </div>
-
-
-                <div class="ws-reason-visual">
-
-                <div class="ws-orbit orbit-one"></div>
-                <div class="ws-orbit orbit-two"></div>
-
-                <div class="ws-heart-circle">
-                    <i class="bi bi-shield-heart"></i>
-                </div>
-
-                <span class="ws-floating-dot dot-one"></span>
-                <span class="ws-floating-dot dot-two"></span>
-                <span class="ws-floating-dot dot-three"></span>
-
-                </div>
+                <%- include('partials/violentometro') %>
 
             </div>
+        </section>
 
+
+        <!-- =========================================================
+             ¿QUIÉNES SOMOS?
+        ========================================================= -->
+        <section id="quienes-somos" class="ws-section ws-about-intro">
+            <div class="container">
+                <div class="row align-items-center g-5">
+
+                    <div class="col-lg-7">
+
+                        <span class="ws-section-label">¿QUIÉNES SOMOS?</span>
+
+                        <h2 class="ws-heading">
+                            Soluciones tecnológicas creadas con
+                            <span>propósito humano.</span>
+                        </h2>
+
+                        <p class="ws-lead mb-3">
+                            WOMEN SAFETY nace como una iniciativa enfocada en una problemática que puede afectar
+                            la seguridad, libertad y autonomía de las mujeres: las situaciones de violencia y riesgo.
+                        </p>
+
+                        <p class="ws-lead mb-0">
+                            Desarrollamos soluciones pensadas desde las necesidades de las personas, combinando
+                            tecnología, información y herramientas de seguridad.
+                        </p>
+
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="d-flex flex-column gap-3">
+
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="card-body d-flex align-items-start gap-3 p-4">
+                                    <span class="flex-shrink-0 rounded-3 p-3 lh-1 fs-4 ws-bg-pink-light ws-text-wine">
+                                        <i class="bi bi-heart"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Acompañar</h3>
+                                        <div class="ws-text-gray small">
+                                            Una herramienta tecnológica pensada para brindar apoyo ante situaciones de riesgo.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="card-body d-flex align-items-start gap-3 p-4">
+                                    <span class="flex-shrink-0 rounded-3 p-3 lh-1 fs-4 ws-bg-pink-light ws-text-wine">
+                                        <i class="bi bi-book"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Informar</h3>
+                                        <div class="ws-text-gray small">
+                                            Facilitamos el acceso a información y recursos que pueden ser útiles para conocer opciones de apoyo.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="card-body d-flex align-items-start gap-3 p-4">
+                                    <span class="flex-shrink-0 rounded-3 p-3 lh-1 fs-4 ws-bg-pink-light ws-text-wine">
+                                        <i class="bi bi-people"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Conectar</h3>
+                                        <div class="ws-text-gray small">
+                                            Buscamos facilitar la conexión entre las usuarias y una red de apoyo conformada por personas e instituciones.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
             </div>
+        </section>
 
-        </div>
 
-
-        <!-- VIOLENTÓMETRO (espacio reservado, se arma en otro paso) -->
-        <div class="ws-about-stats">
-
+        <!-- =========================================================
+             FUNCIONALIDADES
+        ========================================================= -->
+        <section id="funcionalidades" class="ws-section ws-features">
             <div class="container">
 
-            <div class="ws-stats-heading">
-
-                <div>
-                <span class="ws-small-label">
-                    HERRAMIENTA DE APOYO
-                </span>
-
-                <h3>
-                    Violentómetro, para
-                    <span>todo público.</span>
-                </h3>
+                <div class="text-center mx-auto mb-5" style="max-width: 720px;">
+                    <span class="ws-section-label">FUNCIONALIDADES</span>
+                    <h2 class="ws-heading">Tecnología que responde contigo.</h2>
+                    <p class="ws-lead mb-0">
+                        Diseñamos las funcionalidades pensando en situaciones reales y en la necesidad
+                        de solicitar apoyo de manera rápida y discreta.
+                    </p>
                 </div>
 
-                <p>
-                Una herramienta visual para identificar el nivel de riesgo en una relación.
-                </p>
+                <div class="row g-4">
 
+                    <div class="col-md-6 col-lg-4">
+                        <div class="ws-feature-card">
+                            <div class="ws-feature-icon"><i class="bi bi-exclamation-circle"></i></div>
+                            <h3>Botón de emergencia</h3>
+                            <p>Permite generar una alerta cuando la usuaria necesita solicitar apoyo.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="ws-feature-card">
+                            <div class="ws-feature-icon"><i class="bi bi-geo-alt"></i></div>
+                            <h3>Ubicación</h3>
+                            <p>La integración de información de ubicación permite proporcionar datos que pueden facilitar la atención ante una emergencia.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 col-lg-4">
+                        <div class="ws-feature-card">
+                            <div class="ws-feature-icon"><i class="bi bi-broadcast-pin"></i></div>
+                            <h3>Comunicación</h3>
+                            <p>Permite conectar las alertas con una red de apoyo y un sistema de monitoreo para facilitar su recepción.</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
+        </section>
 
-            <%- include('partials/violentometro') %>
 
-            </div>
+        <!-- =========================================================
+             DESCRIPCIÓN DEL SERVICIO (LA PULSERA) — NO MODIFICAR
+             Solo se añadió el id="pulsera" para que el menú llegue aquí.
+        ========================================================= -->
+        <section id="pulsera" class="ws-slider-section">
 
-        </div>
+            <%- include('partials/slider') %>
 
         </section>
 
 
-
-    <!-- =========================================================
-         LA PULSERA
-    ========================================================= -->
-
-    <section
-        id="pulsera"
-        class="ws-bracelet"
-    >
-
-        <div class="ws-bracelet-inner">
-
-
-            <div class="ws-bracelet-visual">
-
-                <div class="ws-bracelet-icon">
-
-                    <i class="bi bi-watch"></i>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="ws-bracelet-text">
-
-                <span class="ws-section-label">
-                    NUESTRO TECNOLOGÍA
-                </span>
-
-
-                <h2>
-
-                Una pulsera pensada para acompañarte.
-
-                </h2>
-
-
-                <p>
-
-                Una herramienta tecnológica diseñada para solicitar apoyo ante situaciones de emergencia y facilitar la comunicación con una red de apoyo.
-
-                </p>
-
-               <p>
-                
-                Su objetivo es proporcionar una herramienta adicional que permita generar una alerta de manera rápida y discreta, sin sustituir la atención de personas o instituciones especializadas.
-
-               </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =========================================================
-         FUNCIONALIDADES
-    ========================================================= -->
-
-    <section
-        id="funcionalidades"
-        class="ws-features"
-    >
-
-        <div class="ws-features-header">
-
-            <span class="ws-section-label">
-                FUNCIONALIDADES
-            </span>
-
-
-            <h2>
-
-                Tecnología que
-                responde contigo.
-
-            </h2>
-
-
-            <p>
-
-                Diseñamos las funcionalidades pensando en
-                situaciones reales y en la necesidad de
-                obtener apoyo de manera rápida.
-
-            </p>
-
-        </div>
-
-
-
-        <div class="ws-feature-grid">
-
-
-            <!-- FUNCIONALIDAD 1 -->
-
-            <div class="ws-feature-card">
-
-                <div class="ws-feature-icon">
-
-                    <i class="bi bi-exclamation-circle"></i>
-
-                </div>
-
-
-                <h3>
-                    Botón de emergencia
-                </h3>
-
-
-                <p>
-
-                    Permite generar una alerta cuando
-                    la usuaria necesita solicitar apoyo.
-
-                </p>
-
-            </div>
-
-
-
-            <!-- FUNCIONALIDAD 2 -->
-
-            <div class="ws-feature-card">
-
-                <div class="ws-feature-icon">
-
-                    <i class="bi bi-geo-alt"></i>
-
-                </div>
-
-
-                <h3>
-                    Ubicación
-                </h3>
-
-
-                <p>
-
-                    La tecnología puede integrarse con
-                    información de ubicación para facilitar
-                    la atención de una emergencia.
-
-                </p>
-
-            </div>
-
-
-
-            <!-- FUNCIONALIDAD 3 -->
-
-            <div class="ws-feature-card">
-
-                <div class="ws-feature-icon">
-
-                    <i class="bi bi-broadcast-pin"></i>
-
-                </div>
-
-
-                <h3>
-                    Comunicación
-                </h3>
-
-
-                <p>
-
-                    Diseñada para conectar las alertas
-                    con una red de apoyo y monitoreo.
-
-                </p>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
         <!-- =========================================================
-         SLIDER DE ANDREA
-    ========================================================= -->
+             NUESTROS SERVICIOS
+        ========================================================= -->
+        <section id="servicios" class="ws-section bg-white">
+            <div class="container">
 
-    <section
-        id="slider"
-        class="ws-slider-section"
-    >
+                <div class="text-center mx-auto mb-5" style="max-width: 750px;">
+                    <span class="ws-section-label">NUESTROS SERVICIOS</span>
+                    <h2 class="ws-heading">Soluciones para una red más segura.</h2>
+                    <p class="ws-lead mb-0">
+                        Conoce las soluciones tecnológicas y servicios desarrollados para fortalecer
+                        la atención y el monitoreo de alertas.
+                    </p>
+                </div>
 
-        <%- include('partials/slider') %>
+                <div class="row g-4">
 
-    </section>
+                    <% if (typeof products !== 'undefined' && products && products.length) { %>
 
-    <!-- =========================================================
-         SERVICIOS / CATÁLOGO
-    ========================================================= -->
+                        <% products.forEach(product => { %>
 
-    <section
-        id="servicios"
-        class="ws-services"
-    >
+                            <div class="col-md-6 col-lg-4">
+                                <article class="ws-service-card">
 
-        <div class="ws-services-header">
+                                    <img
+                                        src="<%= product.image %>"
+                                        alt="<%= product.name %>"
+                                        loading="lazy"
+                                        onerror="this.onerror=null; this.removeAttribute('src'); this.alt='';"
+                                    >
 
-            <span class="ws-section-label">
-                NUESTROS SERVICIOS
-            </span>
+                                    <div class="ws-service-body">
 
+                                        <span class="ws-service-category"><%= product.category %></span>
 
-            <h2>
+                                        <h3><%= product.name %></h3>
 
-                Soluciones para
-                una red más segura.
+                                        <p><%= product.description %></p>
 
-            </h2>
+                                        <% if (product.specs && product.specs.length > 0) { %>
+                                            <ul>
+                                                <% product.specs.forEach(spec => { %>
+                                                    <li><%= spec %></li>
+                                                <% }) %>
+                                            </ul>
+                                        <% } %>
 
+                                    </div>
 
-            <p>
-
-                Conoce las soluciones tecnológicas y servicios
-                desarrollados por WOMEN SAFETY.
-
-            </p>
-
-        </div>
-
-
-
-        <div class="ws-services-grid">
-
-            <div class="row g-4">
-
-                <% products.forEach(product => { %>
-
-
-                    <div class="col-md-6 col-lg-4">
-
-                        <article class="ws-service-card">
-
-
-                            <img
-                                src="<%= product.image %>"
-                                alt="<%= product.name %>"
-                            >
-
-
-                            <div class="ws-service-body">
-
-
-                                <span class="ws-service-category">
-
-                                    <%= product.category %>
-
-                                </span>
-
-
-                                <h3>
-
-                                    <%= product.name %>
-
-                                </h3>
-
-
-                                <p>
-
-                                    <%= product.description %>
-
-                                </p>
-
-
-
-                                <% if (product.specs && product.specs.length > 0) { %>
-
-
-                                    <ul>
-
-                                        <% product.specs.forEach(spec => { %>
-
-                                            <li>
-
-                                                <%= spec %>
-
-                                            </li>
-
-                                        <% }) %>
-
-                                    </ul>
-
-
-                                <% } %>
-
-
+                                </article>
                             </div>
 
-                        </article>
+                        <% }) %>
 
-                    </div>
+                    <% } else { %>
 
+                        <div class="col-12 text-center ws-text-gray">
+                            Por el momento no hay servicios disponibles.
+                        </div>
 
-                <% }) %>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =========================================================
-         UBICACIÓN
-    ========================================================= -->
-
-    <section
-        id="ubicacion"
-        class="ws-location"
-    >
-
-        <div class="ws-location-inner">
-
-
-            <div>
-
-                <span class="ws-section-label">
-                    RED DE APOYO
-                </span>
-
-
-                <h2>
-
-                    Mapa, instancias y
-                    líneas de apoyo.
-
-                </h2>
-
-
-                <p>
-
-                    Consulta nuestro mapa para encontrar
-                    centros de atención, instituciones y
-                    líneas telefónicas de apoyo para mujeres.
-
-                </p>
-
-
-                <a
-                    href="/mapa"
-                    class="ws-primary-button"
-                >
-
-                    Ver ubicación
-
-                    <i class="bi bi-arrow-right"></i>
-
-                </a>
-
-            </div>
-
-
-
-            <div class="ws-location-box">
-
-                <div>
-
-                    <i class="bi bi-geo-alt"></i>
-
-
-                    <h4>
-                        Centros de atención
-                    </h4>
-
-
-                    <p>
-                        Red de apoyo en Hidalgo
-                    </p>
+                    <% } %>
 
                 </div>
-
             </div>
-
-        </div>
-
-    </section>
+        </section>
 
 
 
-    <!-- =========================================================
-         CONTACTO
-    ========================================================= -->
 
-    <section
-        id="contacto"
-        class="ws-contact"
-    >
+        <!-- =========================================================
+             PRIVACIDAD
+        ========================================================= -->
+        <section id="privacidad" class="ws-section">
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
 
-        <div class="ws-contact-inner">
+                        <span class="ws-section-label">PRIVACIDAD</span>
 
+                        <h2 class="ws-heading">Tu información también importa.</h2>
 
-            <span
-                class="ws-section-label"
-                style="color: #f2c5db;"
-            >
-                WOMEN SAFETY
-            </span>
+                        <p class="ws-lead mb-4">
+                            Si alguna función de la plataforma recopila, almacena, consulta o comparte información personal,
+                            deberá informarse previamente qué datos se recopilan, para qué se utilizan, con quién pueden
+                            compartirse y cuáles son los derechos que pueden ejercer las personas usuarias.
+                        </p>
 
+                        <a href="/privacidad" class="ws-primary-button">
+                            Consulta nuestro Aviso de Privacidad
+                            <i class="bi bi-shield-check"></i>
+                        </a>
 
-            <h2>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                La tecnología también
-                puede acompañarnos.
-
-            </h2>
-
-
-            <p>
-
-                Conoce más sobre nuestro proyecto,
-                nuestras soluciones y la red de apoyo
-                que estamos construyendo.
-
-            </p>
-
-
-            <a
-                href="/quienes-somos"
-                class="ws-contact-button"
-            >
-
-                Conocer el proyecto
-
-                <i class="bi bi-arrow-right"></i>
-
-            </a>
-
-        </div>
-
-    </section>
-
+    </main>
 
 
     <!-- =========================================================
          FOOTER
     ========================================================= -->
-
     <footer class="ws-footer">
-
         <p class="mb-0">
-
-            © 2026 WOMEN SAFETY ·
-            Tecnología para la seguridad y el bienestar de las mujeres.
-
+            © 2026 WOMEN SAFETY · Tecnología para la seguridad y el bienestar de las mujeres.
         </p>
-
     </footer>
 
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- =========================================================
-         BOOTSTRAP JAVASCRIPT
-    ========================================================= -->
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
-
-
-
-    <!-- =========================================================
-         MENÚ MÓVIL
-    ========================================================= -->
-
+    <!-- Menú móvil -->
     <script>
+        const wsNav = document.getElementById("wsNav");
+        const wsMenuButton = document.querySelector(".ws-menu-button");
 
         function toggleMenu() {
-
-            const menu =
-                document.getElementById("wsNav");
-
-            menu.classList.toggle("active");
-
+            const open = wsNav.classList.toggle("active");
+            wsMenuButton.setAttribute("aria-expanded", open);
         }
 
-
-        // Cerrar el menú cuando se selecciona una sección
-
-        document
-            .querySelectorAll(".ws-nav-links a")
-            .forEach(link => {
-
-                link.addEventListener("click", () => {
-
-                    document
-                        .getElementById("wsNav")
-                        .classList.remove("active");
-
-                });
-
+        // Cerrar el menú al elegir una sección
+        wsNav.querySelectorAll("a").forEach(link => {
+            link.addEventListener("click", () => {
+                wsNav.classList.remove("active");
+                wsMenuButton.setAttribute("aria-expanded", "false");
             });
-
+        });
     </script>
 
 </body>

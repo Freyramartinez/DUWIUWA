@@ -17,331 +17,322 @@
     <link rel="stylesheet" href="/css/main.css">
 
     <style>
-        /* Variables adicionales de esta vista */
+        /* =========================================================
+           VARIABLES Y TEMAS
+           Un solo selector cambia el "tema" de toda la vista:
+           rosa (instancias) o azul (seguridad pública).
+        ========================================================= */
         :root {
             --blue-sec:   #2b4a8e;
+            --blue-dark:  #1f3568;
             --blue-light: #e8eef7;
             --blue-mid:   #5b7ec5;
+            --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+            --nav-h: 74px;
+        }
+        @media (max-width: 600px) { :root { --nav-h: 65px; } }
+
+        #mapaTheme.theme-instancias {
+            --accent:      var(--wine);
+            --accent-dark: var(--wine-dark);
+            --accent-mid:  var(--pink);
+            --accent-soft: var(--pink-light);
+            --accent-bg:   #fdf8fb;
+            --accent-rgb:  142, 58, 104;
+        }
+        #mapaTheme.theme-seguridad {
+            --accent:      var(--blue-sec);
+            --accent-dark: var(--blue-dark);
+            --accent-mid:  var(--blue-mid);
+            --accent-soft: var(--blue-light);
+            --accent-bg:   #f5f8fd;
+            --accent-rgb:  43, 74, 142;
         }
 
         h1, .font-serif { font-family: 'Playfair Display', serif; }
+        #mapaTheme .ws-section-label { color: var(--accent); transition: color .45s ease; }
 
-        /* ══════════════════════════════════════
-           TARJETA MÁS CERCANA
-        ══════════════════════════════════════ */
-        #nearestCard {
-            border-left: 4px solid var(--wine);
-            transition: border-color .3s;
-        }
-        #nearestCard.tab-seguridad {
-            border-left-color: var(--blue-sec);
+        /* =========================================================
+           ENCABEZADO
+        ========================================================= */
+        .map-hero {
+            background: var(--accent-soft);
+            transition: background-color .5s ease;
         }
 
-        .nearest-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: .75rem;
-            background: var(--pink-light);
-            color: var(--wine);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            flex-shrink: 0;
-            transition: background .3s, color .3s;
-        }
-        #nearestCard.tab-seguridad .nearest-icon {
-            background: var(--blue-light);
-            color: var(--blue-sec);
+        /* =========================================================
+           SELECTOR ÚNICO (reemplaza los tabs de arriba y abajo)
+        ========================================================= */
+        .ws-switch-bar {
+            position: sticky;
+            top: var(--nav-h);
+            z-index: 1100;
+            padding: .75rem 0;
+            background: rgba(255, 253, 253, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(var(--accent-rgb), .14);
+            transition: border-color .5s ease;
         }
 
-        #nearestLabel {
-            font-size: .7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .12em;
-            color: var(--wine);
-            transition: color .3s;
-        }
-        #nearestCard.tab-seguridad #nearestLabel {
-            color: var(--blue-sec);
-        }
-
-        #nearestKm {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            line-height: 1;
-            color: var(--wine);
-            transition: color .3s;
-        }
-        #nearestCard.tab-seguridad #nearestKm {
-            color: var(--blue-sec);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #bbb;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-        .status-dot.live {
-            background: #3fa96a;
-            box-shadow: 0 0 0 4px rgba(63,169,106,.18);
-        }
-
-        /* ══════════════════════════════════════
-           BLOQUE MAPA + TABS
-        ══════════════════════════════════════ */
-        .map-wrapper {
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 4px 24px rgba(142,58,104,.10);
-            border: 1px solid var(--border);
-        }
-
-        /* Barra de tabs */
-        .ws-map-tabs {
-            display: flex;
-            align-items: stretch;
-            background: var(--cream);
-            border-bottom: 1px solid var(--border);
+        .ws-switch {
             position: relative;
-        }
-        .ws-map-tabs--bottom {
-            border-bottom: none;
-            border-top: 1px solid var(--border);
+            display: flex;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 6px;
+            border: 1px solid rgba(var(--accent-rgb), .18);
+            border-radius: 999px;
+            background: var(--accent-soft);
+            transition: background-color .5s ease, border-color .5s ease;
         }
 
-        /* Línea indicadora animada */
-        .ws-map-tabs::after {
-            content: "";
+        /* Píldora que se desliza y cambia de color */
+        .ws-switch-thumb {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            width: 50%;
-            background: var(--wine);
-            border-radius: 3px 3px 0 0;
-            transition: left .28s cubic-bezier(.4,0,.2,1), background .25s;
+            top: 6px;
+            bottom: 6px;
+            left: 6px;
+            width: calc(50% - 6px);
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 10px 24px rgba(var(--accent-rgb), .35);
+            transition: transform .5s var(--ease), background-color .5s ease, box-shadow .5s ease;
         }
-        .ws-map-tabs--bottom::after {
-            bottom: auto;
-            top: 0;
-            border-radius: 0 0 3px 3px;
-        }
-        .ws-map-tabs.tab-seguridad::after {
-            left: 50%;
-            background: var(--blue-sec);
-        }
+        #mapaTheme.theme-seguridad .ws-switch-thumb { transform: translateX(100%); }
 
-        /* Divisor vertical */
-        .ws-tab-divider {
-            width: 1px;
-            background: var(--border);
-            flex-shrink: 0;
-        }
-
-        /* Botón de tab */
-        .ws-map-tab {
+        .ws-switch .nav-link {
+            position: relative;
+            z-index: 1;
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: .85rem;
-            padding: .95rem 1.25rem;
+            gap: .8rem;
+            padding: .8rem 1rem;
+            border: 0;
+            border-radius: 999px;
             background: transparent;
-            border: none;
-            cursor: pointer;
+            color: var(--accent-dark);
             text-align: left;
-            transition: background .2s;
+            transition: color .35s ease;
         }
-        .ws-map-tab:hover {
-            background: var(--pink-light);
-        }
+        .ws-switch .nav-link:hover  { color: var(--accent-dark); }
+        .ws-switch .nav-link.active,
+        .ws-switch .nav-link.active:hover { color: #fff; }
+        .ws-switch .nav-link:focus-visible { outline: 3px solid var(--accent-mid); outline-offset: 2px; }
 
         .ws-tab-icon {
             width: 38px;
             height: 38px;
-            border-radius: .55rem;
-            background: var(--pink-light);
-            color: var(--wine);
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 50%;
+            background: rgba(var(--accent-rgb), .12);
+            color: var(--accent);
             font-size: 1.05rem;
-            flex-shrink: 0;
-            transition: background .25s, color .25s;
+            transition: background-color .35s ease, color .35s ease, transform .4s var(--ease);
         }
+        .ws-switch .nav-link.active .ws-tab-icon { background: rgba(255, 255, 255, .22); color: #fff; transform: scale(1.08); }
 
-        .ws-tab-text {
-            display: flex;
-            flex-direction: column;
-            gap: .1rem;
-        }
-        .ws-tab-title {
-            font-size: .88rem;
-            font-weight: 700;
-            color: var(--gray);
-            transition: color .25s;
-            line-height: 1.2;
-        }
-        .ws-tab-sub {
-            font-size: .72rem;
-            color: #aaa;
-            font-weight: 500;
-            line-height: 1.2;
-        }
+        .ws-tab-text { display: flex; flex-direction: column; line-height: 1.2; }
+        .ws-tab-title { font-size: .9rem; font-weight: 700; }
+        .ws-tab-sub   { font-size: .72rem; font-weight: 500; opacity: .8; }
 
-        /* Tab activo */
-        .ws-map-tab.active .ws-tab-icon {
-            background: var(--wine);
-            color: #fff;
-        }
-        .ws-map-tab.active .ws-tab-title {
-            color: var(--wine);
-        }
-        .ws-map-tab.active .ws-tab-sub {
-            color: var(--pink);
-        }
-
-        /* Tab seguridad activo */
-        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-icon {
-            background: var(--blue-sec);
-        }
-        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-title {
-            color: var(--blue-sec);
-        }
-        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-sub {
-            color: var(--blue-mid);
-        }
-
-        /* Mapa */
-        #ws-map {
-            height: 480px;
-            width: 100%;
-        }
-        @media (max-width: 767px) { #ws-map { height: 320px; } }
-
-        /* Responsive tabs */
-        @media (max-width: 480px) {
-            .ws-map-tab {
-                flex-direction: column;
-                gap: .35rem;
-                padding: .75rem .5rem;
-                text-align: center;
-            }
+        @media (max-width: 520px) {
+            .ws-switch .nav-link { flex-direction: column; gap: .3rem; padding: .65rem .4rem; text-align: center; }
             .ws-tab-icon { width: 32px; height: 32px; font-size: .9rem; }
             .ws-tab-title { font-size: .78rem; }
             .ws-tab-sub { display: none; }
         }
 
-        /* ══════════════════════════════════════
-           SECCIÓN BUSCADOR + FILTROS
-        ══════════════════════════════════════ */
-        .section-controls {
-            background: #fff;
+        /* =========================================================
+           TARJETA MÁS CERCANA
+        ========================================================= */
+        #nearestCard {
             border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            transition: border-color .45s ease, box-shadow .4s var(--ease), transform .4s var(--ease);
+        }
+        #nearestCard:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(var(--accent-rgb), .14) !important; }
+
+        .nearest-icon {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: .75rem;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 1.35rem;
+            transition: background-color .45s ease, color .45s ease;
+        }
+        #nearestLabel {
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--accent);
+            transition: color .45s ease;
+        }
+        #nearestKm {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            line-height: 1;
+            color: var(--accent);
+            transition: color .45s ease;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            display: inline-block;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #bbb;
+        }
+        .status-dot.live { background: #3fa96a; box-shadow: 0 0 0 4px rgba(63, 169, 106, .18); }
+
+        /* =========================================================
+           MAPA
+        ========================================================= */
+        .map-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(var(--accent-rgb), .28);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 34px rgba(var(--accent-rgb), .14);
+            transition: border-color .5s ease, box-shadow .5s ease;
+        }
+        #ws-map { height: 480px; width: 100%; }
+        @media (max-width: 767px) { #ws-map { height: 340px; } }
+
+        /* Etiqueta flotante: qué categoría se está viendo */
+        .map-chip {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem .95rem;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #fff;
+            font-size: .78rem;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(var(--accent-rgb), .35);
+            transition: background-color .5s ease, box-shadow .5s ease;
+        }
+
+        /* Oculta instrucciones de ruta de LRM */
+        .leaflet-routing-container { display: none; }
+
+        /* =========================================================
+           AVISO, BUSCADOR Y FILTROS
+        ========================================================= */
+        .privacy-note {
+            background: var(--accent-soft);
+            color: var(--accent-dark);
+            transition: background-color .5s ease, color .5s ease;
+        }
+
+        .section-controls {
             padding: 1rem 1.25rem;
+            border: 1px solid rgba(var(--accent-rgb), .2);
+            border-radius: 1rem;
+            background: #fff;
+            transition: border-color .5s ease;
         }
+        .section-controls .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 .2rem rgba(var(--accent-rgb), .18);
+        }
+        .section-controls .input-group:focus-within .input-group-text { border-color: var(--accent); }
 
-        .btn-wine {
-            background: var(--wine);
-            border-color: var(--wine);
-            color: #fff;
+        .filter-pill {
+            padding: .35rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--gray);
+            font-size: .8rem;
+            font-weight: 600;
+            transition: transform .3s var(--ease), background-color .3s ease, border-color .3s ease, color .3s ease;
         }
-        .btn-wine:hover, .btn-wine:focus {
-            background: var(--wine-dark);
-            border-color: var(--wine-dark);
-            color: #fff;
-        }
+        .filter-pill:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+        .filter-pill.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+        .filter-pill:focus-visible { outline: 3px solid var(--accent-mid); outline-offset: 2px; }
 
-        /* ══════════════════════════════════════
-           GRID DE CARDS
-        ══════════════════════════════════════ */
+        /* =========================================================
+           LISTADO DE LUGARES
+        ========================================================= */
         .place-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1rem;
         }
-        @media (max-width: 575px) {
-            .place-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 575px) { .place-grid { grid-template-columns: 1fr; } }
 
         .place-card {
-            cursor: pointer;
-            border: 1px solid var(--border) !important;
-            border-radius: .75rem !important;
             padding: 1.1rem;
-            transition: border-color .2s, box-shadow .2s, transform .15s;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
             background: #fff;
+            cursor: pointer;
+            transition: transform .35s var(--ease), border-color .35s ease,
+                        box-shadow .35s var(--ease), background-color .35s ease;
         }
         .place-card:hover {
-            border-color: var(--wine) !important;
-            box-shadow: 0 4px 18px rgba(142,58,104,.10);
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 16px 34px rgba(var(--accent-rgb), .16);
         }
         .place-card.selected {
-            border-color: var(--wine) !important;
-            box-shadow: 0 4px 20px rgba(142,58,104,.15);
-            background: #fdf8fb;
-        }
-        .place-card.sec:hover {
-            border-color: var(--blue-sec) !important;
-            box-shadow: 0 4px 18px rgba(43,74,142,.10);
-        }
-        .place-card.sec.selected {
-            border-color: var(--blue-sec) !important;
-            box-shadow: 0 4px 20px rgba(43,74,142,.12);
-            background: #f5f8fd;
+            border-color: var(--accent);
+            background: var(--accent-bg);
+            box-shadow: 0 12px 28px rgba(var(--accent-rgb), .2);
         }
 
-        /* Badge de categoría */
-        .card-label {
-            font-size: .68rem;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
+        .card-label,
+        .card-dist {
             padding: .2rem .7rem;
             border-radius: 2rem;
-        }
-        .label-instancia { background: var(--pink-light); color: var(--wine); }
-        .label-seguridad  { background: var(--blue-light); color: var(--blue-sec); }
-
-        /* Badge de distancia */
-        .card-dist {
-            font-size: .75rem;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: .7rem;
             font-weight: 700;
-            padding: .2rem .65rem;
-            border-radius: 2rem;
-            background: var(--pink-light);
-            color: var(--wine);
+            transition: background-color .45s ease, color .45s ease;
         }
-        .sec .card-dist {
-            background: var(--blue-light);
-            color: var(--blue-sec);
-        }
+        .card-label { letter-spacing: .06em; text-transform: uppercase; }
+        .card-dist  { font-size: .75rem; }
 
-        /* Filas de info dentro de la card */
         .card-info-row {
             display: flex;
             align-items: flex-start;
             gap: .5rem;
-            font-size: .81rem;
-            color: #5a5a5a;
             margin-top: .4rem;
+            color: #5a5a5a;
+            font-size: .81rem;
             line-height: 1.4;
         }
-        .card-info-row .bi {
-            flex-shrink: 0;
-            margin-top: 2px;
-            font-size: .8rem;
-        }
+        .card-info-row .bi { flex-shrink: 0; margin-top: 2px; font-size: .8rem; color: var(--accent); transition: color .45s ease; }
+        .card-phone { color: inherit; text-decoration: none; font-weight: 600; }
+        .card-phone:hover { color: var(--accent); text-decoration: underline; }
 
-        /* Oculta instrucciones de ruta de LRM */
-        .leaflet-routing-container { display: none; }
+        /* Entrada escalonada al cambiar de pestaña */
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .place-grid.anim .place-card { animation: cardIn .5s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
+        }
     </style>
 </head>
 
@@ -349,148 +340,143 @@
 
     <%- include('partials/navbar') %>
 
-    <!-- ══════════════════════════════════════
-         ENCABEZADO
-    ══════════════════════════════════════ -->
-    <header class="py-5" style="background: var(--pink-light);">
-        <div class="container text-center">
-            <span class="ws-section-label">Red de apoyo en Hidalgo</span>
-            <h1 class="font-serif fw-medium mb-3" style="font-size: clamp(2rem,4.5vw,3rem); color: var(--dark);">
-                Encuentra ayuda cerca de ti.
-            </h1>
-            <p class="text-muted mx-auto mb-0" style="max-width: 520px; font-size: .97rem; line-height: 1.7;">
-                Localiza instancias de atención y dependencias de seguridad pública en Hidalgo.
-                Activa tu ubicación para ver la más cercana y trazar la ruta automáticamente.
-            </p>
-        </div>
-    </header>
-
-    <main class="container py-4">
+    <!-- Todo lo que está dentro cambia de color con el selector -->
+    <div id="mapaTheme" class="theme-instancias">
 
         <!-- ══════════════════════════════════════
-             TARJETA MÁS CERCANA
+             ENCABEZADO
         ══════════════════════════════════════ -->
-        <div class="card shadow-sm rounded-4 mb-4 border-0" id="nearestCard">
-            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 px-4">
+        <header class="map-hero py-5">
+            <div class="container text-center">
+                <span class="ws-section-label">Red de apoyo en Hidalgo</span>
+                <h1 class="font-serif fw-medium mb-3" style="font-size: clamp(2rem,4.5vw,3rem); color: var(--dark);">
+                    Encuentra ayuda cerca de ti.
+                </h1>
+                <p class="text-muted mx-auto mb-0" style="max-width: 520px; font-size: .97rem; line-height: 1.7;">
+                    Localiza instancias de atención y dependencias de seguridad pública en Hidalgo.
+                    Activa tu ubicación para ver la más cercana y trazar la ruta automáticamente.
+                </p>
+            </div>
+        </header>
 
-                <div class="d-flex align-items-center gap-3">
-                    <div class="nearest-icon">
-                        <i class="bi bi-geo-alt-fill"></i>
-                    </div>
-                    <div>
-                        <div id="nearestLabel">Más cercana a ti</div>
-                        <div class="fw-bold mt-1" style="font-size:.97rem;" id="nearestName">
-                            Activa tu ubicación
+        <!-- ══════════════════════════════════════
+             SELECTOR ÚNICO (queda fijo al hacer scroll)
+        ══════════════════════════════════════ -->
+        <div class="ws-switch-bar">
+            <div class="container">
+                <div class="ws-switch nav" role="tablist" aria-label="Tipo de lugares">
+
+                    <span class="ws-switch-thumb" aria-hidden="true"></span>
+
+                    <button class="nav-link active" id="tab-instancias" type="button" role="tab"
+                            aria-selected="true" data-tab="instancias">
+                        <span class="ws-tab-icon"><i class="bi bi-people-fill"></i></span>
+                        <span class="ws-tab-text">
+                            <span class="ws-tab-title">Instancias de Atención</span>
+                            <span class="ws-tab-sub">Centros de apoyo y justicia</span>
+                        </span>
+                    </button>
+
+                    <button class="nav-link" id="tab-seguridad" type="button" role="tab"
+                            aria-selected="false" data-tab="seguridad" tabindex="-1">
+                        <span class="ws-tab-icon"><i class="bi bi-shield-fill"></i></span>
+                        <span class="ws-tab-text">
+                            <span class="ws-tab-title">Seguridad Pública</span>
+                            <span class="ws-tab-sub">Dependencias de Hidalgo</span>
+                        </span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <main class="container py-4" id="tabPanel" role="tabpanel" aria-labelledby="tab-instancias">
+
+            <!-- ══════════════════════════════════════
+                 TARJETA MÁS CERCANA
+            ══════════════════════════════════════ -->
+            <div class="card shadow-sm rounded-4 mb-4" id="nearestCard">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 px-4">
+
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="nearest-icon">
+                            <i class="bi bi-geo-alt-fill"></i>
                         </div>
-                        <div class="text-muted small mt-1" id="nearestAddress">
-                            Te ubicamos y trazamos la ruta automáticamente.
+                        <div>
+                            <div id="nearestLabel">Más cercana a ti</div>
+                            <div class="fw-bold mt-1" style="font-size:.97rem;" id="nearestName">
+                                Activa tu ubicación
+                            </div>
+                            <div class="text-muted small mt-1" id="nearestAddress">
+                                Te ubicamos y trazamos la ruta automáticamente.
+                            </div>
                         </div>
                     </div>
+
+                    <div class="text-end">
+                        <div id="nearestKm">—</div>
+                        <small class="text-muted" id="nearestEta">distancia aprox.</small>
+                    </div>
+
+                    <div class="w-100 d-flex align-items-center gap-2 small text-muted border-top pt-2 mt-1">
+                        <span class="status-dot" id="nearestDot"></span>
+                        <span id="nearestStatusText">Ubicación no activada</span>
+                    </div>
+
                 </div>
-
-                <div class="text-end">
-                    <div id="nearestKm">—</div>
-                    <small class="text-muted" id="nearestEta">distancia aprox.</small>
-                </div>
-
-                <div class="w-100 d-flex align-items-center gap-2 small text-muted border-top pt-2 mt-1">
-                    <span class="status-dot" id="nearestDot"></span>
-                    <span id="nearestStatusText">Ubicación no activada</span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ══════════════════════════════════════
-             BLOQUE MAPA: tabs arriba + mapa + tabs abajo
-        ══════════════════════════════════════ -->
-        <div class="map-wrapper mb-4">
-
-            <!-- Tabs arriba -->
-            <div class="ws-map-tabs" id="tabsTop">
-                <button class="ws-map-tab active" data-tab="instancias" type="button">
-                    <span class="ws-tab-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </span>
-                    <span class="ws-tab-text">
-                        <span class="ws-tab-title">Instancias de Atención</span>
-                        <span class="ws-tab-sub">Centros de apoyo y justicia</span>
-                    </span>
-                </button>
-                <div class="ws-tab-divider"></div>
-                <button class="ws-map-tab" data-tab="seguridad" type="button">
-                    <span class="ws-tab-icon">
-                        <i class="bi bi-shield-fill"></i>
-                    </span>
-                    <span class="ws-tab-text">
-                        <span class="ws-tab-title">Seguridad Pública</span>
-                        <span class="ws-tab-sub">Dependencias de Hidalgo</span>
-                    </span>
-                </button>
             </div>
 
-            <!-- Mapa único compartido -->
-            <div id="ws-map"></div>
-
-            <!-- Tabs abajo (misma estructura, sincronizados por JS) -->
-            <div class="ws-map-tabs ws-map-tabs--bottom" id="tabsBottom">
-                <button class="ws-map-tab active" data-tab="instancias" type="button">
-                    <span class="ws-tab-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </span>
-                    <span class="ws-tab-text">
-                        <span class="ws-tab-title">Instancias de Atención</span>
-                        <span class="ws-tab-sub">Centros de apoyo y justicia</span>
-                    </span>
-                </button>
-                <div class="ws-tab-divider"></div>
-                <button class="ws-map-tab" data-tab="seguridad" type="button">
-                    <span class="ws-tab-icon">
-                        <i class="bi bi-shield-fill"></i>
-                    </span>
-                    <span class="ws-tab-text">
-                        <span class="ws-tab-title">Seguridad Pública</span>
-                        <span class="ws-tab-sub">Dependencias de Hidalgo</span>
-                    </span>
-                </button>
-            </div>
-
-        </div>
-
-        <!-- Aviso de privacidad -->
-        <div class="d-flex align-items-start gap-2 rounded-3 p-3 mb-4 small"
-             style="background: var(--pink-light); color: var(--wine);">
-            <i class="bi bi-shield-lock-fill mt-1 flex-shrink-0"></i>
-            <span>
-                Tu ubicación se usa solo en este navegador para calcular la ruta.
-                No se guarda ni se envía a ningún servidor.
-            </span>
-        </div>
-
-        <!-- ══════════════════════════════════════
-             BUSCADOR + FILTROS
-        ══════════════════════════════════════ -->
-        <div class="section-controls d-flex flex-wrap gap-2 align-items-center mb-4">
-            <div class="input-group flex-grow-1" style="max-width: 340px;">
-                <span class="input-group-text bg-white border-end-0 text-muted">
-                    <i class="bi bi-search"></i>
+            <!-- ══════════════════════════════════════
+                 MAPA (sin tabs propios)
+            ══════════════════════════════════════ -->
+            <div class="map-wrapper mb-4">
+                <span class="map-chip" id="mapChip">
+                    <i class="bi bi-people-fill" id="mapChipIcon"></i>
+                    <span id="mapChipText">Instancias de Atención</span>
                 </span>
-                <input type="text" id="mapSearch" class="form-control border-start-0"
-                       placeholder="Buscar municipio o nombre...">
+                <div id="ws-map"></div>
             </div>
-            <div class="d-flex gap-2 flex-wrap" id="filterGroup">
-                <button class="btn btn-wine btn-sm rounded-pill" data-filter="todos">Todos</button>
-                <button class="btn btn-outline-secondary btn-sm rounded-pill" data-filter="municipal">Municipales</button>
-                <button class="btn btn-outline-secondary btn-sm rounded-pill" data-filter="estatal">Estatales</button>
+
+            <!-- Aviso de privacidad -->
+            <div class="privacy-note d-flex align-items-start gap-2 rounded-3 p-3 mb-4 small">
+                <i class="bi bi-shield-lock-fill mt-1 flex-shrink-0"></i>
+                <span>
+                    Tu ubicación se usa solo en este navegador para calcular la ruta.
+                    No se guarda ni se envía a ningún servidor.
+                </span>
             </div>
-        </div>
 
-        <!-- ══════════════════════════════════════
-             LISTADO DE LUGARES
-        ══════════════════════════════════════ -->
-        <div class="place-grid" id="placeList"></div>
+            <!-- ══════════════════════════════════════
+                 BUSCADOR + FILTROS
+            ══════════════════════════════════════ -->
+            <div class="section-controls d-flex flex-wrap gap-2 align-items-center mb-4">
+                <div class="input-group flex-grow-1" style="max-width: 340px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="mapSearch" class="form-control border-start-0"
+                           placeholder="Buscar municipio o nombre..." aria-label="Buscar municipio o nombre">
+                </div>
+                <div class="d-flex gap-2 flex-wrap" id="filterGroup">
+                    <button type="button" class="filter-pill active" data-filter="todos">Todos</button>
+                    <button type="button" class="filter-pill" data-filter="municipal">Municipales</button>
+                    <button type="button" class="filter-pill" data-filter="estatal">Estatales</button>
+                </div>
+            </div>
 
-    </main>
+            <!-- ══════════════════════════════════════
+                 LISTADO DE LUGARES
+            ══════════════════════════════════════ -->
+            <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+                <h2 class="h5 font-serif mb-0" id="listTitle" style="color: var(--accent);">Instancias de Atención</h2>
+                <span class="small text-muted" id="resultCount" aria-live="polite"></span>
+            </div>
+
+            <div class="place-grid" id="placeList"></div>
+
+        </main>
+
+    </div>
 
     <%- include('partials/footer') %>
 
@@ -623,6 +609,12 @@
         }
     ];
 
+    // Textos que cambian según la pestaña
+    const TABS = {
+        instancias: { titulo: "Instancias de Atención", icono: "bi-people-fill" },
+        seguridad:  { titulo: "Seguridad Pública",      icono: "bi-shield-fill" }
+    };
+
     // ════════════════════════════════════════════════════════
     // MAPA
     // ════════════════════════════════════════════════════════
@@ -711,38 +703,39 @@
     // RUTA
     // ════════════════════════════════════════════════════════
     function drawRoute(from, to) {
-    const wp = [L.latLng(from.lat, from.lng), L.latLng(to.lat, to.lng)];
-    const lineColor = activeTab === "instancias" ? "#8e3a68" : "#2b4a8e";
+        const wp = [L.latLng(from.lat, from.lng), L.latLng(to.lat, to.lng)];
+        const lineColor = activeTab === "instancias" ? "#8e3a68" : "#2b4a8e";
 
-    if (routingControl) {
-        // Eliminar el control anterior para recrearlo con el nuevo color
-        map.removeControl(routingControl);
-        routingControl = null;
+        if (routingControl) {
+            // Eliminar el control anterior para recrearlo con el nuevo color
+            map.removeControl(routingControl);
+            routingControl = null;
+        }
+
+        routingControl = L.Routing.control({
+            waypoints: wp,
+            router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
+            lineOptions: { styles: [{ color: lineColor, weight: 5, opacity: .85 }] },
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            show: false,
+            createMarker: () => null
+        }).addTo(map);
+
+        routingControl.on("routesfound", e => {
+            const s = e.routes[0].summary;
+            document.getElementById("nearestKm").textContent  = fmtDist(s.totalDistance / 1000);
+            document.getElementById("nearestEta").textContent = "aprox. " + fmtDur(s.totalTime) + " en auto";
+        });
+        routingControl.on("routingerror", () => {
+            document.getElementById("nearestEta").textContent = "No se pudo calcular la ruta";
+        });
     }
-
-    routingControl = L.Routing.control({
-        waypoints: wp,
-        router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
-        lineOptions: { styles: [{ color: lineColor, weight: 5, opacity: .85 }] },
-        addWaypoints: false,
-        draggableWaypoints: false,
-        fitSelectedRoutes: true,
-        show: false,
-        createMarker: () => null
-    }).addTo(map);
-
-    routingControl.on("routesfound", e => {
-        const s = e.routes[0].summary;
-        document.getElementById("nearestKm").textContent  = fmtDist(s.totalDistance / 1000);
-        document.getElementById("nearestEta").textContent = "aprox. " + fmtDur(s.totalTime) + " en auto";
-    });
-    routingControl.on("routingerror", () => {
-        document.getElementById("nearestEta").textContent = "No se pudo calcular la ruta";
-    });
-}
 
     // ════════════════════════════════════════════════════════
     // NEAREST: busca el más cercano del dataset activo
+    // (el color lo maneja el tema del contenedor, no hace falta tocar clases)
     // ════════════════════════════════════════════════════════
     function updateNearest() {
         if (!userPos) return;
@@ -753,14 +746,6 @@
 
         document.getElementById("nearestName").textContent    = nearest.name;
         document.getElementById("nearestAddress").textContent = nearest.address;
-
-        // Color de acento según tab
-        const card = document.getElementById("nearestCard");
-        if (activeTab === "seguridad") {
-            card.classList.add("tab-seguridad");
-        } else {
-            card.classList.remove("tab-seguridad");
-        }
 
         drawRoute(userPos, nearest);
     }
@@ -791,8 +776,11 @@
     function renderList() {
         const list      = getFiltered();
         const prefix    = currentPrefix();
-        const isInst    = activeTab === "instancias";
         const container = document.getElementById("placeList");
+
+        document.getElementById("resultCount").textContent =
+            list.length + (list.length === 1 ? " lugar" : " lugares") +
+            (userPos && list.length > 1 ? " · de más cerca a más lejos" : "");
 
         if (!list.length) {
             container.innerHTML = `
@@ -803,43 +791,40 @@
             return;
         }
 
-        const iconColor = isInst ? "var(--wine)" : "var(--blue-sec)";
-
-        container.innerHTML = list.map(p => {
-            const key      = prefix + p.index;
-            const isSel    = key === selectedKey;
-            const secClass = isInst ? "" : " sec";
-            const badgeCls = isInst ? "label-instancia" : "label-seguridad";
+        container.innerHTML = list.map((p, n) => {
+            const key   = prefix + p.index;
+            const isSel = key === selectedKey;
+            const tel   = p.phone && p.phone !== "—"
+                ? `<a class="card-phone" href="tel:${p.phone.replace(/\s/g, "")}">${p.phone}</a>`
+                : "—";
 
             return `
-            <article class="place-card${secClass}${isSel ? " selected" : ""}"
+            <article class="place-card${isSel ? " selected" : ""}" style="--i:${n}"
                      data-key="${key}" data-lat="${p.lat}" data-lng="${p.lng}">
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="card-label ${badgeCls}">${p.category}</span>
-                    ${p.distance !== null
-                        ? `<span class="card-dist">${fmtDist(p.distance)}</span>`
-                        : ""}
+                    <span class="card-label">${p.category}</span>
+                    ${p.distance !== null ? `<span class="card-dist">${fmtDist(p.distance)}</span>` : ""}
                 </div>
 
-                <h4 class="h6 fw-semibold mb-2" style="line-height:1.35; color: var(--dark);">
+                <h3 class="h6 fw-semibold mb-2" style="line-height:1.35; color: var(--dark);">
                     ${p.name}
-                </h4>
+                </h3>
 
                 <div class="card-info-row">
-                    <i class="bi bi-geo-alt-fill" style="color:${iconColor};"></i>
+                    <i class="bi bi-geo-alt-fill"></i>
                     <span>${p.address}</span>
                 </div>
                 <div class="card-info-row">
-                    <i class="bi bi-telephone-fill" style="color:${iconColor};"></i>
-                    <span>${p.phone || "—"}</span>
+                    <i class="bi bi-telephone-fill"></i>
+                    <span>${tel}</span>
                 </div>
                 <div class="card-info-row">
-                    <i class="bi bi-clock-fill" style="color:${iconColor};"></i>
+                    <i class="bi bi-clock-fill"></i>
                     <span>${p.hours || "—"}</span>
                 </div>
                 <div class="card-info-row">
-                    <i class="bi bi-building" style="color:${iconColor};"></i>
+                    <i class="bi bi-building"></i>
                     <span>${p.municipio}</span>
                 </div>
 
@@ -847,7 +832,8 @@
         }).join("");
 
         container.querySelectorAll(".place-card").forEach(card => {
-            card.addEventListener("click", () => {
+            card.addEventListener("click", e => {
+                if (e.target.closest("a")) return;   // deja funcionar el enlace de teléfono
                 selectedKey = card.dataset.key;
                 const lat = parseFloat(card.dataset.lat);
                 const lng = parseFloat(card.dataset.lng);
@@ -861,6 +847,14 @@
                 renderList();
             });
         });
+    }
+
+    // Reproduce la entrada escalonada de las tarjetas (solo al cambiar de pestaña)
+    function animateList() {
+        const grid = document.getElementById("placeList");
+        grid.classList.remove("anim");
+        void grid.offsetWidth;
+        grid.classList.add("anim");
     }
 
     // ════════════════════════════════════════════════════════
@@ -905,42 +899,58 @@
     }
 
     // ════════════════════════════════════════════════════════
-    // TABS — función central, sincroniza arriba y abajo
+    // TABS — un solo selector; el tema (rosa/azul) cambia todo
     // ════════════════════════════════════════════════════════
+    const theme = document.getElementById("mapaTheme");
+    const tabButtons = document.querySelectorAll(".ws-switch .nav-link");
+
     function setTab(tab) {
         activeTab   = tab;
         selectedKey = null;
 
-        // Sincronizar botones
-        document.querySelectorAll(".ws-map-tab").forEach(btn => {
-            btn.classList.toggle("active", btn.dataset.tab === tab);
-        });
+        // Cambia el tema de toda la vista
+        theme.classList.remove("theme-instancias", "theme-seguridad");
+        theme.classList.add("theme-" + tab);
 
-        // Mover indicador de línea en ambas barras
-        document.querySelectorAll(".ws-map-tabs").forEach(bar => {
-            bar.classList.toggle("tab-seguridad", tab === "seguridad");
+        // Estado accesible del selector
+        tabButtons.forEach(btn => {
+            const on = btn.dataset.tab === tab;
+            btn.classList.toggle("active", on);
+            btn.setAttribute("aria-selected", on);
+            btn.tabIndex = on ? 0 : -1;
         });
+        document.getElementById("tabPanel").setAttribute("aria-labelledby", "tab-" + tab);
+
+        // Textos que dependen de la pestaña
+        document.getElementById("mapChipText").textContent = TABS[tab].titulo;
+        document.getElementById("mapChipIcon").className   = "bi " + TABS[tab].icono;
+        document.getElementById("listTitle").textContent   = TABS[tab].titulo;
 
         syncMarkers();
         updateNearest();
         renderList();
+        animateList();
     }
 
-    document.querySelectorAll(".ws-map-tab").forEach(btn => {
+    tabButtons.forEach(btn => {
         btn.addEventListener("click", () => setTab(btn.dataset.tab));
+
+        // Flechas izquierda/derecha cambian de pestaña (patrón estándar de tabs)
+        btn.addEventListener("keydown", e => {
+            if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+            const next = btn.dataset.tab === "instancias" ? "seguridad" : "instancias";
+            setTab(next);
+            document.getElementById("tab-" + next).focus();
+        });
     });
 
     // ════════════════════════════════════════════════════════
     // FILTROS
     // ════════════════════════════════════════════════════════
-    document.querySelectorAll("#filterGroup button").forEach(btn => {
+    document.querySelectorAll("#filterGroup .filter-pill").forEach(btn => {
         btn.addEventListener("click", () => {
-            document.querySelectorAll("#filterGroup button").forEach(b => {
-                b.classList.remove("btn-wine");
-                b.classList.add("btn-outline-secondary");
-            });
-            btn.classList.remove("btn-outline-secondary");
-            btn.classList.add("btn-wine");
+            document.querySelectorAll("#filterGroup .filter-pill").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
             activeFilter = btn.dataset.filter;
             renderList();
         });
