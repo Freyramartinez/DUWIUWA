@@ -1,0 +1,47 @@
+<!-- =========================================================
+     FOOTER OFICIAL — WOMEN SAFETY
+     Este partial va en views/partials/footer.ejs
+     Se incluye en cada vista igual que el navbar.
+========================================================= -->
+<footer class="ws-footer">
+
+    <p class="mb-0">
+
+        © 2026 WOMEN SAFETY ·
+        Tecnología para la seguridad y el bienestar de las mujeres.
+
+    </p>
+
+</footer>
+
+
+<!-- Script del menú móvil: también va una sola vez por página,
+     normalmente justo después de incluir el footer o al final
+     del <body>. Si una vista ya lo tiene, no lo dupliques. -->
+<script>
+
+    function toggleMenu() {
+
+        const menu =
+            document.getElementById("wsNav");
+
+        menu.classList.toggle("active");
+
+    }
+
+
+    document
+        .querySelectorAll(".ws-nav-links a")
+        .forEach(link => {
+
+            link.addEventListener("click", () => {
+
+                document
+                    .getElementById("wsNav")
+                    .classList.remove("active");
+
+            });
+
+        });
+
+</script>

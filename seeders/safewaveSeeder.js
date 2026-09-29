@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 require("dotenv").config();
 
-const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/duwiduwa";
+const mongoURI = process.env.MONGODB_URI;
 
 const serviciosSafeWave = [
   {

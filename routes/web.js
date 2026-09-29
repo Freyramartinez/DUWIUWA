@@ -12,9 +12,25 @@ router.get("/", ProductController.getAll);
 
 router.get('/quiens-somos', AboutController.getAboutPage);
 
+//Contacto
+const ContactController = require('../controllers/ContactController');
+router.get('/contacto', ContactController.getContactPage);
+
+
 // Alias para el mapa (soporta tanto /mapa como /ubicacion)
-router.get('/mapa', MapController.getMapPage);
-router.get('/ubicacion', MapController.getMapPage);
+const { getMap, getPlaces } = require('../controllers/MapController');
+
+router.get('/mapa', getMap);
+router.get('/api/places', getPlaces); // opcional, para futuras peticiones AJAX
+
+
+// Página de acceso (login y registro)
+const AuthController = require('../controllers/AuthController');
+
+router.get('/login', AuthController.getLoginPage);
+router.post('/login', AuthController.login);
+router.post('/registro', AuthController.registrar);
+router.post('/logout', AuthController.logout);
 
 // Seed route - Renamed as requested
 router.get("/seed", async (req, res) => {

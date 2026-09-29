@@ -1,0 +1,350 @@
+/* =========================================================
+   WOMEN SAFETY — ESTILOS COMPARTIDOS
+   Este archivo va en public/css/main.css
+   Se enlaza igual en TODAS las vistas (index, login, mapa,
+   contacto, quienes-somos). Aquí solo va lo que se repite
+   en más de una página: reset, paleta, navbar, botón
+   principal y footer. Lo específico de cada página se queda
+   en el <style> propio de esa vista.
+========================================================= */
+
+
+/* =========================================================
+   CONFIGURACIÓN GENERAL
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #fffdfd;
+    color: #292329;
+}
+
+section {
+    scroll-margin-top: 85px;
+}
+
+
+/* =========================================================
+   PALETA
+========================================================= */
+
+:root {
+    --wine: #8e3a68;
+    --wine-dark: #67294c;
+    --pink: #b34d83;
+    --pink-light: #f8e8f1;
+    --cream: #fff8fb;
+    --dark: #292329;
+    --gray: #6f6470;
+    --white: #ffffff;
+    --border: #eadbe4;
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.ws-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    width: 100%;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    backdrop-filter: blur(14px);
+
+    border-bottom: 1px solid rgba(142, 58, 104, 0.12);
+
+    transition: box-shadow 0.3s ease;
+}
+
+.ws-navbar:hover {
+    box-shadow: 0 5px 25px rgba(80, 40, 65, 0.08);
+}
+
+.ws-navbar-inner {
+    max-width: 1250px;
+    min-height: 74px;
+
+    margin: 0 auto;
+    padding: 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ws-logo {
+    text-decoration: none;
+    color: var(--dark);
+
+    font-size: 1.05rem;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+.ws-logo-symbol {
+    color: var(--wine);
+    font-size: 1.35rem;
+    margin-right: 5px;
+}
+
+.ws-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.ws-nav-links a {
+    position: relative;
+
+    text-decoration: none;
+    color: #3d363d;
+
+    font-size: 0.86rem;
+    font-weight: 500;
+
+    padding: 8px 0;
+
+    transition: color 0.25s ease;
+}
+
+.ws-nav-links a::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 1px;
+
+    width: 0;
+    height: 2px;
+
+    background: var(--wine);
+
+    transition: width 0.25s ease;
+}
+
+.ws-nav-links a:hover {
+    color: var(--wine);
+}
+
+.ws-nav-links a:hover::after {
+    width: 100%;
+}
+
+.ws-menu-button {
+    display: none;
+
+    border: none;
+    background: transparent;
+
+    font-size: 1.7rem;
+    color: var(--dark);
+
+    cursor: pointer;
+}
+
+.ws-nav-links a.ws-nav-cta {
+    margin-left: 6px;
+    padding: 9px 22px;
+    border-radius: 30px;
+    background: var(--wine);
+    color: #fff;
+    font-weight: 600;
+    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ws-nav-links a.ws-nav-cta::after {
+    display: none;
+}
+
+.ws-nav-links a.ws-nav-cta:hover {
+    background: var(--wine-dark);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(142, 58, 104, 0.22);
+}
+
+.ws-nav-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: 8px;
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+}
+
+.ws-nav-avatar {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--wine);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.ws-nav-name {
+    color: #3d363d;
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.ws-nav-logout-inline button {
+    display: flex;
+    align-items: center;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    font-size: 1.05rem;
+    padding: 4px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ws-nav-logout-inline button:hover {
+    color: var(--wine);
+}
+
+
+/* =========================================================
+   BOTÓN PRINCIPAL (se usa en varias secciones/páginas)
+========================================================= */
+
+.ws-primary-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 25px;
+
+    border-radius: 30px;
+
+    background: var(--wine);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    transition: all 0.3s ease;
+}
+
+.ws-primary-button:hover {
+    background: var(--wine-dark);
+    color: white;
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 25px rgba(142, 58, 104, 0.22);
+}
+
+.ws-section-label {
+    display: inline-block;
+
+    margin-bottom: 18px;
+
+    color: var(--wine);
+
+    font-size: 0.72rem;
+    font-weight: 800;
+
+    letter-spacing: 0.18em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ws-footer {
+    padding: 25px 28px;
+
+    background: #292329;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    text-align: center;
+
+    font-size: 0.72rem;
+
+    letter-spacing: 0.02em;
+}
+
+
+/* =========================================================
+   MENÚ MÓVIL
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .ws-nav-links {
+        position: absolute;
+
+        top: 74px;
+        left: 0;
+
+        width: 100%;
+
+        padding: 20px 28px;
+
+        display: none;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+        background: white;
+
+        border-bottom: 1px solid var(--border);
+
+        box-shadow: 0 15px 30px rgba(80, 40, 65, 0.08);
+    }
+
+    .ws-nav-links.active {
+        display: flex;
+    }
+
+    .ws-menu-button {
+        display: block;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .ws-navbar-inner {
+        min-height: 65px;
+
+        padding: 0 18px;
+    }
+
+    .ws-nav-links {
+        top: 65px;
+
+        padding: 18px;
+    }
+}

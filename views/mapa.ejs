@@ -1,408 +1,965 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puntos de Atención y Mapa - Women Safety</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puntos de Atención - WOMEN SAFETY</title>
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <!-- MapLibre GL CSS -->
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --brand-primary: #831843;
-      --brand-dark: #4c1d95;
-      --brand-light: #fdf2f8;
-      --brand-accent: #db2777;
-    }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+    <link rel="stylesheet" href="/css/main.css">
 
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background-color: #fafafa;
-      color: #1f2937;
-    }
+    <style>
+        /* Variables adicionales de esta vista */
+        :root {
+            --blue-sec:   #2b4a8e;
+            --blue-light: #e8eef7;
+            --blue-mid:   #5b7ec5;
+        }
 
-    .bg-brand-light { background-color: var(--brand-light); }
-    .text-brand { color: var(--brand-primary); }
+        h1, .font-serif { font-family: 'Playfair Display', serif; }
 
-    /* Botón Principal */
-    .btn-brand {
-      background-color: var(--brand-primary);
-      color: white;
-      border-radius: 50px;
-      font-weight: 500;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .btn-brand:hover {
-      background-color: #6b1236;
-      color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(131, 24, 67, 0.25);
-    }
+        /* ══════════════════════════════════════
+           TARJETA MÁS CERCANA
+        ══════════════════════════════════════ */
+        #nearestCard {
+            border-left: 4px solid var(--wine);
+            transition: border-color .3s;
+        }
+        #nearestCard.tab-seguridad {
+            border-left-color: var(--blue-sec);
+        }
 
-    /* Contenedor Mapa */
-    #map {
-      height: 560px;
-      width: 100%;
-      border-radius: 16px;
-    }
+        .nearest-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: .75rem;
+            background: var(--pink-light);
+            color: var(--wine);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+            transition: background .3s, color .3s;
+        }
+        #nearestCard.tab-seguridad .nearest-icon {
+            background: var(--blue-light);
+            color: var(--blue-sec);
+        }
 
-    /* IHC: Tarjetas Interactivas */
-    .card-location {
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 14px;
-      background-color: #ffffff;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
+        #nearestLabel {
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--wine);
+            transition: color .3s;
+        }
+        #nearestCard.tab-seguridad #nearestLabel {
+            color: var(--blue-sec);
+        }
 
-    .card-location:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.07) !important;
-      border-color: rgba(131, 24, 67, 0.2);
-    }
+        #nearestKm {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            line-height: 1;
+            color: var(--wine);
+            transition: color .3s;
+        }
+        #nearestCard.tab-seguridad #nearestKm {
+            color: var(--blue-sec);
+        }
 
-    /* Estado ACTIVO visual cuando la tarjeta es seleccionada */
-    .card-location.active-card {
-      border: 2px solid var(--brand-primary) !important;
-      background-color: #fffafc !important;
-      box-shadow: 0 6px 18px rgba(131, 24, 67, 0.12) !important;
-    }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #bbb;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .status-dot.live {
+            background: #3fa96a;
+            box-shadow: 0 0 0 4px rgba(63,169,106,.18);
+        }
 
-    /* Chips de Categorías (UX Universal) */
-    .chip-filter {
-      font-size: 0.75rem;
-      border-radius: 20px;
-      padding: 5px 14px;
-      background-color: #ffffff;
-      color: #4b5563;
-      border: 1px solid #e5e7eb;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-      font-weight: 500;
-    }
-    .chip-filter:hover, .chip-filter.active {
-      background-color: var(--brand-primary);
-      color: white;
-      border-color: var(--brand-primary);
-    }
+        /* ══════════════════════════════════════
+           BLOQUE MAPA + TABS
+        ══════════════════════════════════════ */
+        .map-wrapper {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(142,58,104,.10);
+            border: 1px solid var(--border);
+        }
 
-    /* Popups MapLibre GL */
-    .maplibregl-popup-content {
-      border-radius: 12px !important;
-      padding: 12px 14px !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-    }
-  </style>
+        /* Barra de tabs */
+        .ws-map-tabs {
+            display: flex;
+            align-items: stretch;
+            background: var(--cream);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        .ws-map-tabs--bottom {
+            border-bottom: none;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Línea indicadora animada */
+        .ws-map-tabs::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 50%;
+            background: var(--wine);
+            border-radius: 3px 3px 0 0;
+            transition: left .28s cubic-bezier(.4,0,.2,1), background .25s;
+        }
+        .ws-map-tabs--bottom::after {
+            bottom: auto;
+            top: 0;
+            border-radius: 0 0 3px 3px;
+        }
+        .ws-map-tabs.tab-seguridad::after {
+            left: 50%;
+            background: var(--blue-sec);
+        }
+
+        /* Divisor vertical */
+        .ws-tab-divider {
+            width: 1px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* Botón de tab */
+        .ws-map-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .85rem;
+            padding: .95rem 1.25rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background .2s;
+        }
+        .ws-map-tab:hover {
+            background: var(--pink-light);
+        }
+
+        .ws-tab-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: .55rem;
+            background: var(--pink-light);
+            color: var(--wine);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+            transition: background .25s, color .25s;
+        }
+
+        .ws-tab-text {
+            display: flex;
+            flex-direction: column;
+            gap: .1rem;
+        }
+        .ws-tab-title {
+            font-size: .88rem;
+            font-weight: 700;
+            color: var(--gray);
+            transition: color .25s;
+            line-height: 1.2;
+        }
+        .ws-tab-sub {
+            font-size: .72rem;
+            color: #aaa;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* Tab activo */
+        .ws-map-tab.active .ws-tab-icon {
+            background: var(--wine);
+            color: #fff;
+        }
+        .ws-map-tab.active .ws-tab-title {
+            color: var(--wine);
+        }
+        .ws-map-tab.active .ws-tab-sub {
+            color: var(--pink);
+        }
+
+        /* Tab seguridad activo */
+        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-icon {
+            background: var(--blue-sec);
+        }
+        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-title {
+            color: var(--blue-sec);
+        }
+        .ws-map-tab.active[data-tab="seguridad"] .ws-tab-sub {
+            color: var(--blue-mid);
+        }
+
+        /* Mapa */
+        #ws-map {
+            height: 480px;
+            width: 100%;
+        }
+        @media (max-width: 767px) { #ws-map { height: 320px; } }
+
+        /* Responsive tabs */
+        @media (max-width: 480px) {
+            .ws-map-tab {
+                flex-direction: column;
+                gap: .35rem;
+                padding: .75rem .5rem;
+                text-align: center;
+            }
+            .ws-tab-icon { width: 32px; height: 32px; font-size: .9rem; }
+            .ws-tab-title { font-size: .78rem; }
+            .ws-tab-sub { display: none; }
+        }
+
+        /* ══════════════════════════════════════
+           SECCIÓN BUSCADOR + FILTROS
+        ══════════════════════════════════════ */
+        .section-controls {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: .75rem;
+            padding: 1rem 1.25rem;
+        }
+
+        .btn-wine {
+            background: var(--wine);
+            border-color: var(--wine);
+            color: #fff;
+        }
+        .btn-wine:hover, .btn-wine:focus {
+            background: var(--wine-dark);
+            border-color: var(--wine-dark);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════
+           GRID DE CARDS
+        ══════════════════════════════════════ */
+        .place-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        @media (max-width: 575px) {
+            .place-grid { grid-template-columns: 1fr; }
+        }
+
+        .place-card {
+            cursor: pointer;
+            border: 1px solid var(--border) !important;
+            border-radius: .75rem !important;
+            padding: 1.1rem;
+            transition: border-color .2s, box-shadow .2s, transform .15s;
+            background: #fff;
+        }
+        .place-card:hover {
+            border-color: var(--wine) !important;
+            box-shadow: 0 4px 18px rgba(142,58,104,.10);
+            transform: translateY(-2px);
+        }
+        .place-card.selected {
+            border-color: var(--wine) !important;
+            box-shadow: 0 4px 20px rgba(142,58,104,.15);
+            background: #fdf8fb;
+        }
+        .place-card.sec:hover {
+            border-color: var(--blue-sec) !important;
+            box-shadow: 0 4px 18px rgba(43,74,142,.10);
+        }
+        .place-card.sec.selected {
+            border-color: var(--blue-sec) !important;
+            box-shadow: 0 4px 20px rgba(43,74,142,.12);
+            background: #f5f8fd;
+        }
+
+        /* Badge de categoría */
+        .card-label {
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            padding: .2rem .7rem;
+            border-radius: 2rem;
+        }
+        .label-instancia { background: var(--pink-light); color: var(--wine); }
+        .label-seguridad  { background: var(--blue-light); color: var(--blue-sec); }
+
+        /* Badge de distancia */
+        .card-dist {
+            font-size: .75rem;
+            font-weight: 700;
+            padding: .2rem .65rem;
+            border-radius: 2rem;
+            background: var(--pink-light);
+            color: var(--wine);
+        }
+        .sec .card-dist {
+            background: var(--blue-light);
+            color: var(--blue-sec);
+        }
+
+        /* Filas de info dentro de la card */
+        .card-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+            font-size: .81rem;
+            color: #5a5a5a;
+            margin-top: .4rem;
+            line-height: 1.4;
+        }
+        .card-info-row .bi {
+            flex-shrink: 0;
+            margin-top: 2px;
+            font-size: .8rem;
+        }
+
+        /* Oculta instrucciones de ruta de LRM */
+        .leaflet-routing-container { display: none; }
+    </style>
 </head>
+
 <body>
 
-  <!-- Header Banner -->
-  <section class="py-4 text-center bg-brand-light border-bottom">
-    <div class="container py-1">
-      <span class="badge rounded-pill bg-white border text-brand px-3 py-1 mb-2 fw-semibold" style="font-size: 0.75rem;">RED DE APOYO EN HIDALGO</span>
-      <h2 class="h3 fw-bold text-brand mb-1">Centros de Atención e Instancias</h2>
-      <p class="text-muted small mx-auto mb-0" style="max-width: 600px;">
-        Encuentra apoyo institucional seguro en Tlahuelipan, Mixquiahuala, Tula, Pachuca y todo el estado.
-      </p>
-    </div>
-  </section>
+    <%- include('partials/navbar') %>
 
-  <div class="container py-4 mb-4">
-    
-    <!-- Alerta de Emergencia Inmediata (Llamada 1 Clic) -->
-    <div class="alert alert-danger border-0 shadow-sm d-flex flex-wrap align-items-center justify-content-between p-3 mb-4 rounded-4" role="alert">
-      <div class="d-flex align-items-center mb-2 mb-md-0">
-        <div class="bg-white p-2 rounded-circle text-danger me-3 shadow-sm">
-          <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+    <!-- ══════════════════════════════════════
+         ENCABEZADO
+    ══════════════════════════════════════ -->
+    <header class="py-5" style="background: var(--pink-light);">
+        <div class="container text-center">
+            <span class="ws-section-label">Red de apoyo en Hidalgo</span>
+            <h1 class="font-serif fw-medium mb-3" style="font-size: clamp(2rem,4.5vw,3rem); color: var(--dark);">
+                Encuentra ayuda cerca de ti.
+            </h1>
+            <p class="text-muted mx-auto mb-0" style="max-width: 520px; font-size: .97rem; line-height: 1.7;">
+                Localiza instancias de atención y dependencias de seguridad pública en Hidalgo.
+                Activa tu ubicación para ver la más cercana y trazar la ruta automáticamente.
+            </p>
         </div>
-        <div>
-          <h6 class="fw-bold mb-0 text-danger">¿Requieres asistencia inmediata de emergencia?</h6>
-          <p class="small mb-0 text-muted">Haz clic para realizar una llamada gratuita de ayuda activa 24/7.</p>
-        </div>
-      </div>
-      <div class="d-flex gap-2">
-        <a href="tel:911" class="btn btn-danger btn-sm rounded-pill fw-bold px-3 shadow-sm"><i class="bi bi-telephone-fill me-1"></i> Llamar 911</a>
-        <a href="tel:079" class="btn btn-dark btn-sm rounded-pill fw-bold px-3 shadow-sm"><i class="bi bi-telephone me-1"></i> Línea 079</a>
-      </div>
-    </div>
+    </header>
 
-    <!-- Layout Interactivo principal -->
-    <div class="row g-4">
+    <main class="container py-4">
 
-      <!-- Columna Izquierda: Buscador, Acción Rápida IHC y Tarjetas -->
-      <div class="col-lg-5">
-        
-        <!-- IHC UX: Botón Prominente para "Instancia Más Cercana" -->
-        <button id="btnNearest" class="btn btn-brand w-100 mb-3 py-2 d-flex align-items-center justify-content-center shadow-sm" onclick="findNearestLocation()">
-          <i class="bi bi-geo-fill me-2 fs-5"></i>
-          <span>Ubicar mi Instancia más Cercana</span>
-        </button>
+        <!-- ══════════════════════════════════════
+             TARJETA MÁS CERCANA
+        ══════════════════════════════════════ -->
+        <div class="card shadow-sm rounded-4 mb-4 border-0" id="nearestCard">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 px-4">
 
-        <!-- Buscador Accesible -->
-        <div class="input-group input-group-sm mb-2 shadow-sm rounded-3 overflow-hidden">
-          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-          <input type="text" id="searchInput" class="form-control border-start-0 py-2" placeholder="Buscar municipio (ej. Tlahuelipan, Mixquiahuala)..." onkeyup="filterLocations()">
-        </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="nearest-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <div id="nearestLabel">Más cercana a ti</div>
+                        <div class="fw-bold mt-1" style="font-size:.97rem;" id="nearestName">
+                            Activa tu ubicación
+                        </div>
+                        <div class="text-muted small mt-1" id="nearestAddress">
+                            Te ubicamos y trazamos la ruta automáticamente.
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Chips de Categoría Universales -->
-        <div class="d-flex gap-1 mb-3 align-items-center flex-wrap">
-          <span class="chip-filter active" onclick="applyFilter('todos', this)">Todos</span>
-          <span class="chip-filter" onclick="applyFilter('Municipal', this)">Instancias Municipales</span>
-          <span class="chip-filter" onclick="applyFilter('Justicia', this)">Justicia / Estatal</span>
-        </div>
+                <div class="text-end">
+                    <div id="nearestKm">—</div>
+                    <small class="text-muted" id="nearestEta">distancia aprox.</small>
+                </div>
 
-        <!-- Lista Scrollable con Tarjetas -->
-        <div class="overflow-auto pe-1" style="max-height: 420px;" id="locationList">
-          <!-- Tarjetas generadas dinámicamente -->
-        </div>
+                <div class="w-100 d-flex align-items-center gap-2 small text-muted border-top pt-2 mt-1">
+                    <span class="status-dot" id="nearestDot"></span>
+                    <span id="nearestStatusText">Ubicación no activada</span>
+                </div>
 
-      </div>
-
-      <!-- Columna Derecha: Mapa Interactivo Sticky -->
-      <div class="col-lg-7">
-        <div class="card border-0 shadow-sm p-2 rounded-4 sticky-top" style="top: 20px; z-index: 1;">
-          <div id="map"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-
-  <script>
-    let locations = <%- JSON.stringify(locations) %>;
-    let map, userLocation = null;
-    let markers = {};
-    let activeCardId = null;
-
-    function initMap() {
-      map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [-99.1500, 20.1200], // Centrado general en la región de Hidalgo
-        zoom: 9.5
-      });
-
-      map.addControl(new maplibregl.NavigationControl(), 'top-right');
-
-      // Intentar obtener ubicación inicial
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            userLocation = [pos.coords.longitude, pos.coords.latitude];
-            
-            new maplibregl.Marker({ color: '#2563eb' })
-              .setLngLat(userLocation)
-              .setPopup(new maplibregl.Popup().setHTML("<b class='small text-primary'><i class='bi bi-person-fill'></i> Tu ubicación actual</b>"))
-              .addTo(map);
-
-            calculateDistances();
-          }
-        );
-      }
-
-      // Marcadores del mapa
-      locations.forEach(loc => {
-        const popupHTML = `
-          <div class="p-1" style="max-width: 210px;">
-            <span class="badge bg-light text-dark border mb-1" style="font-size: 0.65rem;">${loc.category}</span>
-            <h6 class="fw-bold text-brand mb-1 small">${loc.name}</h6>
-            <p class="text-muted mb-1" style="font-size: 0.75rem;"><i class="bi bi-geo-alt"></i> ${loc.address}</p>
-            <p class="mb-2" style="font-size: 0.75rem;"><i class="bi bi-telephone"></i> ${loc.phone}</p>
-            <button class="btn btn-sm btn-brand w-100 py-1" style="font-size: 0.75rem;" onclick="drawRoute(${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-sign-turn-right me-1"></i> Cómo llegar
-            </button>
-          </div>
-        `;
-
-        const marker = new maplibregl.Marker({ color: '#831843' })
-          .setLngLat([loc.coordinates.lng, loc.coordinates.lat])
-          .setPopup(new maplibregl.Popup().setHTML(popupHTML))
-          .addTo(map);
-
-        markers[loc.id] = marker;
-      });
-    }
-
-    // Fórmula Haversine para cálculo de distancia en km
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    function calculateDistances() {
-      if (!userLocation) return;
-      locations.forEach(loc => {
-        loc.distance = getDistance(userLocation[1], userLocation[0], loc.coordinates.lat, loc.coordinates.lng);
-      });
-    }
-
-    // Encuentra visual y matemáticamente la opción más cercana (IHC)
-    function findNearestLocation() {
-      if (!userLocation) {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              userLocation = [pos.coords.longitude, pos.coords.latitude];
-              findNearestLocation();
-            },
-            () => alert("Por favor concede permiso de ubicación para calcular la distancia.")
-          );
-        }
-        return;
-      }
-
-      calculateDistances();
-      // Ordenar lista por cercanía
-      locations.sort((a, b) => a.distance - b.distance);
-      
-      const nearest = locations[0];
-      renderCards(locations);
-      focusMap(nearest.id, nearest.coordinates.lng, nearest.coordinates.lat);
-      drawRoute(nearest.coordinates.lng, nearest.coordinates.lat);
-    }
-
-    // Renderizado dinámico de tarjetas
-    function renderCards(items) {
-      const container = document.getElementById('locationList');
-      container.innerHTML = '';
-
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-4 text-muted bg-white rounded-3 border">
-            <i class="bi bi-geo-fill display-6 d-block mb-2 text-black-50"></i>
-            <p class="small mb-0">No se encontraron instituciones en este municipio.</p>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(loc => {
-        const isActive = activeCardId === loc.id ? 'active-card' : '';
-        const distanceTag = loc.distance ? `<span class="badge bg-light text-dark border ms-2" style="font-size: 0.7rem;"><i class="bi bi-signpost-2 text-brand me-1"></i>${loc.distance.toFixed(1)} km</span>` : '';
-
-        const card = document.createElement('div');
-        card.className = `card card-location p-3 mb-2 shadow-sm ${isActive}`;
-        card.id = `card-${loc.id}`;
-        
-        card.onclick = (e) => {
-          if (!e.target.closest('button')) {
-            focusMap(loc.id, loc.coordinates.lng, loc.coordinates.lat);
-          }
-        };
-
-        card.innerHTML = `
-          <div class="d-flex justify-content-between align-items-start mb-1">
-            <div>
-              <span class="badge bg-brand-light text-brand fw-semibold" style="font-size: 0.7rem;">${loc.category}</span>
-              ${distanceTag}
             </div>
-            <small class="text-muted fw-bold" style="font-size: 0.75rem;"><i class="bi bi-geo-alt text-danger me-1"></i>${loc.municipality}</small>
-          </div>
-          <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.88rem;">${loc.name}</h6>
-          <p class="small text-muted mb-1" style="font-size: 0.78rem;"><i class="bi bi-house-door me-1"></i>${loc.address}</p>
-          <p class="small text-muted mb-1" style="font-size: 0.78rem;"><i class="bi bi-telephone me-1"></i>${loc.phone}</p>
-          <p class="small text-muted mb-3" style="font-size: 0.72rem;"><i class="bi bi-clock me-1"></i>${loc.hours}</p>
-          
-          <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary py-1 w-50" style="font-size: 0.75rem;" onclick="focusMap('${loc.id}', ${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-pin-map me-1"></i> Ubicar
-            </button>
-            <button class="btn btn-sm btn-brand py-1 w-50" style="font-size: 0.75rem;" onclick="drawRoute(${loc.coordinates.lng}, ${loc.coordinates.lat})">
-              <i class="bi bi-compass me-1"></i> Ruta
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+        </div>
+
+        <!-- ══════════════════════════════════════
+             BLOQUE MAPA: tabs arriba + mapa + tabs abajo
+        ══════════════════════════════════════ -->
+        <div class="map-wrapper mb-4">
+
+            <!-- Tabs arriba -->
+            <div class="ws-map-tabs" id="tabsTop">
+                <button class="ws-map-tab active" data-tab="instancias" type="button">
+                    <span class="ws-tab-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
+                    <span class="ws-tab-text">
+                        <span class="ws-tab-title">Instancias de Atención</span>
+                        <span class="ws-tab-sub">Centros de apoyo y justicia</span>
+                    </span>
+                </button>
+                <div class="ws-tab-divider"></div>
+                <button class="ws-map-tab" data-tab="seguridad" type="button">
+                    <span class="ws-tab-icon">
+                        <i class="bi bi-shield-fill"></i>
+                    </span>
+                    <span class="ws-tab-text">
+                        <span class="ws-tab-title">Seguridad Pública</span>
+                        <span class="ws-tab-sub">Dependencias de Hidalgo</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Mapa único compartido -->
+            <div id="ws-map"></div>
+
+            <!-- Tabs abajo (misma estructura, sincronizados por JS) -->
+            <div class="ws-map-tabs ws-map-tabs--bottom" id="tabsBottom">
+                <button class="ws-map-tab active" data-tab="instancias" type="button">
+                    <span class="ws-tab-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
+                    <span class="ws-tab-text">
+                        <span class="ws-tab-title">Instancias de Atención</span>
+                        <span class="ws-tab-sub">Centros de apoyo y justicia</span>
+                    </span>
+                </button>
+                <div class="ws-tab-divider"></div>
+                <button class="ws-map-tab" data-tab="seguridad" type="button">
+                    <span class="ws-tab-icon">
+                        <i class="bi bi-shield-fill"></i>
+                    </span>
+                    <span class="ws-tab-text">
+                        <span class="ws-tab-title">Seguridad Pública</span>
+                        <span class="ws-tab-sub">Dependencias de Hidalgo</span>
+                    </span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Aviso de privacidad -->
+        <div class="d-flex align-items-start gap-2 rounded-3 p-3 mb-4 small"
+             style="background: var(--pink-light); color: var(--wine);">
+            <i class="bi bi-shield-lock-fill mt-1 flex-shrink-0"></i>
+            <span>
+                Tu ubicación se usa solo en este navegador para calcular la ruta.
+                No se guarda ni se envía a ningún servidor.
+            </span>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             BUSCADOR + FILTROS
+        ══════════════════════════════════════ -->
+        <div class="section-controls d-flex flex-wrap gap-2 align-items-center mb-4">
+            <div class="input-group flex-grow-1" style="max-width: 340px;">
+                <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="mapSearch" class="form-control border-start-0"
+                       placeholder="Buscar municipio o nombre...">
+            </div>
+            <div class="d-flex gap-2 flex-wrap" id="filterGroup">
+                <button class="btn btn-wine btn-sm rounded-pill" data-filter="todos">Todos</button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" data-filter="municipal">Municipales</button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" data-filter="estatal">Estatales</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             LISTADO DE LUGARES
+        ══════════════════════════════════════ -->
+        <div class="place-grid" id="placeList"></div>
+
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+    // ════════════════════════════════════════════════════════
+    // DATOS
+    // AVISO: coordenadas, teléfonos y horarios son de ejemplo.
+    // Verifica en fuentes oficiales antes de publicar.
+    // ════════════════════════════════════════════════════════
+
+    const PLACES = [
+        {
+            name: "Instancia Municipal de las Mujeres",
+            category: "Municipal", tag: "municipal", municipio: "Tlahuelipan",
+            address: "Plaza Principal S/N, Col. Centro, Tlahuelipan, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–17:00",
+            lat: 20.1339, lng: -99.0995
+        },
+        {
+            name: "Instancia Municipal de la Mujer",
+            category: "Municipal", tag: "municipal", municipio: "Mixquiahuala",
+            address: "Palacio Municipal, Mixquiahuala de Juárez, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–17:00",
+            lat: 20.2278, lng: -99.2153
+        },
+        {
+            name: "Instancia Municipal de las Mujeres",
+            category: "Municipal", tag: "municipal", municipio: "Tula de Allende",
+            address: "Presidencia Municipal, Tula de Allende, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–17:00",
+            lat: 20.0553, lng: -99.3428
+        },
+        {
+            name: "Fiscalía Especializada en Delitos de Violencia contra las Mujeres",
+            category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto",
+            address: "Fiscalía General del Estado de Hidalgo, Pachuca, Hgo.",
+            phone: "079", hours: "24 horas",
+            lat: 20.1234, lng: -98.7346
+        },
+        {
+            name: "Centro de Justicia para las Mujeres de Hidalgo",
+            category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto",
+            address: "Pachuca de Soto, Hgo.",
+            phone: "079", hours: "Lun–Vie 8:00–20:00",
+            lat: 20.1011, lng: -98.7591
+        },
+        {
+            name: "Instancia Municipal de las Mujeres",
+            category: "Municipal", tag: "municipal", municipio: "Actopan",
+            address: "Palacio Municipal, Actopan, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–17:00",
+            lat: 20.2678, lng: -98.9436
+        },
+        {
+            name: "Juzgado de lo Familiar",
+            category: "Estatal", tag: "estatal", municipio: "Tulancingo de Bravo",
+            address: "Tulancingo de Bravo, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–14:00",
+            lat: 20.0842, lng: -98.3667
+        },
+        {
+            name: "Instancia Municipal de las Mujeres",
+            category: "Municipal", tag: "municipal", municipio: "Ixmiquilpan",
+            address: "Palacio Municipal, Ixmiquilpan, Hgo.",
+            phone: "—", hours: "Lun–Vie 9:00–17:00",
+            lat: 20.4842, lng: -99.2178
+        }
+    ];
+
+    const SECURITY = [
+        {
+            name: "Secretaría de Seguridad Pública de Hidalgo",
+            category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto",
+            address: "Blvd. Felipe Ángeles S/N, Pachuca de Soto, Hgo.",
+            phone: "800 009 3400", hours: "24 horas",
+            lat: 20.1120, lng: -98.7650
+        },
+        {
+            name: "Policía Municipal de Pachuca",
+            category: "Municipal", tag: "municipal", municipio: "Pachuca de Soto",
+            address: "H. Ayuntamiento de Pachuca, Hgo.",
+            phone: "771 714 0101", hours: "24 horas",
+            lat: 20.1174, lng: -98.7324
+        },
+        {
+            name: "Centro C4 Hidalgo",
+            category: "Estatal", tag: "estatal", municipio: "Pachuca de Soto",
+            address: "Pachuca de Soto, Hgo.",
+            phone: "911", hours: "24 horas",
+            lat: 20.1060, lng: -98.7480
+        },
+        {
+            name: "Policía Municipal de Tula de Allende",
+            category: "Municipal", tag: "municipal", municipio: "Tula de Allende",
+            address: "Presidencia Municipal, Tula de Allende, Hgo.",
+            phone: "773 732 0027", hours: "24 horas",
+            lat: 20.0580, lng: -99.3410
+        },
+        {
+            name: "Policía Municipal de Tulancingo",
+            category: "Municipal", tag: "municipal", municipio: "Tulancingo de Bravo",
+            address: "H. Ayuntamiento, Tulancingo de Bravo, Hgo.",
+            phone: "775 753 0100", hours: "24 horas",
+            lat: 20.0870, lng: -98.3700
+        },
+        {
+            name: "Policía Municipal de Actopan",
+            category: "Municipal", tag: "municipal", municipio: "Actopan",
+            address: "Palacio Municipal, Actopan, Hgo.",
+            phone: "771 722 0005", hours: "24 horas",
+            lat: 20.2700, lng: -98.9450
+        },
+        {
+            name: "Policía Municipal de Ixmiquilpan",
+            category: "Municipal", tag: "municipal", municipio: "Ixmiquilpan",
+            address: "Palacio Municipal, Ixmiquilpan, Hgo.",
+            phone: "759 720 0005", hours: "24 horas",
+            lat: 20.4860, lng: -99.2200
+        },
+        {
+            name: "Policía Municipal de Mixquiahuala",
+            category: "Municipal", tag: "municipal", municipio: "Mixquiahuala",
+            address: "Palacio Municipal, Mixquiahuala de Juárez, Hgo.",
+            phone: "—", hours: "24 horas",
+            lat: 20.2290, lng: -99.2170
+        }
+    ];
+
+    // ════════════════════════════════════════════════════════
+    // MAPA
+    // ════════════════════════════════════════════════════════
+    const map = L.map("ws-map", { zoomControl: true });
+    map.fitBounds([[19.60, -99.90], [21.40, -97.95]]);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    function makeIcon(color) {
+        return L.divIcon({
+            className: "",
+            html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28);"></div>`,
+            iconSize: [14, 14], iconAnchor: [7, 7]
+        });
+    }
+    const wineIcon = makeIcon("#8e3a68");
+    const blueIcon = makeIcon("#2b4a8e");
+    const userIcon = L.divIcon({
+        className: "",
+        html: '<div style="width:16px;height:16px;border-radius:50%;background:#3fa96a;border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(63,169,106,.2);"></div>',
+        iconSize: [16, 16], iconAnchor: [8, 8]
+    });
+
+    // Crear marcadores sin agregarlos aún al mapa
+    const markers = {};
+    PLACES.forEach((p, i) => {
+        markers["place_" + i] = L.marker([p.lat, p.lng], { icon: wineIcon })
+            .bindPopup(`<strong>${p.name}</strong><br><small>${p.address}</small>`);
+    });
+    SECURITY.forEach((p, i) => {
+        markers["sec_" + i] = L.marker([p.lat, p.lng], { icon: blueIcon })
+            .bindPopup(`<strong>${p.name}</strong><br><small>${p.address}</small>`);
+    });
+
+    let userMarker = null;
+
+    // ════════════════════════════════════════════════════════
+    // ESTADO
+    // ════════════════════════════════════════════════════════
+    let userPos      = null;
+    let hasCentered  = false;
+    let activeTab    = "instancias";
+    let activeFilter = "todos";
+    let searchTerm   = "";
+    let selectedKey  = null;
+    let routingControl = null;
+
+    function currentDataset() { return activeTab === "instancias" ? PLACES  : SECURITY; }
+    function currentPrefix()  { return activeTab === "instancias" ? "place_" : "sec_";  }
+
+    // ════════════════════════════════════════════════════════
+    // UTILIDADES
+    // ════════════════════════════════════════════════════════
+    function haversineKm(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2
+            + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    function fmtDist(km) { return km < 1 ? Math.round(km * 1000) + " m" : km.toFixed(1) + " km"; }
+    function fmtDur(s) {
+        const m = Math.round(s / 60);
+        return m < 60 ? m + " min" : Math.floor(m / 60) + "h " + (m % 60) + "min";
     }
 
-    function focusMap(id, lng, lat) {
-      activeCardId = id;
-      document.querySelectorAll('.card-location').forEach(el => el.classList.remove('active-card'));
-      const activeEl = document.getElementById(`card-${id}`);
-      if (activeEl) activeEl.classList.add('active-card');
-
-      map.flyTo({ center: [lng, lat], zoom: 14.5, speed: 1.2 });
-      if (markers[id]) markers[id].togglePopup();
+    // ════════════════════════════════════════════════════════
+    // MARCADORES: mostrar solo los del tab activo
+    // ════════════════════════════════════════════════════════
+    function syncMarkers() {
+        const show = currentPrefix();
+        Object.entries(markers).forEach(([key, mk]) => {
+            if (key.startsWith(show)) {
+                if (!map.hasLayer(mk)) mk.addTo(map);
+            } else {
+                if (map.hasLayer(mk)) map.removeLayer(mk);
+            }
+        });
     }
 
-    async function drawRoute(destLng, destLat) {
-      if (!userLocation) {
-        alert("Por favor habilita la ubicación de tu navegador para trazar la ruta.");
-        return;
-      }
+    // ════════════════════════════════════════════════════════
+    // RUTA
+    // ════════════════════════════════════════════════════════
+    function drawRoute(from, to) {
+    const wp = [L.latLng(from.lat, from.lng), L.latLng(to.lat, to.lng)];
+    const lineColor = activeTab === "instancias" ? "#8e3a68" : "#2b4a8e";
 
-      const url = `https://router.project-osrm.org/route/v1/driving/${userLocation[0]},${userLocation[1]};${destLng},${destLat}?overview=full&geometries=geojson`;
+    if (routingControl) {
+        // Eliminar el control anterior para recrearlo con el nuevo color
+        map.removeControl(routingControl);
+        routingControl = null;
+    }
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const route = data.routes[0].geometry;
+    routingControl = L.Routing.control({
+        waypoints: wp,
+        router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
+        lineOptions: { styles: [{ color: lineColor, weight: 5, opacity: .85 }] },
+        addWaypoints: false,
+        draggableWaypoints: false,
+        fitSelectedRoutes: true,
+        show: false,
+        createMarker: () => null
+    }).addTo(map);
 
-        if (map.getSource('route')) {
-          map.getSource('route').setData(route);
+    routingControl.on("routesfound", e => {
+        const s = e.routes[0].summary;
+        document.getElementById("nearestKm").textContent  = fmtDist(s.totalDistance / 1000);
+        document.getElementById("nearestEta").textContent = "aprox. " + fmtDur(s.totalTime) + " en auto";
+    });
+    routingControl.on("routingerror", () => {
+        document.getElementById("nearestEta").textContent = "No se pudo calcular la ruta";
+    });
+}
+
+    // ════════════════════════════════════════════════════════
+    // NEAREST: busca el más cercano del dataset activo
+    // ════════════════════════════════════════════════════════
+    function updateNearest() {
+        if (!userPos) return;
+
+        const nearest = currentDataset()
+            .map(p => ({ ...p, distance: haversineKm(userPos.lat, userPos.lng, p.lat, p.lng) }))
+            .sort((a, b) => a.distance - b.distance)[0];
+
+        document.getElementById("nearestName").textContent    = nearest.name;
+        document.getElementById("nearestAddress").textContent = nearest.address;
+
+        // Color de acento según tab
+        const card = document.getElementById("nearestCard");
+        if (activeTab === "seguridad") {
+            card.classList.add("tab-seguridad");
         } else {
-          map.addSource('route', { type: 'geojson', data: route });
-          map.addLayer({
-            id: 'route',
-            type: 'line',
-            source: 'route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#831843', 'line-width': 5, 'line-opacity': 0.85 }
-          });
+            card.classList.remove("tab-seguridad");
         }
 
-        const bounds = new maplibregl.LngLatBounds();
-        bounds.extend(userLocation);
-        bounds.extend([destLng, destLat]);
-        map.fitBounds(bounds, { padding: 60 });
-
-      } catch (e) {
-        console.error("Error calculando la ruta:", e);
-      }
+        drawRoute(userPos, nearest);
     }
 
-    function filterLocations() {
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = locations.filter(loc => 
-        loc.name.toLowerCase().includes(term) || 
-        loc.municipality.toLowerCase().includes(term)
-      );
-      renderCards(filtered);
+    // ════════════════════════════════════════════════════════
+    // FILTRO Y ORDENAMIENTO
+    // ════════════════════════════════════════════════════════
+    function getFiltered() {
+        return currentDataset()
+            .map((p, i) => ({
+                ...p, index: i,
+                distance: userPos ? haversineKm(userPos.lat, userPos.lng, p.lat, p.lng) : null
+            }))
+            .filter(p => {
+                if (activeFilter !== "todos" && p.tag !== activeFilter) return false;
+                if (searchTerm.trim()) {
+                    const t = searchTerm.trim().toLowerCase();
+                    return p.municipio.toLowerCase().includes(t) || p.name.toLowerCase().includes(t);
+                }
+                return true;
+            })
+            .sort((a, b) => userPos ? a.distance - b.distance : 0);
     }
 
-    function applyFilter(category, chipElement) {
-      document.querySelectorAll('.chip-filter').forEach(el => el.classList.remove('active'));
-      chipElement.classList.add('active');
+    // ════════════════════════════════════════════════════════
+    // RENDER LISTADO
+    // ════════════════════════════════════════════════════════
+    function renderList() {
+        const list      = getFiltered();
+        const prefix    = currentPrefix();
+        const isInst    = activeTab === "instancias";
+        const container = document.getElementById("placeList");
 
-      if (category === 'todos') {
-        renderCards(locations);
-      } else {
-        const filtered = locations.filter(loc => loc.category.toLowerCase().includes(category.toLowerCase()));
-        renderCards(filtered);
-      }
+        if (!list.length) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-5" style="grid-column: 1 / -1;">
+                    <i class="bi bi-search fs-2 d-block mb-2 opacity-50"></i>
+                    <p class="mb-0">No encontramos resultados con ese criterio.</p>
+                </div>`;
+            return;
+        }
+
+        const iconColor = isInst ? "var(--wine)" : "var(--blue-sec)";
+
+        container.innerHTML = list.map(p => {
+            const key      = prefix + p.index;
+            const isSel    = key === selectedKey;
+            const secClass = isInst ? "" : " sec";
+            const badgeCls = isInst ? "label-instancia" : "label-seguridad";
+
+            return `
+            <article class="place-card${secClass}${isSel ? " selected" : ""}"
+                     data-key="${key}" data-lat="${p.lat}" data-lng="${p.lng}">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="card-label ${badgeCls}">${p.category}</span>
+                    ${p.distance !== null
+                        ? `<span class="card-dist">${fmtDist(p.distance)}</span>`
+                        : ""}
+                </div>
+
+                <h4 class="h6 fw-semibold mb-2" style="line-height:1.35; color: var(--dark);">
+                    ${p.name}
+                </h4>
+
+                <div class="card-info-row">
+                    <i class="bi bi-geo-alt-fill" style="color:${iconColor};"></i>
+                    <span>${p.address}</span>
+                </div>
+                <div class="card-info-row">
+                    <i class="bi bi-telephone-fill" style="color:${iconColor};"></i>
+                    <span>${p.phone || "—"}</span>
+                </div>
+                <div class="card-info-row">
+                    <i class="bi bi-clock-fill" style="color:${iconColor};"></i>
+                    <span>${p.hours || "—"}</span>
+                </div>
+                <div class="card-info-row">
+                    <i class="bi bi-building" style="color:${iconColor};"></i>
+                    <span>${p.municipio}</span>
+                </div>
+
+            </article>`;
+        }).join("");
+
+        container.querySelectorAll(".place-card").forEach(card => {
+            card.addEventListener("click", () => {
+                selectedKey = card.dataset.key;
+                const lat = parseFloat(card.dataset.lat);
+                const lng = parseFloat(card.dataset.lng);
+                map.flyTo([lat, lng], 14, { duration: .6 });
+                const mk = markers[selectedKey];
+                if (mk) mk.openPopup();
+                if (userPos) {
+                    const idx = parseInt(selectedKey.replace("place_", "").replace("sec_", ""));
+                    drawRoute(userPos, currentDataset()[idx]);
+                }
+                renderList();
+            });
+        });
     }
 
-    window.onload = () => {
-      initMap();
-      renderCards(locations);
-    };
-  </script>
+    // ════════════════════════════════════════════════════════
+    // GEOLOCALIZACIÓN
+    // ════════════════════════════════════════════════════════
+    function onPosition(pos) {
+        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+        if (!userMarker) {
+            userMarker = L.marker([userPos.lat, userPos.lng], { icon: userIcon })
+                .addTo(map).bindPopup("Tu ubicación");
+        } else {
+            userMarker.setLatLng([userPos.lat, userPos.lng]);
+        }
+
+        if (!hasCentered) {
+            map.flyTo([userPos.lat, userPos.lng], 12, { duration: 1 });
+            hasCentered = true;
+        }
+
+        document.getElementById("nearestDot").classList.add("live");
+        document.getElementById("nearestStatusText").textContent =
+            "Ubicación activa — ruta actualizándose en vivo";
+
+        updateNearest();
+        renderList();
+    }
+
+    function onError() {
+        document.getElementById("nearestStatusText").textContent =
+            "No pudimos acceder a tu ubicación. Mostrando el mapa completo de Hidalgo.";
+        document.getElementById("nearestName").textContent =
+            "Activa tu ubicación para ver la más cercana";
+    }
+
+    if ("geolocation" in navigator) {
+        navigator.geolocation.watchPosition(onPosition, onError, {
+            enableHighAccuracy: true, maximumAge: 5000, timeout: 10000
+        });
+    } else {
+        onError();
+    }
+
+    // ════════════════════════════════════════════════════════
+    // TABS — función central, sincroniza arriba y abajo
+    // ════════════════════════════════════════════════════════
+    function setTab(tab) {
+        activeTab   = tab;
+        selectedKey = null;
+
+        // Sincronizar botones
+        document.querySelectorAll(".ws-map-tab").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.tab === tab);
+        });
+
+        // Mover indicador de línea en ambas barras
+        document.querySelectorAll(".ws-map-tabs").forEach(bar => {
+            bar.classList.toggle("tab-seguridad", tab === "seguridad");
+        });
+
+        syncMarkers();
+        updateNearest();
+        renderList();
+    }
+
+    document.querySelectorAll(".ws-map-tab").forEach(btn => {
+        btn.addEventListener("click", () => setTab(btn.dataset.tab));
+    });
+
+    // ════════════════════════════════════════════════════════
+    // FILTROS
+    // ════════════════════════════════════════════════════════
+    document.querySelectorAll("#filterGroup button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll("#filterGroup button").forEach(b => {
+                b.classList.remove("btn-wine");
+                b.classList.add("btn-outline-secondary");
+            });
+            btn.classList.remove("btn-outline-secondary");
+            btn.classList.add("btn-wine");
+            activeFilter = btn.dataset.filter;
+            renderList();
+        });
+    });
+
+    // ════════════════════════════════════════════════════════
+    // BÚSQUEDA
+    // ════════════════════════════════════════════════════════
+    document.getElementById("mapSearch").addEventListener("input", e => {
+        searchTerm = e.target.value;
+        renderList();
+    });
+
+    // ════════════════════════════════════════════════════════
+    // INICIO
+    // ════════════════════════════════════════════════════════
+    setTab("instancias");
+
+    </script>
+
 </body>
 </html>
