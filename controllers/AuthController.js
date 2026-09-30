@@ -1,18 +1,41 @@
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const User = require("../models/User");
 
-// Configuración del servicio de correo con puerto 465 (SSL) explícito para Railway
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL activado
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+// Envío de correo vía API HTTP de Brevo (puerto 443, Railway no lo bloquea)
+async function enviarCorreoBrevo({ to, nombre, subject, html }) {
+  const apiKey = (process.env.BREVO_API_KEY || "").trim();
+  const sender = (process.env.EMAIL_FROM || "").trim();
+
+  if (!apiKey) {
+    // DIAGNÓSTICO TEMPORAL: muestra solo los NOMBRES de las variables que ve el servidor
+    const nombres = Object.keys(process.env).sort().join(", ");
+    const largo = (process.env.BREVO_API_KEY || "").length;
+    throw new Error(`Falta BREVO_API_KEY (largo recibido: ${largo}). Variables que ve el servidor: ${nombres}`);
   }
-});
+  if (!sender) throw new Error("Falta la variable EMAIL_FROM en el servidor");
+
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "api-key": apiKey
+    },
+    body: JSON.stringify({
+      sender: { name: "WOMEN SAFETY", email: sender },
+      to: [{ email: to, name: nombre }],
+      subject,
+      htmlContent: html
+    }),
+    signal: AbortSignal.timeout(10000) // corta a los 10 s, nunca se queda colgado
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Brevo ${resp.status}: ${await resp.text()}`);
+  }
+  return resp.json();
+}
 
 // GET /login
 exports.getLoginPage = (req, res) => {
@@ -50,36 +73,46 @@ exports.registrar = async (req, res) => {
     });
 
     // Enlace de activación de correo
-    const domain = req.headers.host;
-    const protocol = req.protocol;
-    const linkVerificacion = `${protocol}://${domain}/verify/${token}`;
+    const linkVerificacion = `${req.protocol}://${req.headers.host}/verify/${token}`;
 
-    // Correo de activación
-    const mailOptions = {
-      from: `"WOMEN SAFETY" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Verifica tu cuenta - WOMEN SAFETY",
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #292329;">
-          <h2 style="color: #8e3a68;">¡Hola ${nombre}!</h2>
-          <p>Gracias por registrarte en <strong>WOMEN SAFETY</strong>.</p>
-          <p>Para activar tu cuenta y poder iniciar sesión, haz clic en el siguiente enlace:</p>
-          <a href="${linkVerificacion}" style="display: inline-block; padding: 12px 20px; background-color: #8e3a68; color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">Validar mi correo electrónico</a>
-          <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
-        </div>
-      `
-    };
+    const subject = "Verifica tu cuenta - WOMEN SAFETY";
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #292329;">
+        <h2 style="color: #8e3a68;">¡Hola ${nombre}!</h2>
+        <p>Gracias por registrarte en <strong>WOMEN SAFETY</strong>.</p>
+        <p>Para activar tu cuenta y poder iniciar sesión, haz clic en el siguiente enlace:</p>
+        <a href="${linkVerificacion}" style="display: inline-block; padding: 12px 20px; background-color: #8e3a68; color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">Validar mi correo electrónico</a>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
+      </div>
+    `;
 
-    console.log("📩 Intentando enviar correo a:", email);
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ CORREO ENVIADO CON ÉXITO:", info.response);
+    // Enviamos el correo sin romper el registro si falla
+    console.log("📩 Enviando correo vía Brevo a:", email);
+    let correoEnviado = true;
+    let errorMail = "";
+    try {
+      const info = await enviarCorreoBrevo({ to: email, nombre, subject, html });
+      console.log("✅ CORREO ENVIADO:", info.messageId);
+    } catch (mailErr) {
+      correoEnviado = false;
+      errorMail = mailErr.message;
+      console.error("⚠️ Error enviando correo (el usuario sí se guardó):", mailErr.message);
+    }
 
-    res.render("login", { 
-      success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión." 
+    if (correoEnviado) {
+      return res.render("login", {
+        success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión."
+      });
+    }
+
+    // TEMPORAL: muestra el detalle técnico en pantalla para depurar.
+    // Cuando funcione, cambia esta línea por el mensaje sin "Detalle".
+    return res.render("login", {
+      error: `Cuenta creada, pero no pudimos enviar el correo de activación. Detalle: ${errorMail}`
     });
 
   } catch (err) {
-    console.error("❌ ERROR DETALLADO AL ENVIAR CORREO / REGISTRAR:", err);
+    console.error("❌ ERROR GENERAL EN REGISTRO:", err);
     res.render("login", { error: "Ocurrió un error al procesar el registro. Intenta de nuevo." });
   }
 };
@@ -124,8 +157,8 @@ exports.login = async (req, res) => {
 
     // BLOQUEO SI NO ESTÁ VERIFICADO
     if (!usuario.isVerified) {
-      return res.render("login", { 
-        error: "Debes validar tu correo electrónico primero. Revisa tu bandeja de entrada." 
+      return res.render("login", {
+        error: "Debes validar tu correo electrónico primero. Revisa tu bandeja de entrada."
       });
     }
 

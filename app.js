@@ -5,8 +5,11 @@ const path = require("path");
 const app = express();
 const session = require("express-session");
 
+// Railway está detrás de un proxy: necesario para que req.protocol sea "https"
+app.set("trust proxy", 1);
+
 app.use(session({
-  secret: "cambia-esto-por-una-frase-larga-y-secreta",
+  secret: process.env.SESSION_SECRET || "cambia-esto-por-una-frase-larga-y-secreta",
   resave: false,
   saveUninitialized: false,
 }));
@@ -41,4 +44,3 @@ const startServer = async () => {
 };
 
 startServer();
-
