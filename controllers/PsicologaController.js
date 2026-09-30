@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Ficha = require('../models/Ficha');
 const Cita = require('../models/Cita');
+const { avisarNovedades } = require('../utils/verificacion');
 
 const FECHA_RE = /^\d{4}-\d{2}-\d{2}$/;
 const HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -40,8 +41,9 @@ exports.registrarVictima = async (req, res) => {
     if (!nombre || !correo || !telefono) return renderPanel(req, res, 'Completa todos los campos.');
     if (!EMAIL_RE.test(correo)) return renderPanel(req, res, 'El correo no parece válido. Revísalo: con él se conecta su cuenta.');
 
-    const cuenta = await User.findOne({ email: correo, role: 'victima', isVerified: true }).select('_id');
+    const cuenta = await User.findOne({ email: correo, role: 'victima', isVerified: true }).select('_id nombre email');
     await Ficha.create({ nombre, correo, telefono, psicologa: req.session.user.id, cuenta: cuenta ? cuenta._id : null });
+    if (cuenta) avisarNovedades(cuenta, req);   // aviso neutro, solo si su correo ya está verificado
     res.redirect('/psicologa');
   } catch (err) {
     if (err && err.code === 11000) return renderPanel(req, res, 'Ya registraste a una persona con ese correo.');

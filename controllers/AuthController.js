@@ -1,120 +1,53 @@
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
 const User = require("../models/User");
-const { vincularPorCorreo } = require("../utils/vincularFicha");   // NUEVO
+const { vincularPorCorreo } = require("../utils/vincularFicha");
+const { emitirCodigo, avisarNovedades } = require("../utils/verificacion");
 
-const destinos = { jefe: "/jefe", psicologa: "/psicologa", victima: "/victima" };   // NUEVO
-
-// Envío de correo vía API HTTP de Brevo (puerto 443, Railway no lo bloquea)
-async function enviarCorreoBrevo({ to, nombre, subject, html }) {
-  const apiKey = (process.env.BREVO_API_KEY || "").trim();
-  const sender = (process.env.EMAIL_FROM || "").trim();
-
-  if (!apiKey) {
-    // DIAGNÓSTICO TEMPORAL: muestra solo los NOMBRES de las variables que ve el servidor
-    const nombres = Object.keys(process.env).sort().join(", ");
-    const largo = (process.env.BREVO_API_KEY || "").length;
-    throw new Error(`Falta BREVO_API_KEY (largo recibido: ${largo}). Variables que ve el servidor: ${nombres}`);
-  }
-  if (!sender) throw new Error("Falta la variable EMAIL_FROM en el servidor");
-
-  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      "api-key": apiKey
-    },
-    body: JSON.stringify({
-      sender: { name: "WOMEN SAFETY", email: sender },
-      to: [{ email: to, name: nombre }],
-      subject,
-      htmlContent: html
-    }),
-    signal: AbortSignal.timeout(10000) // corta a los 10 s, nunca se queda colgado
-  });
-
-  if (!resp.ok) {
-    throw new Error(`Brevo ${resp.status}: ${await resp.text()}`);
-  }
-  return resp.json();
-}
+const destinos = { jefe: "/jefe", psicologa: "/psicologa", victima: "/victima" };
+const str = v => (typeof v === "string" ? v.trim() : "");
 
 // GET /login
 exports.getLoginPage = (req, res) => {
   res.render("login", { error: null });
 };
 
-// POST /registro
+// POST /registro  (público: siempre crea una cuenta de víctima)
 exports.registrar = async (req, res) => {
   try {
-    const { nombre, email, password, password2 } = req.body;
+    const nombre = str(req.body.nombre);
+    const correo = str(req.body.email).toLowerCase();
+    const password = typeof req.body.password === "string" ? req.body.password : "";
+    const password2 = typeof req.body.password2 === "string" ? req.body.password2 : "";
 
-    if (!nombre || !email || !password || !password2) {
+    if (!nombre || !correo || !password || !password2) {
       return res.render("login", { error: "Completa todos los campos." });
     }
-
     if (password !== password2) {
       return res.render("login", { error: "Las contraseñas no coinciden." });
     }
+    if (password.length < 8) {
+      return res.render("login", { error: "La contraseña debe tener al menos 8 caracteres." });
+    }
 
-    const existe = await User.findOne({ email: email.toLowerCase() });
-    if (existe) {
+    let usuario = await User.findOne({ email: correo });
+    if (usuario && (usuario.isVerified || usuario.role !== "victima")) {
       return res.render("login", { error: "Ese correo ya está registrado." });
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const token = crypto.randomBytes(32).toString("hex");
-
-    // Guardamos el usuario con isVerified: false
-    // NUEVO: el rol SIEMPRE es "victima" en el registro público (nunca viene del formulario)
-    await User.create({
-      nombre,
-      email: email.toLowerCase(),
-      password: hash,
-      verificationToken: token,
-      isVerified: false,
-      role: "victima"
-    });
-
-    // Enlace de activación de correo
-    const linkVerificacion = `${req.protocol}://${req.headers.host}/verify/${token}`;
-
-    const subject = "Verifica tu cuenta - WOMEN SAFETY";
-    const html = `
-      <div style="font-family: Arial, sans-serif; padding: 20px; color: #292329;">
-        <h2 style="color: #8e3a68;">¡Hola ${nombre}!</h2>
-        <p>Gracias por registrarte en <strong>WOMEN SAFETY</strong>.</p>
-        <p>Para activar tu cuenta y poder iniciar sesión, haz clic en el siguiente enlace:</p>
-        <a href="${linkVerificacion}" style="display: inline-block; padding: 12px 20px; background-color: #8e3a68; color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">Validar mi correo electrónico</a>
-        <p style="margin-top: 20px; font-size: 0.8rem; color: #6f6470;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
-      </div>
-    `;
-
-    // Enviamos el correo sin romper el registro si falla
-    console.log("📩 Enviando correo vía Brevo a:", email);
-    let correoEnviado = true;
-    let errorMail = "";
-    try {
-      const info = await enviarCorreoBrevo({ to: email, nombre, subject, html });
-      console.log("✅ CORREO ENVIADO:", info.messageId);
-    } catch (mailErr) {
-      correoEnviado = false;
-      errorMail = mailErr.message;
-      console.error("⚠️ Error enviando correo (el usuario sí se guardó):", mailErr.message);
+    if (usuario) {
+      // Cuenta SIN verificar: se reemplaza. Así nadie puede dejar una cuenta "preparada"
+      // con una contraseña que conoce en el correo de otra persona.
+      usuario.nombre = nombre;
+      usuario.password = hash;
+    } else {
+      usuario = new User({ nombre, email: correo, password: hash, role: "victima", isVerified: false });
     }
 
-    if (correoEnviado) {
-      return res.render("login", {
-        success: "¡Registro exitoso! Te hemos enviado un correo de activación. Revisa tu bandeja de entrada o spam antes de iniciar sesión."
-      });
-    }
-
-    // TEMPORAL: muestra el detalle técnico en pantalla para depurar.
-    // Cuando funcione, cambia esta línea por el mensaje sin "Detalle".
-    return res.render("login", {
-      error: `Cuenta creada, pero no pudimos enviar el correo de activación. Detalle: ${errorMail}`
-    });
+    const enviado = await emitirCodigo(usuario);   // guarda la cuenta, crea el código y lo envía
+    req.session.codigoEnviadoAt = Date.now();      // arranca la cuenta regresiva del botón "Enviar código nuevo"
+    req.session.pendingEmail = correo;
+    res.redirect("/verificar" + (enviado ? "" : "?envio=fallo"));
 
   } catch (err) {
     console.error("❌ ERROR GENERAL EN REGISTRO:", err);
@@ -122,7 +55,7 @@ exports.registrar = async (req, res) => {
   }
 };
 
-// GET /verify/:token (Confirmación de correo)
+// GET /verify/:token  (enlace antiguo: se conserva para correos ya enviados)
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
@@ -136,7 +69,8 @@ exports.verifyEmail = async (req, res) => {
     usuario.verificationToken = null;
     await usuario.save();
 
-    await vincularPorCorreo(usuario);   // NUEVO: conecta sus fichas (si la psicóloga ya la registró)
+    const vinculadas = await vincularPorCorreo(usuario);
+    if (vinculadas > 0) avisarNovedades(usuario, req);
 
     res.render("login", { success: "¡Tu correo ha sido verificado correctamente! Ya puedes iniciar sesión." });
   } catch (err) {
@@ -148,47 +82,43 @@ exports.verifyEmail = async (req, res) => {
 // POST /login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = str(req.body.email).toLowerCase();
+    const password = typeof req.body.password === "string" ? req.body.password : "";
 
-    const usuario = await User.findOne({ email: email.toLowerCase() });
-
+    const usuario = await User.findOne({ email });
     if (!usuario) {
       return res.render("login", { error: "Correo o contraseña incorrectos." });
     }
 
     const coincide = await bcrypt.compare(password, usuario.password);
-
     if (!coincide) {
       return res.render("login", { error: "Correo o contraseña incorrectos." });
     }
 
-    // BLOQUEO SI NO ESTÁ VERIFICADO
+    // Sin verificar: la llevamos a escribir su código (o a pedir uno nuevo)
     if (!usuario.isVerified) {
-      return res.render("login", {
-        error: "Debes validar tu correo electrónico primero. Revisa tu bandeja de entrada."
-      });
+      req.session.pendingEmail = usuario.email;
+      return res.redirect("/verificar?aviso=pendiente");
     }
 
-    // NUEVO: una psicóloga no entra hasta que el jefe la valide
+    // Una psicóloga no entra hasta que el jefe la valide
     if (usuario.role === "psicologa" && !usuario.validada) {
-      return res.render("login", {
-        error: "Tu cuenta aún no ha sido validada por la jefa de área."
-      });
+      return res.render("login", { error: "Tu cuenta aún no ha sido validada por la jefa de área." });
     }
 
-    // NUEVO: por si la psicóloga registró su ficha después de que ella se verificó
+    // Por si la psicóloga registró su ficha después de que ella se verificó
     await vincularPorCorreo(usuario);
 
     req.session.user = {
       id: usuario._id,
       nombre: usuario.nombre,
       email: usuario.email,
-      role: usuario.role,                                   // NUEVO
-      mustChangePassword: !!usuario.mustChangePassword      // NUEVO
+      role: usuario.role,
+      mustChangePassword: !!usuario.mustChangePassword
     };
 
-    if (usuario.mustChangePassword) return res.redirect("/cambiar-password");   // NUEVO
-    res.redirect(destinos[usuario.role] || "/");                                 // NUEVO
+    if (usuario.mustChangePassword) return res.redirect("/cambiar-password");
+    res.redirect(destinos[usuario.role] || "/");
 
   } catch (err) {
     console.error(err);

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica tu correo | WOMEN SAFETY</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+
+    <style>
+        body { background: #fffdfd linear-gradient(180deg, #fbeaf3 0, #fff8fb 380px, #fffdfd 100%) no-repeat; }
+
+        .ws-verify { max-width: 480px; margin: 0 auto; padding: 64px 20px 90px; }
+        .ws-verify h1 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: clamp(2rem, 5vw, 2.6rem); line-height: 1.15; color: var(--dark); }
+        .ws-verify h1 em { font-style: normal; color: var(--wine); }
+        .ws-verify .ws-sub { color: var(--gray); font-size: .95rem; line-height: 1.7; }
+
+        .ws-verify-card { padding: 28px; border-radius: 20px; background: #fff; box-shadow: 0 8px 30px rgba(80, 40, 65, .08); }
+        .ws-verify .form-label { font-size: .82rem; font-weight: 600; color: #3d363d; }
+        .ws-verify .form-control { border-radius: 12px; border-color: var(--border); padding: .7rem .9rem; }
+        .ws-verify .form-control:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(179, 77, 131, .15); }
+
+        /* Casilla del código, como en GitHub */
+        .ws-code { font-size: 1.9rem; font-weight: 600; letter-spacing: .55rem; text-align: center; padding-left: 1.1rem !important; }
+
+        .ws-verify .ws-primary-button { width: 100%; justify-content: center; border: 0; cursor: pointer; }
+        /* Botón "Enviar código nuevo" con reloj de cuenta regresiva */
+        .ws-resend { display: inline-flex; align-items: center; gap: .6rem; padding: .35rem .8rem .35rem .4rem; border: 0; border-radius: 999px; background: transparent; color: var(--wine); font-size: .85rem; font-weight: 600; cursor: pointer; transition: background-color .2s ease; }
+        .ws-resend:hover:not(:disabled) { background: var(--pink-light); }
+        .ws-resend:disabled { color: var(--gray); cursor: not-allowed; }
+        .ws-resend:not(:disabled) { padding-left: .8rem; }
+        .ws-ring { position: relative; width: 36px; height: 36px; flex: none; }
+        .ws-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ws-ring circle { fill: none; stroke-width: 3; }
+        .ws-ring-bg { stroke: var(--pink-light); }
+        .ws-ring-fg { stroke: var(--wine); stroke-linecap: round; stroke-dasharray: 100; transition: stroke-dashoffset 1s linear; }
+        .ws-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; color: var(--wine-dark); font-variant-numeric: tabular-nums; }
+        .ws-resend.is-ready { animation: wsPulse 1.5s ease-out 2; }
+        @keyframes wsPulse { from { box-shadow: 0 0 0 0 rgba(142, 58, 104, .35); } to { box-shadow: 0 0 0 12px rgba(142, 58, 104, 0); } }
+        @media (prefers-reduced-motion: reduce) { .ws-ring-fg { transition: none; } .ws-resend.is-ready { animation: none; } }
+        .ws-note { font-size: .78rem; color: var(--gray); }
+        .ws-verify .alert { border-radius: 12px; font-size: .88rem; }
+    </style>
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <%
+        const restante = Math.max(0, Number(locals.restante) || 0);
+        const total = Number(locals.reenvioTotal) || 60;
+        const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    %>
+    <main class="ws-verify">
+
+        <span class="ws-section-label">Un paso más</span>
+        <h1 class="mb-3">Verifica tu <em>correo</em></h1>
+        <p class="ws-sub mb-4">
+            Te enviamos un código de 6 dígitos. Escríbelo aquí para activar tu cuenta.
+        </p>
+
+        <% if (locals.error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+        <% if (locals.exito) { %><div class="alert alert-success"><%= exito %></div><% } %>
+        <% if (locals.aviso) { %><div class="alert alert-warning"><%= aviso %></div><% } %>
+
+        <div class="ws-verify-card">
+            <form method="POST" action="/verificar">
+                <div class="mb-3">
+                    <label class="form-label" for="email">Correo</label>
+                    <input type="email" id="email" name="email" class="form-control" value="<%= locals.email || '' %>" required autocomplete="email">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" for="codigo">Código de verificación</label>
+                    <input type="text" id="codigo" name="codigo" class="form-control ws-code" placeholder="000 000"
+                           inputmode="numeric" autocomplete="one-time-code" maxlength="7" required autofocus>
+                </div>
+
+                <button type="submit" class="ws-primary-button">Verificar</button>
+
+                <div class="text-center mt-3">
+                    <button type="submit" formaction="/verificar/reenviar" formnovalidate id="btnReenviar" class="ws-resend"
+                            data-restante="<%= restante %>" data-total="<%= total %>" <%= restante > 0 ? 'disabled' : '' %>>
+                        <span class="ws-ring <%= restante > 0 ? '' : 'd-none' %>" aria-hidden="true">
+                            <svg viewBox="0 0 36 36">
+                                <circle class="ws-ring-bg" cx="18" cy="18" r="16" pathLength="100"></circle>
+                                <circle class="ws-ring-fg" cx="18" cy="18" r="16" pathLength="100" style="stroke-dashoffset: <%= (100 * (1 - restante / total)).toFixed(1) %>"></circle>
+                            </svg>
+                            <span class="ws-ring-num" id="ringNum"><%= restante %></span>
+                        </span>
+                        <span id="resendLabel"><%= restante > 0 ? 'Enviar código nuevo en ' + mmss(restante) : 'Enviar código nuevo' %></span>
+                    </button>
+                    <div class="visually-hidden" role="status" aria-live="polite" id="resendStatus"></div>
+                </div>
+            </form>
+        </div>
+
+        <p class="ws-note text-center mt-3 mb-0">
+            El código vence en 15 minutos. Si no lo ves, revisa también la carpeta de spam.
+        </p>
+
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('btnReenviar');
+            if (!btn) return;
+            var total = Number(btn.dataset.total) || 60;
+            var restante = Number(btn.dataset.restante) || 0;
+            if (restante <= 0) return;
+
+            var ring = btn.querySelector('.ws-ring');
+            var fg = btn.querySelector('.ws-ring-fg');
+            var num = document.getElementById('ringNum');
+            var label = document.getElementById('resendLabel');
+            var status = document.getElementById('resendStatus');
+            var fin = Date.now() + restante * 1000;   // con la hora real, no se atrasa si la pestaña se pausa
+            var ultimo = -1;
+
+            function mmss(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+            function tick() {
+                var seg = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+                if (seg === ultimo) return;
+                ultimo = seg;
+                num.textContent = seg;
+                fg.style.strokeDashoffset = (100 * (1 - seg / total)).toFixed(1);
+                label.textContent = 'Enviar código nuevo en ' + mmss(seg);
+
+                if (seg === 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    ring.classList.add('d-none');
+                    label.textContent = 'Enviar código nuevo';
+                    btn.classList.add('is-ready');
+                    status.textContent = 'Ya puedes pedir un código nuevo.';
+                }
+            }
+
+            var timer = setInterval(tick, 250);
+            tick();
+        })();
+    </script>
+
+</body>
+
+</html>

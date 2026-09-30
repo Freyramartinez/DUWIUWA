@@ -6,6 +6,12 @@ const Account = require('../controllers/AccountController');
 const Jefe = require('../controllers/JefeController');
 const Psicologa = require('../controllers/PsicologaController');
 const Victima = require('../controllers/VictimaController');
+const Verificacion = require('../controllers/VerificationController');
+
+// Verificación de correo por código (públicas)
+router.get('/verificar', Verificacion.form);
+router.post('/verificar', Verificacion.verificar);
+router.post('/verificar/reenviar', Verificacion.reenviar);
 
 // Cambio de contraseña (obligatorio en el primer inicio de las psicólogas)
 router.get('/cambiar-password', requireLogin, Account.form);

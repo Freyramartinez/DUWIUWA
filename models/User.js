@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
 
+  // ---- Código de verificación por correo (como GitHub) ----
+  verificationCodeHash: { type: String },                 // el código va cifrado, no se puede leer
+  verificationExpires: { type: Date },                    // vence a los 15 minutos
+  verificationAttempts: { type: Number, default: 0 },     // intentos fallidos
+  verificationSentAt: { type: Date },                     // para limitar los reenvíos
+
   // ---- NUEVO ----
   role: { type: String, enum: ["jefe", "psicologa", "victima"], default: "victima" },
   validada: { type: Boolean, default: false },            // solo psicólogas: aprobación del jefe
