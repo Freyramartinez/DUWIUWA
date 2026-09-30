@@ -6,7 +6,7 @@ const mongoURI = process.env.MONGODB_URI;
 
 const serviciosSafeWave = [
   {
-    name: "Kit Piloto SafeWave Tlahuelilpan",
+    name: "Kit Piloto SafeWave ",
     category: "Paquete Piloto",
     description: "Infraestructura inicial a costo cero de mantenimiento en la nube para la Instancia de la Mujer.",
     price: 0,
