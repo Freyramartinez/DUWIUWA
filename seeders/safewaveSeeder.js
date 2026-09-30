@@ -10,7 +10,7 @@ const serviciosSafeWave = [
     category: "Paquete Piloto",
     description: "Infraestructura inicial a costo cero de mantenimiento en la nube para la Instancia de la Mujer.",
     price: 0,
-    image: "/img/kitpiloto.jpg",
+    image: "/img/s1.jpg",
     specs: [
       "1 Antena Base Gateway LoRaWAN",
       "5 a 10 Botones de pánico LilyGO T-Beam",
@@ -22,7 +22,7 @@ const serviciosSafeWave = [
     category: "Consultoría Técnica",
     description: "Mapeo topográfico para detectar zonas silenciosas y ubicar antenas estratégicamente.",
     price: 0,
-    image: "/img/estudiorfs.jpg",
+    image: "/img/s2.jpg",
     specs: [
       "Análisis de terreno y elevación",
       "Identificación de puntos ciegos sin señal celular"
@@ -33,7 +33,7 @@ const serviciosSafeWave = [
     category: "Software de Monitoreo",
     description: "Panel de control en tiempo real para la recepción de alertas en la Instancia de la Mujer.",
     price: 0,
-     image: "/img/dashboard.jpg",
+     image: "/img/s3.jpg",
     specs: [
       "Mapa interactivo con coordenadas GPS al segundo",
       "Alertas sonoras y visuales automáticas"
