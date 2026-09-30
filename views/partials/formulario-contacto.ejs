@@ -1,0 +1,67 @@
+<section id="contacto" class="py-5" style="background:#fff8fc;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+
+        <div class="card border-0 shadow rounded-4 p-4">
+          <h2 class="text-center mb-4 fw-bold" style="color:#8e3a68;">Contáctanos</h2>
+
+          <form id="formContacto">
+            <div class="mb-3">
+              <label class="form-label" style="color:#6f6470;">Nombre</label>
+              <input type="text" class="form-control" name="from_name" placeholder="Tu nombre" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" style="color:#6f6470;">Correo electrónico</label>
+              <input type="email" class="form-control" name="from_email" placeholder="tucorreo@ejemplo.com" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" style="color:#6f6470;">Mensaje</label>
+              <textarea class="form-control" name="message" rows="4" placeholder="Escribe tu mensaje aquí" required></textarea>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-lg" style="background:#8e3a68; color:white; border-radius:25px;">
+                Enviar mensaje
+              </button>
+            </div>
+
+            <div id="estadoEnvio" class="alert mt-3 text-center" style="display:none;" role="alert"></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SDK de EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  (function () {
+    emailjs.init("service_8zl0s3d");
+  })();
+
+  document.getElementById("formContacto").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const estado = document.getElementById("estadoEnvio");
+    estado.style.display = "block";
+    estado.className = "alert alert-secondary mt-3 text-center";
+    estado.textContent = "Enviando...";
+
+    emailjs.sendForm("service_8zl0s3d", "template_x6cnsit", this)
+      .then(function () {
+        estado.className = "alert alert-success mt-3 text-center";
+        estado.textContent = "¡Mensaje enviado con éxito!";
+        document.getElementById("formContacto").reset();
+      })
+      .catch(function (error) {
+        estado.className = "alert alert-danger mt-3 text-center";
+        estado.textContent = "Hubo un error al enviar. Intenta de nuevo.";
+        console.error(error);
+      });
+  });
+</script>
