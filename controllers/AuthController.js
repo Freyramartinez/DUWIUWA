@@ -7,7 +7,12 @@ async function enviarCorreoBrevo({ to, nombre, subject, html }) {
   const apiKey = (process.env.BREVO_API_KEY || "").trim();
   const sender = (process.env.EMAIL_FROM || "").trim();
 
-  if (!apiKey) throw new Error("Falta la variable BREVO_API_KEY en el servidor");
+  if (!apiKey) {
+    // DIAGNÓSTICO TEMPORAL: muestra solo los NOMBRES de las variables que ve el servidor
+    const nombres = Object.keys(process.env).sort().join(", ");
+    const largo = (process.env.BREVO_API_KEY || "").length;
+    throw new Error(`Falta BREVO_API_KEY (largo recibido: ${largo}). Variables que ve el servidor: ${nombres}`);
+  }
   if (!sender) throw new Error("Falta la variable EMAIL_FROM en el servidor");
 
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
