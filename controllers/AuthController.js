@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const User = require("../models/User");
+const { vincularPorCorreo } = require("../utils/vincularFicha");   // NUEVO
+
+const destinos = { jefe: "/jefe", psicologa: "/psicologa", victima: "/victima" };   // NUEVO
 
 // Envío de correo vía API HTTP de Brevo (puerto 443, Railway no lo bloquea)
 async function enviarCorreoBrevo({ to, nombre, subject, html }) {
@@ -59,12 +62,14 @@ exports.registrar = async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
 
     // Guardamos el usuario con isVerified: false
+    // NUEVO: el rol SIEMPRE es "victima" en el registro público (nunca viene del formulario)
     await User.create({
       nombre,
       email: email.toLowerCase(),
       password: hash,
       verificationToken: token,
-      isVerified: false
+      isVerified: false,
+      role: "victima"
     });
 
     // Enlace de activación de correo
@@ -126,6 +131,8 @@ exports.verifyEmail = async (req, res) => {
     usuario.verificationToken = null;
     await usuario.save();
 
+    await vincularPorCorreo(usuario);   // NUEVO: conecta sus fichas (si la psicóloga ya la registró)
+
     res.render("login", { success: "¡Tu correo ha sido verificado correctamente! Ya puedes iniciar sesión." });
   } catch (err) {
     console.error(err);
@@ -157,13 +164,26 @@ exports.login = async (req, res) => {
       });
     }
 
+    // NUEVO: una psicóloga no entra hasta que el jefe la valide
+    if (usuario.role === "psicologa" && !usuario.validada) {
+      return res.render("login", {
+        error: "Tu cuenta aún no ha sido validada por la jefa de área."
+      });
+    }
+
+    // NUEVO: por si la psicóloga registró su ficha después de que ella se verificó
+    await vincularPorCorreo(usuario);
+
     req.session.user = {
       id: usuario._id,
       nombre: usuario.nombre,
       email: usuario.email,
+      role: usuario.role,                                   // NUEVO
+      mustChangePassword: !!usuario.mustChangePassword      // NUEVO
     };
 
-    res.redirect("/");
+    if (usuario.mustChangePassword) return res.redirect("/cambiar-password");   // NUEVO
+    res.redirect(destinos[usuario.role] || "/");                                 // NUEVO
 
   } catch (err) {
     console.error(err);

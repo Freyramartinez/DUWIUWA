@@ -1,0 +1,56 @@
+<%
+  const u = locals.usuario || { nombre: 'Jefa de área' };
+  const psicologas = locals.psicologas || [
+    { id: 1, nombre: 'Dra. Martínez', correo: 'martinez@ejemplo.com', estado: 'validada' },
+    { id: 2, nombre: 'Dra. Ramírez', correo: 'ramirez@ejemplo.com', estado: 'pendiente' }
+  ];
+%>
+<%- include('partials/panel-top', { titulo: 'Panel de jefe', nombre: u.nombre, rol: 'Jefe', error: locals.error }) %>
+
+<span class="ws-section-label" style="margin-bottom:10px">Panel de jefe</span>
+<h1 class="ws-title mb-2">Equipo de <em>psicólogas</em></h1>
+<p class="ws-lead mb-4">Da de alta nuevas cuentas y valídalas para que puedan atender.</p>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">Dar de alta psicóloga</h2>
+        <form method="POST" action="/jefe/psicologas">
+          <div class="mb-3"><label class="form-label">Nombre completo</label><input name="nombre" class="form-control" required autocomplete="off"></div>
+          <div class="mb-3"><label class="form-label">Correo</label><input type="email" name="correo" class="form-control" required autocomplete="off"></div>
+          <div class="mb-3"><label class="form-label">Contraseña temporal</label><div class="input-group"><input type="password" name="password" class="form-control" minlength="8" required autocomplete="new-password"><button type="button" class="btn ws-toggle-pass" aria-label="Mostrar contraseña"><i class="bi bi-eye"></i></button></div><div class="form-text">Deberá cambiarla en su primer inicio de sesión.</div></div>
+          <button class="btn btn-primary w-100">Crear cuenta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>Nombre</th><th>Correo</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+          <% psicologas.forEach(p => { %>
+            <tr>
+              <td><%= p.nombre %></td>
+              <td><%= p.correo %></td>
+              <td><span class="ws-badge <%= p.estado === 'validada' ? 'ws-badge-ok' : 'ws-badge-warn' %>"><%= p.estado === 'validada' ? 'Validada' : 'Pendiente' %></span></td>
+              <td class="text-end">
+                <% if (p.estado !== 'validada') { %>
+                  <form method="POST" action="/jefe/psicologas/<%= p.id %>/validar"><button class="btn btn-sm btn-outline-primary">Validar</button></form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/panel-bottom') %>
+</body>
+</html>

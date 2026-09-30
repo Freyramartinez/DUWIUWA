@@ -1,0 +1,184 @@
+<%
+  const u = locals.usuario || { nombre: 'Dra. Martínez' };
+  const victimas = locals.victimas || [
+    { id: 1, nombre: 'Ana López', correo: 'ana@ejemplo.com', telefono: '771 000 0000', conCuenta: true },
+    { id: 2, nombre: 'María Pérez', correo: 'maria@ejemplo.com', telefono: '771 111 1111', conCuenta: false }
+  ];
+  const citas = locals.citas || [
+    { id: 1, victima: 'Ana López', fecha: '2026-10-05', hora: '10:00', motivo: 'Seguimiento', estado: 'programada' },
+    { id: 2, victima: 'María Pérez', fecha: '2026-10-06', hora: '12:00', motivo: 'Primera sesión', estado: 'programada' },
+    { id: 3, victima: 'Ana López', fecha: '2026-09-21', hora: '10:00', motivo: 'Seguimiento', estado: 'cancelada' }
+  ];
+  const eventos = citas.map(c => ({
+    id: String(c.id), title: c.victima, start: c.fecha + 'T' + c.hora,
+    color: c.estado === 'cancelada' ? '#c9bfc6' : '#8e3a68',
+    extendedProps: { hora: c.hora, motivo: c.motivo, estado: c.estado }
+  }));
+  const proximas = citas.filter(c => c.estado === 'programada').sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+  const fmt = c => new Date(c.fecha + 'T' + c.hora).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + c.hora + ' h';
+%>
+<%- include('partials/panel-top', { titulo: 'Panel de psicóloga', nombre: u.nombre, rol: 'Psicóloga', error: locals.error }) %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div>
+    <span class="ws-section-label">Panel de psicóloga</span>
+    <h1 class="ws-title mb-0">Mi <em>agenda</em></h1>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalVictima">+ Registrar víctima</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCita">+ Nueva cita</button>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4"><div class="card"><div class="card-body d-flex align-items-center gap-3">
+    <div class="ws-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+    <div><div class="ws-stat-num"><%= proximas.length %></div><div class="ws-stat-lbl">Citas programadas</div></div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body d-flex align-items-center gap-3">
+    <div class="ws-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14c2.5 0 4 1.7 4 4.5"/></svg></div>
+    <div><div class="ws-stat-num"><%= victimas.length %></div><div class="ws-stat-lbl">Víctimas registradas</div></div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body d-flex align-items-center gap-3">
+    <div class="ws-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+    <div><div class="fw-semibold"><%= proximas.length ? fmt(proximas[0]) : '—' %></div><div class="ws-stat-lbl">Próxima cita</div></div>
+  </div></div></div>
+</div>
+
+<ul class="nav nav-pills gap-2 mb-4">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabAgenda">Agenda</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabVictimas">Víctimas y expedientes</button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tabAgenda">
+    <div class="row g-4">
+      <div class="col-lg-8"><div class="card"><div class="card-body p-4"><div id="calendario"></div></div></div></div>
+      <div class="col-lg-4">
+        <div class="card"><div class="card-body p-4">
+          <h2 class="h5 mb-3">Próximas citas</h2>
+          <% if (!proximas.length) { %><p class="text-muted small mb-0">Sin citas próximas.</p><% } %>
+          <% proximas.slice(0, 5).forEach(c => { %>
+            <div class="d-flex align-items-center gap-3 py-3 border-top">
+              <span class="ws-nav-avatar" style="width:38px;height:38px"><%= c.victima.charAt(0) %></span>
+              <div><div class="fw-semibold"><%= c.victima %></div><div class="ws-stat-lbl text-capitalize"><%= fmt(c) %></div></div>
+            </div>
+          <% }) %>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tabVictimas">
+    <div class="card"><div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Cuenta</th><th></th></tr></thead>
+        <tbody>
+        <% if (!victimas.length) { %><tr><td colspan="5" class="text-muted text-center py-4">Aún no has registrado víctimas.</td></tr><% } %>
+        <% victimas.forEach(v => { %>
+          <tr>
+            <td class="fw-semibold"><%= v.nombre %></td><td><%= v.correo %></td><td><%= v.telefono %></td>
+            <td><span class="ws-badge <%= v.conCuenta ? 'ws-badge-ok' : 'ws-badge-warn' %>"><%= v.conCuenta ? 'Cuenta activa' : 'Sin cuenta' %></span></td>
+            <td class="text-end"><button class="btn btn-sm btn-outline-primary" disabled title="Próximamente">Expediente</button></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+</div>
+
+<!-- Nueva cita -->
+<div class="modal fade" id="modalCita" tabindex="-1"><div class="modal-dialog modal-dialog-centered">
+  <form class="modal-content" method="POST" action="/psicologa/citas">
+    <div class="modal-header"><h5 class="modal-title">Agendar cita</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Víctima</label>
+        <select name="ficha" class="form-select" required>
+          <option value="" disabled selected>Selecciona…</option>
+          <% victimas.forEach(v => { %><option value="<%= v.id %>"><%= v.nombre %></option><% }) %>
+        </select></div>
+      <div class="row g-3 mb-3">
+        <div class="col"><label class="form-label">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
+        <div class="col"><label class="form-label">Hora</label><input type="time" name="hora" class="form-control" required></div>
+      </div>
+      <div><label class="form-label">Motivo (opcional)</label><textarea name="motivo" class="form-control" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary">Agendar</button></div>
+  </form>
+</div></div>
+
+<!-- Registrar víctima (ficha) -->
+<div class="modal fade" id="modalVictima" tabindex="-1"><div class="modal-dialog modal-dialog-centered">
+  <form class="modal-content" method="POST" action="/psicologa/victimas">
+    <div class="modal-header"><h5 class="modal-title">Registrar víctima</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Nombre completo</label><input name="nombre" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Correo</label><input type="email" name="correo" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Teléfono</label><input type="tel" name="telefono" class="form-control" required></div>
+      <p class="small text-muted mb-0">Ella creará su propia cuenta en el registro público con este mismo correo. Revísalo bien: con él verá sus citas.</p>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary">Registrar</button></div>
+  </form>
+</div></div>
+
+<!-- Subir expediente -->
+<div class="modal fade" id="modalExpediente" tabindex="-1"><div class="modal-dialog modal-dialog-centered">
+  <form class="modal-content" id="formExpediente" method="POST" enctype="multipart/form-data">
+    <div class="modal-header"><h5 class="modal-title">Subir expediente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p class="small text-muted">Víctima: <strong id="expNombre"></strong></p>
+      <input type="file" name="expediente" class="form-control" accept=".pdf,.doc,.docx" required>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary">Subir</button></div>
+  </form>
+</div></div>
+
+<!-- Detalle de cita -->
+<div class="modal fade" id="modalDetalle" tabindex="-1"><div class="modal-dialog modal-dialog-centered">
+  <form class="modal-content" id="formDetalle" method="POST">
+    <div class="modal-header"><h5 class="modal-title" id="detTitulo"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><p class="mb-1 text-capitalize" id="detFecha"></p><p class="mb-2 text-muted" id="detMotivo"></p><span class="ws-badge" id="detEstado"></span></div>
+    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-danger" id="btnCancelarCita">Cancelar cita</button></div>
+  </form>
+</div></div>
+
+<%- include('partials/panel-bottom') %>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/locales/es.global.min.js"></script>
+<script>
+  const eventos = <%- JSON.stringify(eventos).replace(/</g, '\\u003c') %>;
+
+  const cal = new FullCalendar.Calendar(document.getElementById('calendario'), {
+    locale: 'es',
+    initialView: 'dayGridMonth',
+    firstDay: 1,
+    height: 'auto',
+    dayMaxEvents: true,
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', list: 'Lista' },
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+    events: eventos,
+    eventClick: info => {
+      const p = info.event.extendedProps;
+      const cancelada = p.estado === 'cancelada';
+      document.getElementById('detTitulo').textContent = info.event.title;
+      document.getElementById('detFecha').textContent = info.event.start.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + p.hora + ' h';
+      document.getElementById('detMotivo').textContent = p.motivo || 'Sin motivo indicado';
+      const est = document.getElementById('detEstado');
+      est.textContent = cancelada ? 'Cancelada' : 'Programada';
+      est.className = 'ws-badge ' + (cancelada ? 'ws-badge-off' : 'ws-badge-ok');
+      document.getElementById('btnCancelarCita').classList.toggle('d-none', cancelada);
+      document.getElementById('formDetalle').action = '/psicologa/citas/' + info.event.id + '/cancelar';
+      new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+    }
+  });
+  cal.render();
+
+  document.getElementById('modalExpediente').addEventListener('show.bs.modal', e => {
+    document.getElementById('expNombre').textContent = e.relatedTarget.dataset.nombre;
+    document.getElementById('formExpediente').action = '/psicologa/victimas/' + e.relatedTarget.dataset.id + '/expediente';
+  });
+</script>
+</body>
+</html>

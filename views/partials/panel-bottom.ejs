@@ -1,0 +1,15 @@
+</main>
+<footer class="ws-footer">© Women Safety</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Mostrar / ocultar contraseña
+  document.querySelectorAll('.ws-toggle-pass').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = btn.parentElement.querySelector('input');
+      const mostrar = input.type === 'password';
+      input.type = mostrar ? 'text' : 'password';
+      btn.querySelector('i').className = 'bi ' + (mostrar ? 'bi-eye-slash' : 'bi-eye');
+      btn.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+  });
+</script>

@@ -1,0 +1,94 @@
+<%
+  const u = locals.usuario || { nombre: 'Ana López' };
+  const lista = locals.citas || [];
+  const inst = locals.instancia || {};
+  const instOk = !!(inst.nombre && inst.direccion);
+%>
+<%- include('partials/panel-top', { titulo: 'Mis citas', nombre: u.nombre, rol: 'Víctima', error: locals.error }) %>
+
+<span class="ws-section-label">Tu espacio</span>
+<h1 class="ws-title">Mis <em>citas</em></h1>
+<p class="ws-sub mb-4">Consulta tus citas con tu psicóloga. Si no puedes asistir, puedes cancelarlas desde aquí.</p>
+
+<!-- Ayuda inmediata -->
+<div class="card mb-4" style="background: var(--pink-light);">
+  <div class="card-body p-3 px-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div><strong>¿Estás en peligro en este momento?</strong><div class="ws-stat-lbl">No esperes a una cita. Llama de inmediato.</div></div>
+    <div class="d-flex gap-2 align-items-center">
+      <a href="tel:911" class="btn btn-primary btn-sm">Llamar al 911</a>
+      <a href="/contacto" class="btn btn-outline-primary btn-sm">Más líneas de apoyo</a>
+    </div>
+  </div>
+</div>
+
+<% if (!lista.length) { %>
+  <div class="card mb-4"><div class="card-body p-4">
+    <h2 class="h5">Aún no tienes citas</h2>
+    <p class="mb-0 text-muted">Para recibir atención con una psicóloga, acude a la instancia de atención (datos abajo). Cuando te registren con este mismo correo, tus citas aparecerán aquí.</p>
+  </div></div>
+<% } %>
+
+<div class="row g-4 mb-4">
+  <% lista.forEach(c => {
+       const f = new Date(c.fecha + 'T' + c.hora);
+       const activa = c.estado === 'programada'; %>
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body p-4 d-flex align-items-center gap-3">
+          <div class="ws-icon flex-column" style="width:68px;height:68px;line-height:1.1">
+            <span class="fs-3 fw-bold" style="color:var(--wine)"><%= f.getDate() %></span>
+            <span class="small text-uppercase" style="color:var(--gray)"><%= f.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '') %></span>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-semibold text-capitalize"><%= f.toLocaleDateString('es-MX', { weekday: 'long' }) %> · <%= c.hora %> h</div>
+            <div class="ws-stat-lbl mb-2"><%= c.psicologa %></div>
+            <span class="ws-badge <%= activa ? 'ws-badge-ok' : 'ws-badge-off' %>"><%= activa ? 'Programada' : 'Cancelada' %></span>
+          </div>
+          <% if (activa) { %>
+            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalCancelar" data-id="<%= c.id %>">Cancelar</button>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<!-- Instancia de atención -->
+<div class="card">
+  <div class="card-body p-4 d-flex gap-3">
+    <div class="ws-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+    <div>
+      <h2 class="h5 mb-2">Acude a tu instancia de atención</h2>
+      <% if (instOk) { %>
+        <div class="fw-semibold"><%= inst.nombre %></div>
+        <div class="text-muted"><%= inst.direccion %></div>
+        <% if (inst.telefono) { %><div class="mt-1">Tel. <a href="tel:<%= inst.telefono.replace(/\s/g, '') %>"><%= inst.telefono %></a></div><% } %>
+        <% if (inst.horario) { %><div class="text-muted small mt-1">Horario: <%= inst.horario %></div><% } %>
+      <% } else { %>
+        <p class="text-muted mb-0">Estamos confirmando los datos de la instancia y los publicaremos aquí muy pronto. Si necesitas ayuda ahora, llama al 911.</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCancelar" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" id="formCancelar" method="POST">
+      <div class="modal-header"><h5 class="modal-title">Cancelar cita</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">¿Seguro que quieres cancelar esta cita?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Volver</button>
+        <button type="submit" class="btn btn-danger">Sí, cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/panel-bottom') %>
+<script>
+  document.getElementById('modalCancelar').addEventListener('show.bs.modal', e => {
+    document.getElementById('formCancelar').action = '/victima/citas/' + e.relatedTarget.dataset.id + '/cancelar';
+  });
+</script>
+</body>
+</html>

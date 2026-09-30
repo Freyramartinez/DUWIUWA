@@ -19,6 +19,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// TEMPORAL: solo para ver el diseño (borrar después)
+app.get('/preview/victima',   (req, res) => res.render('victima'));
+app.get('/preview/psicologa', (req, res) => res.render('psicologa'));
+app.get('/preview/jefe',      (req, res) => res.render('jefe'));
+
+
+///
+app.use("/", require("./routes/panelRoutes"));
+///
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public"));
