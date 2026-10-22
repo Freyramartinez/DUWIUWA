@@ -1,9 +1,6 @@
 <!-- =========================================================
      VIOLENTÓMETRO (solo Bootstrap + variables de tu paleta)
 ========================================================= -->
-<!-- =========================================================
-     VIOLENTÓMETRO (solo Bootstrap + variables de tu paleta)
-========================================================= -->
 
 <div id="vio" class="row g-4">
 
@@ -82,7 +79,8 @@
                     <p class="text-secondary mb-4">Este es un espacio seguro y confidencial.</p>
 
                     <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Solo toca una opción, no tienes que escribir nada.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Son 17 preguntas y toma unos 2 minutos.</li>
+                        <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Solo toca una opción: avanzas sola, sin escribir nada.</li>
                         <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Puedes omitir cualquier pregunta.</li>
                         <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>Puedes salir en cualquier momento presionando la tecla Esc.</li>
                         <li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>No es un diagnóstico: es una guía para orientarte.</li>
@@ -110,10 +108,7 @@
                         <button type="button" class="btn btn-outline-secondary rounded-pill" id="vio-prev">
                             <i class="bi bi-arrow-left me-1"></i>Anterior
                         </button>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-link text-secondary text-decoration-none" id="vio-skip">Omitir</button>
-                            <button type="button" class="ws-primary-button border-0 opacity-50 pe-none" id="vio-next" disabled>Siguiente</button>
-                        </div>
+                        <button type="button" class="btn btn-link text-secondary text-decoration-none" id="vio-skip">Omitir</button>
                     </div>
                 </div>
 
@@ -127,6 +122,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Testimonios (se llenan al final del test si el riesgo es medio-alto o alto) -->
+    <div id="vio-testimonios" class="col-12 d-none" style="scroll-margin-top: 90px;"></div>
 
 </div>
 
@@ -146,57 +144,37 @@
         riesgo:      { nombre: "Factores de riesgo",    icono: "bi-exclamation-triangle", desc: "Situaciones que aumentan la posibilidad de un daño grave." }
     };
 
+    // Orden pensado para la experiencia: temas menos intensos primero,
+    // y los más sensibles al final, cuando ya hay confianza.
     const P = [
+        { id: "6.1", dim: "control", t: "¿Te impide ver a tu familia o amistades?" },
+        { id: "6.3", dim: "control", t: "¿Decide por ti lo que puedes o no hacer, vestir o decir?" },
+
         { id: "1.1", dim: "psicologica", t: "¿Tu pareja te humilla, insulta o te hace sentir menos?" },
-        { id: "1.2", dim: "psicologica", t: "¿Te dice que sin él/ella no eres nada o que no vales?" },
-        { id: "1.3", dim: "psicologica", t: "¿Te compara con otras personas para hacerte sentir mal?" },
         { id: "1.4", dim: "psicologica", t: "¿Te amenaza con hacerte daño a ti o a alguien que quieres?" },
-        { id: "1.5", dim: "psicologica", t: "¿Te hace sentir culpa por cosas que no son tu responsabilidad?" },
-
-        { id: "2.1", dim: "fisica", t: "¿Te ha empujado, jalado o sujetado con fuerza?" },
-        { id: "2.2", dim: "fisica", t: "¿Te ha golpeado, abofeteado o pateado?" },
-        { id: "2.3", dim: "fisica", t: "¿Te ha aventado objetos o ha destruido cosas para intimidarte?" },
-        { id: "2.4", dim: "fisica", t: "¿Te ha amenazado con un objeto, arma o sustancia?" },
-        { id: "2.5", dim: "fisica", t: "¿Te ha causado lesiones que requirieron atención médica?" },
-
-        { id: "3.1", dim: "sexual", t: "¿Te ha obligado a tener relaciones sexuales cuando no quieres?" },
-        { id: "3.2", dim: "sexual", t: "¿Te ha presionado o manipulado para tener relaciones sexuales?" },
-        { id: "3.3", dim: "sexual", t: "¿Te ha tocado sin tu consentimiento?" },
-        { id: "3.4", dim: "sexual", t: "¿Te ha obligado a ver material sexual que no deseas?" },
-        { id: "3.5", dim: "sexual", t: "¿Te ha impedido usar métodos anticonceptivos o decidir sobre tu cuerpo?" },
 
         { id: "4.1", dim: "economica", t: "¿Te controla el dinero que ganas o te da?" },
         { id: "4.2", dim: "economica", t: "¿Te impide trabajar o estudiar?" },
-        { id: "4.3", dim: "economica", t: "¿Te quita o destruye tus documentos personales?" },
-        { id: "4.4", dim: "economica", t: "¿Te obliga a pedirle dinero para tus necesidades básicas?" },
-        { id: "4.5", dim: "economica", t: "¿Te ha dejado sin recursos económicos a ti o a tus hijos?" },
 
         { id: "5.1", dim: "digital", t: "¿Revisa tus mensajes, redes sociales o correo sin tu permiso?" },
-        { id: "5.2", dim: "digital", t: "¿Te exige que le compartas tus contraseñas?" },
-        { id: "5.3", dim: "digital", t: "¿Te acosa o amenaza por WhatsApp, redes o llamadas?" },
         { id: "5.4", dim: "digital", t: "¿Ha difundido o amenazado con difundir imágenes íntimas tuyas?" },
-        { id: "5.5", dim: "digital", t: "¿Te controla a través de la ubicación GPS o cámaras?" },
 
-        { id: "6.1", dim: "control", t: "¿Te impide ver a tu familia o amistades?" },
-        { id: "6.2", dim: "control", t: "¿Te cela o acusa de infidelidad sin razón?" },
-        { id: "6.3", dim: "control", t: "¿Decide por ti lo que puedes o no hacer, vestir o decir?" },
-        { id: "6.4", dim: "control", t: "¿Te monitorea o persigue?" },
-        { id: "6.5", dim: "control", t: "¿Te ha encerrado o impedido salir de tu casa?" },
+        { id: "2.1", dim: "fisica", t: "¿Te ha empujado, jalado o sujetado con fuerza?" },
+        { id: "2.2", dim: "fisica", t: "¿Te ha golpeado, abofeteado o pateado?" },
 
-        // Riesgo: "critica" = un solo "Sí" ya implica riesgo alto
-        { id: "7.1", dim: "riesgo", bin: true, critica: true,  t: "¿Tu pareja ha amenazado con matarte o matarse?" },
-        { id: "7.2", dim: "riesgo", bin: true, critica: true,  t: "¿Tienes miedo de que pueda matarte o hacerte daño grave?" },
-        { id: "7.3", dim: "riesgo", bin: true, critica: true,  t: "¿Tiene acceso a armas (fuego, punzocortantes)?" },
-        { id: "7.4", dim: "riesgo", bin: true, critica: true,  t: "¿Ha ejercido violencia en el embarazo?" },
-        { id: "7.5", dim: "riesgo", bin: true, critica: true,  t: "¿Ha intentado estrangularte o asfixiarte?" },
-        { id: "7.6", dim: "riesgo", bin: true, critica: true,  t: "¿Ha amenazado o dañado a tus hijos o mascotas?" },
-        { id: "7.7", dim: "riesgo", bin: true, critica: false, t: "¿Consume alcohol o drogas de forma problemática?" },
-        { id: "7.8", dim: "riesgo", bin: true, critica: false, t: "¿Tiene antecedentes penales o denuncias previas?" },
-        { id: "7.9", dim: "riesgo", bin: true, critica: true,  t: "¿Has pensado en quitarte la vida o has tenido ideación suicida?" }
+        { id: "3.1", dim: "sexual", t: "¿Te ha obligado a tener relaciones sexuales cuando no quieres?" },
+        { id: "3.2", dim: "sexual", t: "¿Te ha presionado o manipulado para tener relaciones sexuales?" },
+
+        // Riesgo: un solo "Sí" ya indica riesgo alto (7.9 se trata aparte)
+        { id: "7.1", dim: "riesgo", bin: true, t: "¿Tu pareja ha amenazado con matarte o matarse?" },
+        { id: "7.2", dim: "riesgo", bin: true, t: "¿Tienes miedo de que pueda matarte o hacerte daño grave?" },
+        { id: "7.5", dim: "riesgo", bin: true, t: "¿Ha intentado estrangularte o asfixiarte?" },
+        { id: "7.3", dim: "riesgo", bin: true, t: "¿Tiene acceso a armas (fuego, punzocortantes)?" },
+        { id: "7.9", dim: "riesgo", bin: true, t: "¿Has pensado en quitarte la vida o has tenido ideación suicida?" }
     ];
 
     const FREC = [
-        { v: 0, t: "Nunca" }, { v: 1, t: "A veces" }, { v: 2, t: "Casi siempre" }, { v: 3, t: "Siempre" }
+        { v: 0, t: "Nunca" }, { v: 1, t: "A veces" }, { v: 2, t: "Frecuentemente" }
     ];
     const BIN = [ { v: 0, t: "No" }, { v: 1, t: "Sí" } ];
 
@@ -206,10 +184,8 @@
             titulo: "Riesgo alto",
             mensaje: "Tu seguridad es lo más importante. Detectamos señales que requieren atención inmediata. No estás sola.",
             pasos: [
-                "Si estás en peligro inmediato, llama al 911.",
                 "Busca un lugar seguro y avisa a una persona de confianza.",
-                "Comunícate con una línea de apoyo para recibir orientación.",
-                "Acude a la instancia de atención más cercana."
+                "Guarda mensajes, fotos y documentos importantes en un lugar seguro."
             ]
         },
         naranja: {
@@ -218,7 +194,6 @@
             mensaje: "Detectamos señales de violencia que requieren atención. Puedes recibir acompañamiento.",
             pasos: [
                 "Habla con una persona de confianza sobre lo que estás viviendo.",
-                "Solicita orientación jurídica y psicológica en una instancia cercana.",
                 "Guarda mensajes, fotos y documentos importantes en un lugar seguro.",
                 "Identifica a quién podrías recurrir si la situación empeora."
             ]
@@ -229,7 +204,6 @@
             mensaje: "Detectamos algunas señales que vale la pena revisar. La violencia puede aumentar con el tiempo.",
             pasos: [
                 "Comparte lo que sientes con alguien de confianza.",
-                "Consulta una instancia de orientación para conocer tus opciones.",
                 "Presta atención a si estas conductas se repiten o se intensifican."
             ]
         },
@@ -239,11 +213,116 @@
             mensaje: "No detectamos señales relevantes de violencia en tus respuestas.",
             pasos: [
                 "Una relación sana se basa en respeto, libertad y buen trato.",
-                "Si algo cambia o te incomoda, puedes volver a hacer el test.",
                 "Comparte esta herramienta con quien pueda necesitarla."
             ]
         }
     };
+
+    /* ---------- Testimonios ----------
+       Provisionales: escritos por el equipo mientras se reúnen los reales.
+       Cuando tengas testimonios reales (con consentimiento), reemplaza los textos
+       y cambia TESTIMONIOS_REALES a true para que la etiqueta deje de decir "ilustrativas".
+       naranja = riesgo medio-alto · rojo = riesgo alto */
+
+    const TESTIMONIOS_REALES = false;
+
+    const TESTIMONIOS = {
+        naranja: [
+            { titulo: "Reconocer la violencia", autor: "Anónimo · Atención psicológica",
+              texto: `“Antes creía que era normal que mi pareja me tratara así. Pensaba que los celos y que quisiera controlar todo lo que hacía eran una forma de demostrarme amor. Con el tiempo, las cosas empeoraron y comencé a tener miedo. Una amiga me orientó para acudir a la Instancia de la Mujer, donde recibí apoyo y orientación. Poco a poco entendí que no tenía la culpa de lo que estaba viviendo y que merecía una relación en la que me sintiera segura. Hoy estoy aprendiendo a tomar mis propias decisiones y a recuperar mi tranquilidad”.` },
+            { titulo: "Recuperar la libertad", autor: "Anónimo · Orientación y acompañamiento",
+              texto: `“Durante mucho tiempo dejé de hacer cosas que me gustaban porque mi pareja se molestaba si salía sin su permiso. Llegué a pensar que tenía que pedir autorización para todo. Cuando recibí orientación, comencé a comprender que una relación no debería hacerme sentir prisionera. Fue un proceso difícil, pero con acompañamiento pude tomar decisiones pensando en mi bienestar. Ahora estoy recuperando mi independencia y me siento más libre de ser yo misma”.` },
+            { titulo: "Dejar de sentirse culpable", autor: "Anónimo · Apoyo emocional",
+              texto: `“Yo pensaba que las discusiones eran mi culpa y que, si cambiaba mi forma de ser, mi pareja dejaría de tratarme mal. Siempre terminaba disculpándome, incluso cuando me sentía lastimada. Buscar ayuda me permitió hablar de lo que estaba viviendo sin sentirme juzgada. Aprendí que mis sentimientos importan y que no soy responsable de las decisiones violentas de otra persona. Todavía estoy trabajando en mí, pero ahora sé que merezco respeto”.` },
+            { titulo: "Pedir ayuda sin miedo", autor: "Anónimo · Orientación sobre seguridad",
+              texto: `“Me daba miedo contarle a alguien lo que ocurría en mi relación. Pensaba que nadie me creería o que me dirían que estaba exagerando. Cuando finalmente busqué orientación, pude expresar mis preocupaciones y conocer las opciones de apoyo disponibles para mí. Comprendí que no tenía que resolverlo todo sola ni tomar todas las decisiones de un día para otro. Saber que existen personas e instituciones que pueden orientarme me ayudó a sentirme menos sola”.` },
+            { titulo: "Volver a empezar", autor: "Anónimo · Proceso de recuperación",
+              texto: `“Después de vivir una relación en la que constantemente me hacían sentir menos, había perdido mucha confianza en mí misma. Me costaba expresar lo que quería y hasta dudaba de mis propias decisiones. Con el apoyo que recibí, comencé a reconocer mis capacidades y a poner límites. Mi proceso no ha sido perfecto ni rápido, pero he aprendido que merezco vivir sin miedo y que pedir ayuda no me hace débil. Hoy miro mi futuro con más esperanza”.` },
+            { titulo: "No estoy sola", autor: "Anónimo · Acompañamiento institucional",
+              texto: `“Durante mucho tiempo guardé silencio porque me daba vergüenza que otras personas supieran lo que estaba pasando. Creía que tenía que soportarlo y resolverlo por mi cuenta. Cuando acudí a recibir orientación, descubrí que podía hablar de mi situación y conocer alternativas para cuidar de mí. Entendí que no soy la única que ha pasado por algo así y que merezco ser escuchada con respeto. Hoy sé que buscar ayuda fue un paso importante para mi bienestar”.` }
+        ],
+        rojo: [
+            { titulo: "“Llegué a tener miedo de estar en mi propia casa”", cat: "",
+              texto: `“Al principio eran insultos y discusiones que terminaban con promesas de que todo iba a cambiar. Después comenzó a empujarme, a amenazarme y a culparme por sus reacciones. Yo trataba de evitar cualquier cosa que pudiera hacerlo enojar, pero nunca era suficiente. Llegué a sentir miedo incluso cuando escuchaba que abría la puerta. Me costaba aceptar que la persona que decía amarme también me estaba haciendo daño. Cuando finalmente pude hablar con alguien de confianza y recibir orientación, comprendí que mi seguridad tenía que ser una prioridad. No fue fácil enfrentar lo que estaba viviendo, pero hoy sé que no merecía ese trato y que no tenía por qué soportarlo”.` },
+            { titulo: "“Sentía que ya no podía decidir sobre mi propia vida”", cat: "Control y amenazas",
+              texto: `“Mi pareja quería saber dónde estaba en todo momento, revisaba mi teléfono y se molestaba si hablaba con mis amigas o visitaba a mi familia. Poco a poco me fui quedando sola. Si no contestaba sus llamadas, me amenazaba con hacerme pagar las consecuencias cuando regresara a casa. Vivía pendiente de sus mensajes y había dejado de hacer muchas cosas por miedo a su reacción. Durante mucho tiempo pensé que eran problemas privados que debía resolver yo sola. Cuando busqué orientación, pude hablar de las amenazas y conocer alternativas para protegerme. Comprendí que el amor no debería obligarme a vivir bajo vigilancia ni hacerme sentir que mi vida le pertenece a otra persona”.` },
+            { titulo: "“Comprendí que ser su pareja no significaba que pudiera obligarme”", cat: "Violencia sexual y falta de consentimiento",
+              texto: `“Durante mi relación, mi pareja me hacía sentir que tenía la obligación de aceptar cosas que no quería. Cuando intentaba negarme, se enojaba, me culpaba o me decía que, si realmente lo amaba, no debería rechazarlo. Empecé a sentir que mi opinión no importaba y que no tenía derecho a poner límites. Me costó mucho hablar de esto por vergüenza y por miedo a que no me creyeran. Cuando recibí orientación, pude comprender que estar en una relación no elimina mi derecho a decidir sobre mi cuerpo. Aprenderlo fue doloroso, pero también fue un paso importante para recuperar mi voz y reconocer que merezco respeto”.` },
+            { titulo: "“Pensé que pedir ayuda podía empeorar las cosas”", cat: "Amenazas contra la seguridad",
+              texto: `“Mi pareja había comenzado a amenazarme cuando hablaba de terminar la relación. Me decía que no iba a dejarme ir y que, si lo hacía, me arrepentiría. Yo quería alejarme, pero tenía miedo de lo que pudiera pasar y no sabía cómo hacerlo de manera segura. Durante mucho tiempo guardé silencio porque pensaba que nadie podría ayudarme. Cuando conseguí hablar con una persona de confianza, pude conocer opciones de atención y orientación para mi situación. Entendí que no tenía que enfrentar las amenazas sola ni anunciar mis decisiones si eso podía ponerme en riesgo. Con apoyo, comencé a pensar en mi seguridad y en cómo recuperar mi tranquilidad”.` },
+            { titulo: "“Me hizo creer que sin él no podría sobrevivir”", cat: "Aislamiento y dependencia económica",
+              texto: `“Dejé de trabajar porque mi pareja insistía en que debía dedicarme únicamente a la casa. Después empezó a controlar el dinero y tenía que pedirle hasta para cubrir necesidades básicas. Cuando hablaba de irme, me decía que no tenía nada, que nadie me ayudaría y que terminaría arrepintiéndome. Con el tiempo llegué a creerle. Me sentía atrapada porque no sabía cómo empezar de nuevo. Al recibir orientación, pude conocer alternativas y pensar en un plan para recuperar mi independencia. El proceso ha requerido tiempo y apoyo, pero hoy estoy aprendiendo que mis capacidades no desaparecieron y que merezco construir una vida en la que pueda tomar mis propias decisiones”.` },
+            { titulo: "“Dejé de pensar que eran simples discusiones”", cat: "Escalada de violencia",
+              texto: `“Durante mucho tiempo minimicé lo que sucedía. Me decía que todas las parejas discutían y que, después de cada episodio, las cosas mejorarían. Pero las amenazas, los insultos y las agresiones se volvieron cada vez más frecuentes. Empecé a modificar mi comportamiento por miedo y a ocultar lo que ocurría para que nadie se preocupara por mí. Un día comprendí que no podía seguir ignorando el peligro que estaba viviendo. Busqué orientación y pude hablar de mi situación sin tener que justificar el comportamiento de mi pareja. Todavía estoy reconstruyendo muchas partes de mi vida, pero ahora entiendo que reconocer la violencia y pedir ayuda son pasos importantes para protegerme”.` }
+        ]
+    };
+
+    function pintarTestimonios(clave) {
+        const lista = TESTIMONIOS[clave];
+        if (!lista) return;
+
+        const slides = lista.map((t, k) => {
+            const partes = t.autor ? t.autor.split(" · ") : ["Anónimo", t.cat || ""];
+            const rol = partes[1] || "";
+            return '<div class="carousel-item' + (k === 0 ? ' active' : '') + '">' +
+                '<article class="card border-0 shadow-sm rounded-4 position-relative" style="min-height: 21rem;">' +
+                    '<i class="bi bi-quote position-absolute top-0 end-0 mt-2 me-4 opacity-25" style="font-size: 4rem; color: var(--wine);"></i>' +
+                    '<div class="card-body p-4 p-md-5">' +
+                        '<div class="d-flex align-items-center gap-3 mb-4">' +
+                            '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.25rem; background: var(--pink-light); color: var(--wine);"><i class="bi bi-person-fill"></i></div>' +
+                            '<div class="lh-sm">' +
+                                '<div class="fw-semibold">' + partes[0] + '</div>' +
+                                (rol ? '<div class="small" style="color: var(--wine);">' + rol + '</div>' : '') +
+                            '</div>' +
+                        '</div>' +
+                        '<h5 class="h6 fw-bold mb-2">' + t.titulo + '</h5>' +
+                        '<p class="mb-0" style="line-height: 1.7;">' + t.texto + '</p>' +
+                    '</div>' +
+                '</article>' +
+            '</div>';
+        }).join("");
+
+        const puntos = lista.map((t, k) =>
+            '<button type="button" data-bs-target="#vio-car" data-bs-slide-to="' + k + '"' + (k === 0 ? ' class="active" aria-current="true"' : '') +
+            ' aria-label="Historia ' + (k + 1) + '" style="background-color: var(--wine);"></button>'
+        ).join("");
+
+        const nota = TESTIMONIOS_REALES
+            ? "Testimonios de mujeres que recibieron apoyo."
+            : "Historias ilustrativas escritas por el equipo de WOMEN SAFETY.";
+
+        const aviso = clave === "rojo" ? " Algunas hablan de violencia y pueden ser difíciles de leer." : "";
+
+        const cont = $("vio-testimonios");
+        cont.innerHTML =
+            '<div class="pt-4 mx-auto" style="max-width: 860px;">' +
+                '<div class="text-center mb-4">' +
+                    '<span class="ws-section-label mb-2">No estás sola</span>' +
+                    '<h3 class="fs-3 fw-medium mb-2" style="font-family: \'Playfair Display\', serif;">Otras mujeres también pidieron apoyo</h3>' +
+                    '<p class="small text-secondary mb-0">' + nota + aviso + '</p>' +
+                '</div>' +
+                '<div class="d-flex align-items-center gap-3">' +
+                    '<button type="button" class="btn btn-light border rounded-circle shadow-sm flex-shrink-0 d-none d-md-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" data-bs-target="#vio-car" data-bs-slide="prev" aria-label="Historia anterior"><i class="bi bi-chevron-left"></i></button>' +
+                    '<div id="vio-car" class="carousel slide carousel-fade flex-fill" data-bs-interval="false" style="min-width: 0;">' +
+                        '<div class="carousel-inner">' + slides + '</div>' +
+                        '<div class="carousel-indicators position-static mx-0 mt-4 mb-0">' + puntos + '</div>' +
+                    '</div>' +
+                    '<button type="button" class="btn btn-light border rounded-circle shadow-sm flex-shrink-0 d-none d-md-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" data-bs-target="#vio-car" data-bs-slide="next" aria-label="Historia siguiente"><i class="bi bi-chevron-right"></i></button>' +
+                '</div>' +
+            '</div>';
+
+        cont.classList.remove("d-none", "show");
+        cont.classList.add("fade");
+        void cont.offsetWidth;
+        setTimeout(() => cont.classList.add("show"), reducido ? 0 : 700);
+    }
+
+    function ocultarTestimonios() {
+        const cont = $("vio-testimonios");
+        cont.classList.add("d-none");
+        cont.classList.remove("show");
+        cont.innerHTML = "";
+    }
 
     /* ---------- Estilos Bootstrap con la paleta del sitio ---------- */
 
@@ -253,15 +332,6 @@
 
     const $ = id => document.getElementById(id);
     const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function habilitarSiguiente(si) {
-        const b = $("vio-next");
-        b.disabled = !si;
-        b.classList.toggle("opacity-50", !si);
-        b.classList.toggle("pe-none", !si);
-    }
-
-    $("vio-cover").style.transition = reducido ? "none" : "height 1.8s cubic-bezier(.22,1,.36,1)";
 
     /* ---------- Estado ---------- */
 
@@ -295,6 +365,7 @@
     /* ---------- Flujo del test ---------- */
 
     function iniciar() {
+        ocultarTestimonios();
         est = { i: 0, r: {}, activo: true };
         setMedidor(0);
         mostrar("vio-test");
@@ -306,8 +377,9 @@
         const d = DIM[p.dim];
         const opciones = p.bin ? BIN : FREC;
         const guardada = est.r[p.id];
+        const faltan = P.length - est.i - 1;
 
-        $("vio-count").textContent = "Pregunta " + (est.i + 1) + " de " + P.length;
+        $("vio-count").textContent = "Pregunta " + (est.i + 1) + " de " + P.length + (faltan <= 2 ? " · ¡Ya casi!" : "");
         $("vio-dim-badge").innerHTML = '<i class="bi ' + d.icono + ' me-1"></i>' + d.nombre;
         $("vio-dim-desc").textContent = d.desc;
         $("vio-q").textContent = p.t;
@@ -317,22 +389,22 @@
         cont.innerHTML = "";
         opciones.forEach((op, k) => {
             const col = document.createElement("div");
-            col.className = "col-6";
+            col.className = opciones.length === 3 ? "col-12 col-sm-4" : "col-6";
             const inputId = "vio-o-" + k;
             col.innerHTML =
                 '<input type="radio" class="btn-check" name="vio-opt" id="' + inputId + '" autocomplete="off"' +
                 (guardada === op.v ? " checked" : "") + '>' +
-                '<label class="btn w-100 text-start py-3 rounded-3 border" style="' + OPT + '" for="' + inputId + '">' + op.t + '</label>';
-            col.querySelector("input").addEventListener("change", () => {
+                '<label class="btn w-100 text-center py-3 rounded-3 border" style="' + OPT + '" for="' + inputId + '">' + op.t + '</label>';
+            // Al tocar una opción se avanza sola: un toque por pregunta
+            col.querySelector("input").addEventListener("click", () => {
                 est.r[p.id] = op.v;
-                habilitarSiguiente(true);
+                const idx = est.i;
+                setTimeout(() => { if (est.activo && est.i === idx) avanzar(); }, reducido ? 0 : 280);
             });
             cont.appendChild(col);
         });
 
         $("vio-prev").disabled = est.i === 0;
-        habilitarSiguiente(guardada !== undefined && guardada !== null);
-        $("vio-next").textContent = est.i === P.length - 1 ? "Ver resultado" : "Siguiente";
         mostrar("vio-test");
     }
 
@@ -354,33 +426,33 @@
     /* ---------- Resultado ---------- */
 
     function calcular() {
-        const s = { psicologica: 0, fisica: 0, sexual: 0, economica: 0, digital: 0, control: 0 };
-        let criticos = 0, contexto = 0, ideacion = false;
+        const s = { control: 0, psicologica: 0, economica: 0, digital: 0, fisica: 0, sexual: 0 };
+        let criticos = 0, ideacion = false;
 
         P.forEach(p => {
             const v = est.r[p.id];
             if (!v) return;
             if (p.bin) {
-                if (p.critica) criticos++; else contexto++;
-                if (p.id === "7.9") ideacion = true;
+                if (p.id === "7.9") ideacion = true; else criticos++;
             } else {
                 s[p.dim] += v;
             }
         });
 
-        s.total = s.psicologica + s.fisica + s.sexual + s.economica + s.digital + s.control;
-        return { s, criticos, contexto, ideacion };
+        s.total = s.control + s.psicologica + s.economica + s.digital + s.fisica + s.sexual;
+        return { s, criticos, ideacion };
     }
 
+    // Cada dimensión suma de 0 a 4 (2 preguntas x 0-2). Umbrales equivalentes a los del test original.
     function clasificar(c) {
         const s = c.s;
         if (c.criticos > 0) return "rojo";
-        if (s.fisica >= 8 || s.sexual >= 8) return "rojo";
-        if (s.fisica >= 3 || s.sexual >= 3 || c.contexto === 2) return "naranja";
+        if (s.fisica >= 2 || s.sexual >= 2) return "rojo";
+        if (s.fisica >= 1 || s.sexual >= 1) return "naranja";
 
-        const moderadas = [s.psicologica, s.economica, s.digital, s.control].filter(v => v >= 8).length;
-        if (moderadas >= 2 || s.total >= 20) return "naranja";
-        if (s.total >= 5) return "amarillo";
+        const moderadas = [s.psicologica, s.economica, s.digital, s.control].filter(v => v >= 2).length;
+        if (moderadas >= 2 || s.total >= 5) return "naranja";
+        if (s.total >= 2) return "amarillo";
         return "verde";
     }
 
@@ -398,57 +470,60 @@
 
         setProgreso(100);
 
-        const barras = ["psicologica", "fisica", "sexual", "economica", "digital", "control"].map(k => {
-            const pct = Math.round((c.s[k] / 15) * 100);
+        const barras = ["control", "psicologica", "economica", "digital", "fisica", "sexual"].map(k => {
+            const pct = Math.round((c.s[k] / 4) * 100);
             const d = DIM[k];
-            return '<div class="mb-3">' +
+            return '<div class="col-12 col-sm-6">' +
                 '<div class="d-flex justify-content-between small mb-1">' +
-                    '<span><i class="bi ' + d.icono + ' me-2" style="color: var(--wine);"></i>' + d.nombre + '</span>' +
+                    '<span class="fw-semibold">' + d.nombre + '</span>' +
                     '<span class="text-secondary">' + etiqueta(pct) + '</span>' +
                 '</div>' +
-                '<div class="progress" style="height: 8px;" role="progressbar" aria-label="' + d.nombre + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '">' +
+                '<div class="progress" style="height: 6px;" role="progressbar" aria-label="' + d.nombre + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '">' +
                     '<div class="progress-bar" data-w="' + pct + '" style="width: 0%; background: var(--wine);"></div>' +
                 '</div></div>';
         }).join("");
 
         const pasos = n.pasos.map(t =>
-            '<li class="list-group-item px-0 d-flex gap-2"><i class="bi bi-check2-circle" style="color: var(--wine);"></i>' + t + '</li>'
+            '<li class="d-flex gap-2 mb-1"><i class="bi bi-check2" style="color: var(--wine);"></i><span>' + t + '</span></li>'
         ).join("");
 
         let alertas = "";
-        if (c.criticos > 0 || c.contexto > 0) {
-            alertas += '<div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">' +
+        if (c.criticos > 0) {
+            alertas += '<div class="alert alert-danger small py-2 px-3 mb-2 d-flex gap-2 align-items-center" role="alert">' +
                 '<i class="bi bi-exclamation-triangle-fill"></i>' +
-                '<div>Marcaste <strong>' + (c.criticos + c.contexto) + '</strong> factor(es) de riesgo. Estos factores aumentan la posibilidad de un daño grave.</div></div>';
+                '<div>Marcaste <strong>' + c.criticos + '</strong> ' + (c.criticos === 1 ? "factor" : "factores") + ' de riesgo grave.</div></div>';
         }
         if (c.ideacion) {
-            alertas += '<div class="alert alert-info d-flex gap-2 align-items-start" role="alert">' +
+            alertas += '<div class="alert alert-info small py-2 px-3 mb-2 d-flex gap-2 align-items-center" role="alert">' +
                 '<i class="bi bi-heart-pulse-fill"></i>' +
-                '<div>Mereces acompañamiento en este momento. Puedes hablar con la <a class="alert-link" href="tel:8009112000">Línea de la Vida: 800 911 2000</a>.</div></div>';
+                '<div>Mereces acompañamiento. <a class="alert-link" href="tel:8009112000">Línea de la Vida: 800 911 2000</a></div></div>';
         }
 
         const btnEmergencia = clave === "rojo"
-            ? '<a href="tel:911" class="btn btn-danger btn-lg rounded-pill"><i class="bi bi-telephone-fill me-2"></i>Llamar al 911</a>'
+            ? '<div class="text-center mb-3"><a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-4"><i class="bi bi-telephone-fill me-2"></i>Llamar al 911</a></div>'
             : "";
 
         $("vio-result").innerHTML =
             '<div class="text-center mb-4">' +
-                '<div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 ' + n.texto + '" style="width: 84px; height: 84px; font-size: 2.4rem; background: ' + n.color + ';">' +
+                '<div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 ' + n.texto + '" style="width: 64px; height: 64px; font-size: 1.8rem; background: ' + n.color + ';">' +
                     '<i class="bi ' + n.icono + '"></i>' +
                 '</div>' +
-                '<h4 class="h4 fw-bold mb-2">' + n.titulo + '</h4>' +
-                '<p class="text-secondary mb-0">' + n.mensaje + '</p>' +
+                '<h4 class="h5 fw-bold mb-2">' + n.titulo + '</h4>' +
+                '<p class="text-secondary small mb-0">' + n.mensaje + '</p>' +
             '</div>' +
+            btnEmergencia +
             alertas +
-            '<h5 class="h6 fw-bold mt-4 mb-3">Señales por tipo de violencia</h5>' + barras +
-            '<h5 class="h6 fw-bold mt-4 mb-2">Qué puedes hacer</h5>' +
-            '<ul class="list-group list-group-flush mb-4">' + pasos + '</ul>' +
-            '<div class="d-grid gap-2">' +
-                btnEmergencia +
-                '<a href="tel:8001084053" class="ws-primary-button justify-content-center"><i class="bi bi-telephone"></i>Línea de apoyo 800 10 84 053</a>' +
-                '<a href="/mapa" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-geo-alt me-2"></i>Ver instancias cercanas</a>' +
-                '<button type="button" class="btn btn-link text-secondary text-decoration-none" id="vio-restart"><i class="bi bi-arrow-repeat me-1"></i>Repetir el test</button>' +
+            '<h5 class="h6 fw-bold mt-4 mb-3">Señales por tipo de violencia</h5>' +
+            '<div class="row g-3">' + barras + '</div>' +
+            '<h5 class="small fw-bold text-uppercase text-secondary mt-4 mb-2">Qué puedes hacer</h5>' +
+            '<ul class="list-unstyled small mb-4">' + pasos + '</ul>' +
+            '<div class="d-flex flex-wrap justify-content-center align-items-center gap-2">' +
+                '<a href="tel:8001084053" class="ws-primary-button" style="padding: 9px 20px; font-size: 0.8rem;"><i class="bi bi-telephone"></i>Llamar 800 10 84 053</a>' +
+                '<a href="/mapa" class="btn btn-outline-secondary btn-sm rounded-pill px-3"><i class="bi bi-geo-alt me-1"></i>Instancias cercanas</a>' +
+                '<button type="button" class="btn btn-link btn-sm text-secondary text-decoration-none" id="vio-restart"><i class="bi bi-arrow-repeat me-1"></i>Repetir test</button>' +
             '</div>';
+
+        pintarTestimonios(clave);
 
         $("vio-restart").addEventListener("click", reiniciar);
         mostrar("vio-result");
@@ -465,6 +540,7 @@
     }
 
     function reiniciar() {
+        ocultarTestimonios();
         est = { i: 0, r: {}, activo: false };
         setMedidor(0);
         setProgreso(0);
@@ -482,7 +558,6 @@
     /* ---------- Eventos ---------- */
 
     $("vio-start").addEventListener("click", iniciar);
-    $("vio-next").addEventListener("click", avanzar);
     $("vio-prev").addEventListener("click", retroceder);
     $("vio-skip").addEventListener("click", omitir);
 
