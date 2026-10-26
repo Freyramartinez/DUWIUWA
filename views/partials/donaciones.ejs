@@ -1,0 +1,642 @@
+<%#
+  =====================================================================
+  PARTIAL: views/partials/donaciones.ejs  ·  WOMEN SAFETY (proyecto escolar)
+  Sección de donaciones con pagos SIMULADOS (PayPal Sandbox, Stripe test,
+  Paynet). No hace cobros reales ni envía datos a ningún servidor.
+
+  Uso en cualquier vista:
+      include('partials/donaciones')   (con la etiqueta EJS de salida sin escapar)
+  O con valores propios desde la ruta:
+      include('partials/donaciones', { donaciones: { meta: 45000, recaudado: 18650, donantes: 37 } })
+  =====================================================================
+%>
+<%
+  const cfgDon = Object.assign(
+    { meta: 45000, recaudado: 18650, donantes: 37, costoPulsera: 1200, montoInicial: 500 },
+    (typeof donaciones !== 'undefined' && donaciones) ? donaciones : {}
+  );
+  const mx = n => '$' + Number(n).toLocaleString('es-MX');
+%>
+
+<style>
+/* =========================================================
+   SECCIÓN DE DONACIONES · WOMEN SAFETY (proyecto escolar)
+   Todo está encapsulado bajo .ws-don para pegarlo en una
+   vista EJS sin chocar con los estilos existentes.
+   Cambia los colores en las variables de abajo.
+   ========================================================= */
+.ws-don{
+  --ws-primary:#6b2fa3;      /* morado principal */
+  --ws-primary-dark:#4a1f73;
+  --ws-accent:#e0457b;       /* rosa de acento */
+  --ws-soft:#f5effb;         /* fondo suave */
+  --ws-ink:#231b2e;          /* texto */
+  --ws-muted:#6c6278;
+  --ws-line:#e4dcec;
+  --ws-ok:#1f8a5b;
+  --ws-warn-bg:#fff6e0;
+  --ws-warn-ink:#7a5300;
+  --ws-radius:18px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ws-ink);
+  background:linear-gradient(180deg,#fff 0%,var(--ws-soft) 100%);
+  padding:72px 16px;
+  line-height:1.55;
+}
+.ws-don *,.ws-don *::before,.ws-don *::after{box-sizing:border-box}
+.ws-don .wrap{max-width:1120px;margin:0 auto}
+
+/* Aviso de demo */
+.ws-don .demo-banner{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--ws-warn-bg);color:var(--ws-warn-ink);
+  border:1px dashed #e7b84a;border-radius:12px;
+  padding:12px 16px;font-size:.92rem;margin-bottom:36px;
+}
+.ws-don .demo-banner strong{display:block}
+.ws-don .demo-banner .ico{font-size:1.2rem;line-height:1.3}
+
+/* Encabezado */
+.ws-don .eyebrow{letter-spacing:.14em;font-size:.78rem;font-weight:700;color:var(--ws-accent);text-transform:uppercase}
+.ws-don h2{font-size:clamp(1.8rem,3.6vw,2.6rem);line-height:1.15;margin:.35em 0 .4em;color:var(--ws-primary-dark)}
+.ws-don .lead{max-width:680px;color:var(--ws-muted);font-size:1.05rem;margin:0}
+
+.ws-don .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;margin-top:40px;align-items:start}
+@media (max-width:900px){.ws-don .grid{grid-template-columns:1fr}}
+
+.ws-don .card{background:#fff;border:1px solid var(--ws-line);border-radius:var(--ws-radius);padding:24px;box-shadow:0 10px 30px -18px rgba(74,31,115,.35)}
+
+/* Meta / progreso */
+.ws-don .goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ws-don .goal-amount{font-size:1.9rem;font-weight:800;color:var(--ws-primary)}
+.ws-don .goal-of{color:var(--ws-muted);font-size:.95rem}
+.ws-don .bar{height:14px;background:var(--ws-soft);border-radius:99px;overflow:hidden;margin:14px 0 10px}
+.ws-don .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent));border-radius:99px;transition:width .9s ease}
+.ws-don .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.ws-don .stat{background:var(--ws-soft);border-radius:12px;padding:12px;text-align:center}
+.ws-don .stat b{display:block;font-size:1.25rem;color:var(--ws-primary-dark)}
+.ws-don .stat small{color:var(--ws-muted);font-size:.8rem}
+
+/* Impacto */
+.ws-don h3{font-size:1.15rem;margin:28px 0 12px;color:var(--ws-primary-dark)}
+.ws-don .impact{display:grid;gap:12px}
+.ws-don .impact-item{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--ws-line);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .2s,transform .2s;text-align:left;width:100%;font:inherit;color:inherit}
+.ws-don .impact-item:hover{border-color:var(--ws-primary);transform:translateY(-2px)}
+.ws-don .impact-item .price{flex:none;min-width:78px;font-weight:800;color:var(--ws-accent);font-size:1.05rem}
+.ws-don .impact-item p{margin:2px 0 0;color:var(--ws-muted);font-size:.9rem}
+.ws-don .impact-item strong{font-size:.98rem}
+
+.ws-don .transp{margin-top:20px;font-size:.88rem;color:var(--ws-muted);background:#fff;border-left:4px solid var(--ws-primary);border-radius:8px;padding:12px 14px}
+
+/* Formulario */
+.ws-don .form-card h3{margin-top:0}
+.ws-don .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--ws-soft);border-radius:12px;padding:4px;margin-bottom:18px}
+.ws-don .seg button{border:0;background:transparent;padding:10px;border-radius:9px;font:inherit;font-weight:600;color:var(--ws-muted);cursor:pointer}
+.ws-don .seg button.active{background:#fff;color:var(--ws-primary-dark);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+.ws-don .label{display:block;font-weight:600;font-size:.9rem;margin:16px 0 8px}
+.ws-don .amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:420px){.ws-don .amounts{grid-template-columns:repeat(2,1fr)}}
+.ws-don .amounts button{border:1.5px solid var(--ws-line);background:#fff;border-radius:10px;padding:11px 6px;font:inherit;font-weight:700;color:var(--ws-ink);cursor:pointer}
+.ws-don .amounts button.active{border-color:var(--ws-primary);background:var(--ws-soft);color:var(--ws-primary-dark)}
+
+.ws-don input[type=text],.ws-don input[type=email],.ws-don input[type=number]{
+  width:100%;padding:12px 14px;border:1.5px solid var(--ws-line);border-radius:10px;font:inherit;color:var(--ws-ink);background:#fff;outline:none;transition:border-color .2s
+}
+.ws-don input:focus{border-color:var(--ws-primary)}
+.ws-don .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.ws-don .row{grid-template-columns:1fr}}
+.ws-don .custom{position:relative;margin-top:8px}
+.ws-don .custom span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ws-muted);font-weight:600}
+.ws-don .custom input{padding-left:28px}
+
+.ws-don .check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;margin-top:12px;cursor:pointer}
+.ws-don .check input{margin-top:3px;accent-color:var(--ws-primary);width:17px;height:17px;flex:none}
+
+/* Métodos de pago */
+.ws-don .methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ws-don .method{border:1.5px solid var(--ws-line);background:#fff;border-radius:12px;padding:12px 6px;cursor:pointer;font:inherit;text-align:center;color:var(--ws-ink)}
+.ws-don .method b{display:block;font-size:.98rem}
+.ws-don .method small{color:var(--ws-muted);font-size:.75rem}
+.ws-don .method.active{border-color:var(--ws-primary);background:var(--ws-soft)}
+.ws-don .panel{display:none;margin-top:14px;background:var(--ws-soft);border-radius:12px;padding:14px}
+.ws-don .panel.show{display:block}
+.ws-don .panel p{margin:0 0 8px;font-size:.88rem;color:var(--ws-muted)}
+.ws-don .panel .test-hint{font-size:.8rem;background:#fff;border:1px dashed var(--ws-line);border-radius:8px;padding:8px 10px;margin-top:10px;color:var(--ws-muted)}
+.ws-don .panel .test-hint code{background:var(--ws-soft);padding:1px 5px;border-radius:4px;color:var(--ws-primary-dark)}
+.ws-don .panel .row + .row,.ws-don .panel input + .row{margin-top:8px}
+.ws-don .err{color:#b3261e;font-size:.82rem;min-height:1.1em;margin-top:6px}
+
+.ws-don .summary{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--ws-line);margin-top:20px;padding-top:16px;font-size:.95rem}
+.ws-don .summary b{font-size:1.3rem;color:var(--ws-primary-dark)}
+
+.ws-don .btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;width:100%;margin-top:14px;padding:14px 18px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:1rem;color:#fff;cursor:pointer;background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent));transition:opacity .2s,transform .2s}
+.ws-don .btn:hover:not(:disabled){transform:translateY(-1px)}
+.ws-don .btn:disabled{opacity:.45;cursor:not-allowed}
+.ws-don .btn.ghost{background:#fff;color:var(--ws-primary-dark);border:1.5px solid var(--ws-line)}
+.ws-don .linkish{background:none;border:0;padding:0;font:inherit;color:var(--ws-primary);text-decoration:underline;cursor:pointer}
+.ws-don .secure{text-align:center;font-size:.8rem;color:var(--ws-muted);margin-top:10px}
+
+.ws-don .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:wsspin .8s linear infinite}
+@keyframes wsspin{to{transform:rotate(360deg)}}
+
+/* FAQ */
+.ws-don .faq{margin-top:48px}
+.ws-don details{background:#fff;border:1px solid var(--ws-line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.ws-don summary{cursor:pointer;font-weight:600}
+.ws-don details p{margin:10px 0 0;color:var(--ws-muted);font-size:.93rem}
+
+/* Modales */
+.ws-don dialog{border:0;border-radius:var(--ws-radius);padding:0;max-width:560px;width:calc(100% - 32px);box-shadow:0 30px 60px -20px rgba(0,0,0,.45);color:var(--ws-ink)}
+.ws-don dialog::backdrop{background:rgba(35,27,46,.55)}
+.ws-don .dlg-head{padding:20px 24px 12px;border-bottom:1px solid var(--ws-line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ws-don .dlg-head h4{margin:0;font-size:1.15rem;color:var(--ws-primary-dark)}
+.ws-don .dlg-close{background:none;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ws-muted)}
+.ws-don .dlg-body{padding:16px 24px;max-height:55vh;overflow:auto;font-size:.9rem}
+.ws-don .dlg-body h5{font-size:.95rem;margin:16px 0 4px;color:var(--ws-primary-dark)}
+.ws-don .dlg-body p,.ws-don .dlg-body li{color:var(--ws-muted)}
+.ws-don .dlg-foot{padding:12px 24px 20px;border-top:1px solid var(--ws-line)}
+.ws-don .dlg-foot small{display:block;color:var(--ws-muted);font-size:.78rem;margin-bottom:6px;text-align:center}
+
+/* Recibo simulado */
+.ws-don .receipt{position:relative;background:var(--ws-soft);border-radius:12px;padding:16px;overflow:hidden}
+.ws-don .receipt::after{content:"SIMULACIÓN";position:absolute;right:-30px;top:22px;transform:rotate(30deg);background:var(--ws-accent);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.12em;padding:4px 40px}
+.ws-don .receipt dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.ws-don .receipt dt{color:var(--ws-muted)}
+.ws-don .receipt dd{margin:0;font-weight:600;word-break:break-word}
+.ws-don .ok-ico{width:56px;height:56px;border-radius:50%;background:#e3f4ec;color:var(--ws-ok);display:grid;place-items:center;font-size:1.7rem;margin:0 auto 10px}
+.ws-don .barcode{height:54px;margin-top:14px;background:repeating-linear-gradient(90deg,#231b2e 0 2px,transparent 2px 4px,#231b2e 4px 5px,transparent 5px 8px,#231b2e 8px 11px,transparent 11px 13px);border-radius:4px;opacity:.85}
+.ws-don .ref{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-align:center;margin-top:6px;font-weight:700}
+
+/* Confirmación de cobro */
+.ws-don .confirm-total{text-align:center;padding:8px 0 16px}
+.ws-don .confirm-total small{display:block;color:var(--ws-muted);font-size:.85rem}
+.ws-don .confirm-total b{display:block;font-size:2.2rem;color:var(--ws-primary-dark);line-height:1.2}
+.ws-don .confirm-total .freq{display:inline-block;margin-top:4px;background:var(--ws-soft);color:var(--ws-primary-dark);border-radius:99px;padding:2px 12px;font-size:.8rem;font-weight:700}
+.ws-don .confirm-list{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;background:var(--ws-soft);border-radius:12px;padding:14px 16px}
+.ws-don .confirm-list dt{color:var(--ws-muted)}
+.ws-don .confirm-list dd{margin:0;font-weight:600;text-align:right;word-break:break-word}
+.ws-don .confirm-note{font-size:.82rem;background:var(--ws-warn-bg);color:var(--ws-warn-ink);border-radius:10px;padding:10px 12px;margin:14px 0 0}
+.ws-don .dlg-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.ws-don .dlg-actions .btn{margin-top:0}
+.ws-don .form-err{color:#b3261e;font-size:.85rem;min-height:1.1em;margin-top:8px;text-align:center}
+.ws-don .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<section id="donaciones" class="ws-don" aria-labelledby="ws-don-title">
+  <div class="wrap">
+
+    <div class="demo-banner" role="note">
+      <span class="ico" aria-hidden="true">⚠️</span>
+      <div>
+        <strong>Modo demostración · Proyecto escolar</strong>
+        Esta sección es un prototipo académico. Todas las transacciones son simuladas: no se realizan cargos, no se conecta con PayPal, Stripe ni Paynet y no se guarda ningún dato. No ingreses información bancaria real.
+      </div>
+    </div>
+
+    <span class="eyebrow">Impulsa el proyecto</span>
+    <h2 id="ws-don-title">Cada aporte acerca una pulsera a quien la necesita.</h2>
+    <p class="lead">La pulsera WOMEN SAFETY envía alertas silenciosas con ubicación GPS a través de LoRa, incluso sin señal celular. Tu donativo ayuda a fabricar prototipos, instalar antenas y llevar el piloto a más comunidades de Hidalgo.</p>
+
+    <div class="grid">
+      <!-- Columna izquierda: meta e impacto -->
+      <div>
+        <div class="card">
+          <div class="goal-top">
+            <div><span class="goal-amount" id="ws-raised"><%= mx(cfgDon.recaudado) %></span> <span class="goal-of">recaudados de <b id="ws-goal"><%= mx(cfgDon.meta) %></b> MXN</span></div>
+            <span class="goal-of" id="ws-pct">0%</span>
+          </div>
+          <div class="bar" role="progressbar" aria-label="Avance de la meta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ws-bar"><span></span></div>
+          <small class="goal-of">Meta del Kit Piloto SafeWave Tlahuelilpan · cifras de ejemplo</small>
+          <div class="stats">
+            <div class="stat"><b id="ws-donors"><%= cfgDon.donantes %></b><small>donantes</small></div>
+            <div class="stat"><b id="ws-bands"><%= Math.floor(cfgDon.recaudado / cfgDon.costoPulsera) %></b><small>pulseras financiadas</small></div>
+            <div class="stat"><b>1</b><small>antena gateway por instalar</small></div>
+          </div>
+        </div>
+
+        <h3>¿Qué financia tu aporte?</h3>
+        <div class="impact">
+          <button type="button" class="impact-item" data-amount="150">
+            <span class="price">$150</span>
+            <span><strong>Componentes básicos</strong><p>Motor de vibración, botón y batería para la confirmación silenciosa.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="500">
+            <span class="price">$500</span>
+            <span><strong>Pantalla y carcasa</strong><p>OLED discreta y carcasa impresa en 3D para un prototipo.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="1200">
+            <span class="price">$1,200</span>
+            <span><strong>Una pulsera completa</strong><p>Módulo LilyGO T‑Beam con LoRa 915 MHz y GPS, listo para pruebas.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="5000">
+            <span class="price">$5,000</span>
+            <span><strong>Cobertura para una zona</strong><p>Aporte para la antena base LoRaWAN que conecta a la Instancia de la Mujer.</p></span>
+          </button>
+        </div>
+
+        <div class="transp">
+          <strong>Transparencia:</strong> en una implementación real, cada peso se reportaría en un informe público de avances. Los montos mostrados aquí son estimaciones para fines académicos.
+        </div>
+      </div>
+
+      <!-- Columna derecha: formulario -->
+      <form class="card form-card" id="ws-form" novalidate>
+        <h3>Haz tu donativo</h3>
+
+        <div class="seg" role="tablist" aria-label="Frecuencia">
+          <button type="button" class="active" data-freq="unica" role="tab" aria-selected="true">Única vez</button>
+          <button type="button" data-freq="mensual" role="tab" aria-selected="false">Mensual</button>
+        </div>
+
+        <span class="label">Monto (MXN)</span>
+        <div class="amounts" id="ws-amounts">
+          <button type="button" data-amount="150">$150</button>
+          <button type="button" data-amount="500" class="active">$500</button>
+          <button type="button" data-amount="1200">$1,200</button>
+          <button type="button" data-amount="5000">$5,000</button>
+        </div>
+        <div class="custom">
+          <span>$</span>
+          <label class="sr" for="ws-custom">Otro monto</label>
+          <input type="number" id="ws-custom" min="20" max="50000" step="1" placeholder="Otro monto (mín. $20)">
+        </div>
+
+        <span class="label">Tus datos</span>
+        <div class="row">
+          <input type="text" id="ws-name" placeholder="Nombre" autocomplete="name">
+          <input type="email" id="ws-email" placeholder="Correo (para el recibo)" autocomplete="email">
+        </div>
+        <label class="check"><input type="checkbox" id="ws-anon"> Donar de forma anónima</label>
+
+        <span class="label">Método de pago (simulado)</span>
+        <div class="methods" role="radiogroup" aria-label="Método de pago">
+          <button type="button" class="method active" data-method="paypal" role="radio" aria-checked="true"><b>PayPal</b><small>Sandbox</small></button>
+          <button type="button" class="method" data-method="stripe" role="radio" aria-checked="false"><b>Stripe</b><small>Tarjeta de prueba</small></button>
+          <button type="button" class="method" data-method="paynet" role="radio" aria-checked="false"><b>Paynet</b><small>Efectivo en tienda</small></button>
+        </div>
+
+        <div class="panel show" data-panel="paypal">
+          <p>Al confirmar se simula la redirección al entorno <b>Sandbox</b> de PayPal. No se abrirá ninguna página externa ni se pedirá iniciar sesión.</p>
+        </div>
+
+        <div class="panel" data-panel="stripe">
+          <p>Simulación del modo de prueba de Stripe. Solo se aceptan tarjetas de prueba.</p>
+          <input type="text" id="ws-card" inputmode="numeric" placeholder="Número de tarjeta de prueba" maxlength="19" autocomplete="off">
+          <div class="row">
+            <input type="text" id="ws-exp" placeholder="MM/AA" maxlength="5" autocomplete="off">
+            <input type="text" id="ws-cvc" placeholder="CVC" maxlength="4" inputmode="numeric" autocomplete="off">
+          </div>
+          <div class="test-hint">
+            Aprobada: <code>4242 4242 4242 4242</code><br>
+            Rechazada: <code>4000 0000 0000 0002</code><br>
+            Cualquier fecha futura y CVC de 3 dígitos.
+          </div>
+          <div class="err" id="ws-card-err"></div>
+        </div>
+
+        <div class="panel" data-panel="paynet">
+          <p>Se generará una <b>referencia de prueba</b> como la que se usaría para pagar en efectivo en tiendas de conveniencia. No es válida para pagar.</p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="ws-terms">
+          <span>He leído y acepto los <button type="button" class="linkish" id="ws-open-terms">Términos y condiciones</button> y el <a href="/privacidad" class="linkish">Aviso de privacidad</a>, y entiendo que esta transacción es simulada.</span>
+        </label>
+
+        <div class="summary">
+          <span id="ws-sum-label">Donativo único</span>
+          <b id="ws-sum">$500 MXN</b>
+        </div>
+
+        <button type="submit" class="btn" id="ws-submit" disabled>
+          <span id="ws-submit-text">Acepta los términos para continuar</span>
+        </button>
+        <div class="form-err" id="ws-form-err" role="alert"></div>
+        <p class="secure">🔒 Demostración sin cobros reales · Proyecto académico ITSOEH</p>
+      </form>
+    </div>
+
+    <div class="faq">
+      <h3>Preguntas frecuentes</h3>
+      <details>
+        <summary>¿Se me cobrará algo?</summary>
+        <p>No. Esta es una sección de demostración para un proyecto escolar. Ningún método de pago está conectado a cuentas reales.</p>
+      </details>
+      <details>
+        <summary>¿Por qué aparecen PayPal, Stripe y Paynet?</summary>
+        <p>Representan los tres flujos que se evaluarían en una versión real: pago con cuenta digital, pago con tarjeta y pago en efectivo en tiendas de conveniencia, un medio muy usado en México.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa con mis datos?</summary>
+        <p>Nada se guarda ni se envía. Al recargar la página la información desaparece. Aun así, te pedimos no escribir datos bancarios reales.</p>
+      </details>
+      <details>
+        <summary>¿Cómo puedo apoyar de otra forma?</summary>
+        <p>Compartiendo la plataforma, difundiendo las líneas de apoyo o escribiéndonos desde la sección de contacto para colaborar como institución.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- Modal: Términos y condiciones -->
+  <dialog id="ws-terms-dlg" aria-labelledby="ws-terms-title">
+    <div class="dlg-head">
+      <h4 id="ws-terms-title">Términos y condiciones de donativos (demo)</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body" id="ws-terms-body">
+      <p>Última actualización: octubre de 2026.</p>
+      <h5>1. Naturaleza del sitio</h5>
+      <p>WOMEN SAFETY es un proyecto académico desarrollado por estudiantes. La sección de donaciones es un prototipo con fines educativos y de demostración.</p>
+      <h5>2. Transacciones simuladas</h5>
+      <p>Ninguna operación realizada en esta sección genera cargos, transferencias ni obligaciones de pago. Los nombres PayPal, Stripe y Paynet se mencionan únicamente para ilustrar los flujos de pago que se contemplarían; no existe integración ni relación con dichas empresas.</p>
+      <h5>3. Uso de datos</h5>
+      <p>Los datos escritos en el formulario no se almacenan ni se envían a ningún servidor. La persona usuaria se compromete a no ingresar datos bancarios, contraseñas ni información sensible real.</p>
+      <h5>4. Recibos y referencias</h5>
+      <p>Los folios, recibos y referencias generados son ficticios, carecen de validez fiscal o comercial y no pueden usarse para realizar pagos.</p>
+      <h5>5. Destino de los fondos (escenario real)</h5>
+      <p>En una implementación futura, los donativos se destinarían a la fabricación de pulseras, infraestructura LoRaWAN y operación del sistema de monitoreo, con informes públicos de transparencia.</p>
+      <h5>6. Responsabilidad</h5>
+      <p>El equipo del proyecto no se hace responsable por el uso indebido de esta demostración. Si existe una emergencia inmediata, comunícate al 911.</p>
+      <h5>7. Aceptación</h5>
+      <p>Al marcar la casilla de aceptación confirmas que leíste estos términos y que comprendes que la operación es simulada.</p>
+    </div>
+    <div class="dlg-foot">
+      <small id="ws-scroll-hint">Desplázate hasta el final para aceptar</small>
+      <button type="button" class="btn" id="ws-accept" disabled>Acepto los términos</button>
+    </div>
+  </dialog>
+
+  <!-- Modal: Confirmar cobro -->
+  <dialog id="ws-confirm-dlg" aria-labelledby="ws-confirm-title">
+    <div class="dlg-head">
+      <h4 id="ws-confirm-title">Confirma tu donativo</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="confirm-total">
+        <small>Se realizará un cargo simulado por</small>
+        <b id="ws-c-amount">$0 MXN</b>
+        <span class="freq" id="ws-c-freq">Pago único</span>
+      </div>
+      <dl class="confirm-list">
+        <dt>Donante</dt><dd id="ws-c-who">—</dd>
+        <dt>Correo</dt><dd id="ws-c-email">—</dd>
+        <dt>Método</dt><dd id="ws-c-method">—</dd>
+        <dt id="ws-c-extra-l">Detalle</dt><dd id="ws-c-extra">—</dd>
+        <dt>Destino</dt><dd>Proyecto pulsera WOMEN SAFETY</dd>
+      </dl>
+      <label class="check" style="margin-top:14px">
+        <input type="checkbox" id="ws-c-ok">
+        <span>Confirmo que revisé el monto y autorizo este <b>cobro simulado</b>. Entiendo que no se realizará ningún cargo real.</span>
+      </label>
+      <p class="confirm-note">Esto es una demostración académica. Ningún dato sale de tu navegador.</p>
+    </div>
+    <div class="dlg-foot dlg-actions">
+      <button type="button" class="btn ghost" data-close>Cancelar</button>
+      <button type="button" class="btn" id="ws-c-go" disabled><span id="ws-c-go-text">Confirmar cobro</span></button>
+    </div>
+  </dialog>
+
+  <!-- Modal: Resultado -->
+  <dialog id="ws-result-dlg" aria-labelledby="ws-result-title">
+    <div class="dlg-head">
+      <h4 id="ws-result-title">Resultado</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body" id="ws-result-body"></div>
+    <div class="dlg-foot">
+      <button type="button" class="btn ghost" data-close>Cerrar</button>
+    </div>
+  </dialog>
+</section>
+
+<script>
+(function(){
+  const root = document.getElementById('donaciones');
+  const $ = s => root.querySelector(s);
+  const $$ = s => [...root.querySelectorAll(s)];
+  const fmt = n => '$' + Number(n).toLocaleString('es-MX');
+
+  // Estado simulado (vive solo en memoria)
+  const CFG = <%- JSON.stringify({ meta: Number(cfgDon.meta), recaudado: Number(cfgDon.recaudado), donantes: Number(cfgDon.donantes), costoPulsera: Number(cfgDon.costoPulsera), montoInicial: Number(cfgDon.montoInicial) }) %>;
+  const GOAL = CFG.meta;
+  const state = { raised: CFG.recaudado, donors: CFG.donantes, amount: CFG.montoInicial, freq: 'unica', method: 'paypal' };
+
+  function renderGoal(){
+    const pct = Math.min(100, Math.round(state.raised / GOAL * 100));
+    $('#ws-raised').textContent = fmt(state.raised);
+    $('#ws-goal').textContent = fmt(GOAL);
+    $('#ws-pct').textContent = pct + '%';
+    $('#ws-bar').setAttribute('aria-valuenow', pct);
+    $('#ws-bar span').style.width = pct + '%';
+    $('#ws-donors').textContent = state.donors;
+    $('#ws-bands').textContent = Math.floor(state.raised / CFG.costoPulsera);
+  }
+  function renderSummary(){
+    $('#ws-sum').textContent = fmt(state.amount || 0) + ' MXN' + (state.freq === 'mensual' ? '/mes' : '');
+    $('#ws-sum-label').textContent = state.freq === 'mensual' ? 'Donativo mensual' : 'Donativo único';
+  }
+  function setAmount(v){
+    state.amount = v;
+    $$('#ws-amounts button').forEach(b => b.classList.toggle('active', Number(b.dataset.amount) === v));
+    renderSummary();
+  }
+
+  // Montos
+  $$('#ws-amounts button').forEach(b => b.addEventListener('click', () => {
+    $('#ws-custom').value = '';
+    setAmount(Number(b.dataset.amount));
+  }));
+  $('#ws-custom').addEventListener('input', e => setAmount(Number(e.target.value) || 0));
+  $$('.impact-item').forEach(b => b.addEventListener('click', () => {
+    $('#ws-custom').value = '';
+    setAmount(Number(b.dataset.amount));
+    $('#ws-form').scrollIntoView({behavior:'smooth', block:'start'});
+  }));
+
+  // Frecuencia
+  $$('.seg button').forEach(b => b.addEventListener('click', () => {
+    $$('.seg button').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+    b.classList.add('active'); b.setAttribute('aria-selected','true');
+    state.freq = b.dataset.freq; renderSummary();
+  }));
+
+  // Anónimo
+  $('#ws-anon').addEventListener('change', e => {
+    $('#ws-name').disabled = e.target.checked;
+    if (e.target.checked) $('#ws-name').value = '';
+  });
+
+  // Métodos
+  $$('.method').forEach(b => b.addEventListener('click', () => {
+    $$('.method').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-checked','false'); });
+    b.classList.add('active'); b.setAttribute('aria-checked','true');
+    state.method = b.dataset.method;
+    $$('.panel').forEach(p => p.classList.toggle('show', p.dataset.panel === state.method));
+    updateSubmit();
+  }));
+
+  // Formato de tarjeta
+  $('#ws-card').addEventListener('input', e => {
+    const d = e.target.value.replace(/\D/g,'').slice(0,16);
+    e.target.value = d.replace(/(.{4})/g,'$1 ').trim();
+    $('#ws-card-err').textContent = '';
+  });
+  $('#ws-exp').addEventListener('input', e => {
+    let d = e.target.value.replace(/\D/g,'').slice(0,4);
+    if (d.length > 2) d = d.slice(0,2) + '/' + d.slice(2);
+    e.target.value = d;
+  });
+  $('#ws-cvc').addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g,''));
+
+  // Términos
+  const termsDlg = $('#ws-terms-dlg');
+  const termsBody = $('#ws-terms-body');
+  $('#ws-open-terms').addEventListener('click', () => {
+    termsDlg.showModal();
+    checkScroll();
+  });
+  function checkScroll(){
+    const end = termsBody.scrollTop + termsBody.clientHeight >= termsBody.scrollHeight - 8;
+    if (end){ $('#ws-accept').disabled = false; $('#ws-scroll-hint').textContent = 'Gracias por leer'; }
+  }
+  termsBody.addEventListener('scroll', checkScroll);
+  $('#ws-accept').addEventListener('click', () => {
+    $('#ws-terms').checked = true; termsDlg.close(); updateSubmit();
+  });
+  $('#ws-terms').addEventListener('change', updateSubmit);
+
+  $$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+  function updateSubmit(){
+    const ok = $('#ws-terms').checked;
+    $('#ws-submit').disabled = !ok;
+    const labels = { paypal:'Revisar y confirmar · PayPal', stripe:'Revisar y confirmar · Tarjeta', paynet:'Revisar y confirmar · Paynet' };
+    $('#ws-submit').innerHTML = '<span id="ws-submit-text">' + (ok ? labels[state.method] : 'Acepta los términos para continuar') + '</span>';
+  }
+
+  // Validación tarjeta de prueba
+  const TEST_OK = '4242424242424242', TEST_DECLINE = '4000000000000002';
+  function validateCard(){
+    const n = $('#ws-card').value.replace(/\s/g,'');
+    const exp = $('#ws-exp').value, cvc = $('#ws-cvc').value;
+    if (n !== TEST_OK && n !== TEST_DECLINE) return 'Solo se aceptan las tarjetas de prueba indicadas.';
+    const m = exp.match(/^(\d{2})\/(\d{2})$/);
+    if (!m || +m[1] < 1 || +m[1] > 12) return 'Fecha inválida (MM/AA).';
+    const expDate = new Date(2000 + +m[2], +m[1], 0);
+    if (expDate < new Date()) return 'La fecha debe ser futura.';
+    if (cvc.length < 3) return 'CVC inválido.';
+    return n === TEST_DECLINE ? 'DECLINE' : '';
+  }
+
+  const folio = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6);
+  const resultDlg = $('#ws-result-dlg');
+
+  const confirmDlg = $('#ws-confirm-dlg');
+  const methodNames = { paypal:'PayPal (Sandbox)', stripe:'Stripe (modo prueba)', paynet:'Paynet (efectivo)' };
+  let pending = null; // datos de la operación por confirmar
+
+  function formError(msg){ $('#ws-form-err').textContent = msg || ''; }
+  root.addEventListener('input', () => formError(''));
+
+  // Paso 1: validar y abrir la confirmación
+  $('#ws-form').addEventListener('submit', e => {
+    e.preventDefault();
+    formError('');
+    if (!state.amount || state.amount < 20){ formError('Ingresa un monto de al menos $20.'); return; }
+    if (state.amount > 50000){ formError('El monto máximo en la demo es $50,000.'); return; }
+    const email = $('#ws-email').value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ formError('Revisa el formato del correo.'); return; }
+
+    let declined = false, extra = '';
+    if (state.method === 'stripe'){
+      const r = validateCard();
+      if (r && r !== 'DECLINE'){ $('#ws-card-err').textContent = r; return; }
+      declined = r === 'DECLINE';
+      extra = '•••• ' + $('#ws-card').value.replace(/\s/g,'').slice(-4);
+    } else if (state.method === 'paypal'){
+      extra = 'Cuenta sandbox de prueba';
+    } else {
+      extra = 'Referencia para pago en tienda (72 h)';
+    }
+
+    const who = $('#ws-anon').checked ? 'Anónimo' : ($('#ws-name').value.trim() || 'Sin nombre');
+    pending = { declined, who, email: email || 'No proporcionado', extra };
+
+    $('#ws-c-amount').textContent = fmt(state.amount) + ' MXN';
+    $('#ws-c-freq').textContent = state.freq === 'mensual' ? 'Cargo mensual recurrente' : 'Pago único';
+    $('#ws-c-who').textContent = who;
+    $('#ws-c-email').textContent = pending.email;
+    $('#ws-c-method').textContent = methodNames[state.method];
+    $('#ws-c-extra-l').textContent = state.method === 'stripe' ? 'Tarjeta' : 'Detalle';
+    $('#ws-c-extra').textContent = extra;
+    $('#ws-c-ok').checked = false;
+    $('#ws-c-go').disabled = true;
+    $('#ws-c-go').innerHTML = '<span id="ws-c-go-text">' + (state.method === 'paynet' ? 'Confirmar y generar referencia' : 'Confirmar cobro de ' + fmt(state.amount)) + '</span>';
+    confirmDlg.showModal();
+  });
+
+  $('#ws-c-ok').addEventListener('change', e => { $('#ws-c-go').disabled = !e.target.checked; });
+
+  // Paso 2: confirmar → procesar → resultado
+  $('#ws-c-go').addEventListener('click', () => {
+    if (!pending || !$('#ws-c-ok').checked) return;
+    const go = $('#ws-c-go');
+    go.disabled = true;
+    confirmDlg.querySelectorAll('[data-close]').forEach(b => b.disabled = true);
+    const msgs = { paypal:'Conectando con PayPal Sandbox…', stripe:'Procesando en modo de prueba…', paynet:'Generando referencia…' };
+    go.innerHTML = '<span class="spinner"></span><span>' + msgs[state.method] + '</span>';
+    setTimeout(() => {
+      confirmDlg.querySelectorAll('[data-close]').forEach(b => b.disabled = false);
+      confirmDlg.close();
+      showResult(pending.declined, pending);
+      pending = null;
+    }, 1600);
+  });
+  // Evita cerrar con Esc mientras procesa
+  confirmDlg.addEventListener('cancel', e => { if ($('#ws-c-go .spinner')) e.preventDefault(); });
+
+  function showResult(declined, info){
+    const body = $('#ws-result-body');
+    const who = info.who;
+    const methodName = methodNames[state.method];
+    const amount = fmt(state.amount) + ' MXN' + (state.freq === 'mensual' ? ' / mes' : '');
+    const date = new Date().toLocaleString('es-MX', { dateStyle:'medium', timeStyle:'short' });
+
+    if (declined){
+      $('#ws-result-title').textContent = 'Pago rechazado (simulado)';
+      body.innerHTML = '<div class="ok-ico" style="background:#fde8e7;color:#b3261e">✕</div>' +
+        '<p style="text-align:center">La tarjeta de prueba fue rechazada, tal como ocurriría con un pago declinado. Intenta con la tarjeta de prueba aprobada.</p>';
+    } else if (state.method === 'paynet'){
+      const ref = Array.from({length:4}, () => Math.floor(1000 + Math.random()*9000)).join(' ');
+      $('#ws-result-title').textContent = 'Referencia generada (simulada)';
+      body.innerHTML = '<p>Así se vería la ficha para pagar en efectivo. <b>Esta referencia es ficticia y no sirve para pagar.</b></p>' +
+        '<div class="receipt"><dl>' +
+        '<dt>Monto</dt><dd>' + amount + '</dd>' +
+        '<dt>Vigencia</dt><dd>72 horas (ejemplo)</dd>' +
+        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
+        '</dl><div class="barcode" aria-hidden="true"></div><div class="ref">' + ref + '</div></div>';
+    } else {
+      state.raised += state.amount; state.donors += 1; renderGoal();
+      $('#ws-result-title').textContent = '¡Gracias por tu apoyo!';
+      body.innerHTML = '<div class="ok-ico">✓</div>' +
+        '<p style="text-align:center">Tu donativo simulado se registró en esta demostración. No se realizó ningún cargo.</p>' +
+        '<div class="receipt"><dl>' +
+        '<dt>Folio</dt><dd>' + folio('DEMO') + '</dd>' +
+        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
+        '<dt>Monto</dt><dd>' + amount + '</dd>' +
+        '<dt>Método</dt><dd>' + methodName + '</dd>' +
+        '<dt>Detalle</dt><dd>' + escapeHtml(info.extra) + '</dd>' +
+        '<dt>Fecha</dt><dd>' + date + '</dd>' +
+        '</dl></div>' +
+        '<p style="font-size:.8rem;margin-top:12px">Comprobante ficticio sin validez fiscal ni comercial.</p>';
+    }
+    resultDlg.showModal();
+  }
+
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  renderGoal(); renderSummary(); updateSubmit();
+})();
+</script>
