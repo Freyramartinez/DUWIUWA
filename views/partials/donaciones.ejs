@@ -2,11 +2,9 @@
   =====================================================================
   PARTIAL: views/partials/donaciones.ejs  ·  WOMEN SAFETY
   Sección de donaciones.
-  
-  Uso en cualquier vista:
-      <%- include('partials/donaciones') %>
-  O con valores propios desde la ruta:
-      <%- include('partials/donaciones', { donaciones: { meta: 45000, recaudado: 18650, donantes: 37 } }) %>
+  Uso en cualquier vista:  include('partials/donaciones')
+  Con valores propios:     include('partials/donaciones', { donaciones: { meta, recaudado, donantes } })
+  (Nunca escribir etiquetas EJS completas dentro de este comentario.)
   =====================================================================
 %>
 <%
@@ -159,10 +157,16 @@
 .ws-don .confirm-list{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;background:var(--ws-soft);border-radius:12px;padding:14px 16px}
 .ws-don .confirm-list dt{color:var(--ws-muted)}
 .ws-don .confirm-list dd{margin:0;font-weight:600;text-align:right;word-break:break-word}
-.ws-don .confirm-note{font-size:.82rem;background:var(--ws-warn-bg);color:var(--ws-warn-ink);border-radius:10px;padding:10px 12px;margin:14px 0 0}
+.ws-don .confirm-note{font-size:.82rem;background:#e3f4ec;color:var(--ws-ok);border-radius:10px;padding:10px 12px;margin:14px 0 0}
 .ws-don .dlg-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
-.ws-don .dlg-actions .btn{margin-top:0}
+.ws-don .dlg-actions .ws-btn{margin-top:0}
 .ws-don .form-err{color:#b3261e;font-size:.85rem;min-height:1.1em;margin-top:8px;text-align:center}
+.ws-don .seg button:disabled{opacity:.4;cursor:not-allowed}
+.ws-don .card-ok{display:none;align-items:center;gap:8px;color:var(--ws-ok);font-size:.85rem;font-weight:700;margin-top:8px}
+.ws-don .card-ok.show{display:flex}
+.ws-don .card-ok .dot{width:20px;height:20px;border-radius:50%;background:#e3f4ec;display:grid;place-items:center;font-size:.75rem}
+.ws-don input.valid{border-color:var(--ws-ok)!important;background:#f6fcf9}
+.ws-don input.invalid{border-color:#b3261e!important}
 .ws-don .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 
@@ -234,7 +238,7 @@
         <div class="custom">
           <span>$</span>
           <label class="sr" for="ws-custom">Otro monto</label>
-          <input type="number" id="ws-custom" min="20" step="1" placeholder="Otro monto (mín. $20)">
+          <input type="number" id="ws-custom" min="20" max="50000" step="1" placeholder="Otro monto (mín. $20)">
         </div>
 
         <span class="label">Tus datos</span>
@@ -262,6 +266,7 @@
             <input type="text" id="ws-exp" placeholder="MM/AA" maxlength="5" autocomplete="off">
             <input type="text" id="ws-cvc" placeholder="CVC" maxlength="4" inputmode="numeric" autocomplete="off">
           </div>
+          <div class="card-ok" id="ws-card-ok" role="status"><span class="dot">✓</span><span id="ws-card-ok-text">Tarjeta válida</span></div>
           <div class="err" id="ws-card-err"></div>
         </div>
 
@@ -318,10 +323,10 @@
       <p>Última actualización: octubre de 2026.</p>
       <h5>1. Naturaleza del donativo</h5>
       <p>Al realizar un aporte a WOMEN SAFETY, confirmas que los fondos son entregados de manera voluntaria y sin esperar una contraprestación comercial directa. Todos los fondos se destinan al desarrollo tecnológico e infraestructura del proyecto.</p>
-      <h5>2. Procesamiento de pagos</h5>
-      <p>Todas las transacciones se realizan a través de procesadores de pago seguros (PayPal, Stripe, Paynet). Nosotros no almacenamos información de tarjetas de crédito o débito.</p>
-      <h5>3. Política de reembolsos</h5>
-      <p>Debido a la naturaleza de los donativos, las transacciones son definitivas y no reembolsables una vez que se han procesado exitosamente.</p>
+      <h5>2. Proyecto académico</h5>
+      <p>WOMEN SAFETY es un proyecto estudiantil del ITSOEH. En esta etapa la plataforma no realiza cargos reales ni envía datos de pago a ningún servidor, y solo acepta tarjetas de prueba. Los folios y referencias generados no tienen validez fiscal ni comercial.</p>
+      <h5>3. Procesamiento de pagos</h5>
+      <p>Cuando el proyecto opere con donativos reales, las transacciones se realizarán a través de procesadores de pago (PayPal, Stripe, Paynet) y no se almacenará información de tarjetas.</p>
       <h5>4. Uso de datos personales</h5>
       <p>El nombre y correo electrónico proporcionados (a menos que elijas donar de forma anónima) se utilizarán exclusivamente para enviar tu recibo de donación e informes de impacto. Nunca venderemos ni compartiremos tus datos con terceros.</p>
       <h5>5. Aceptación</h5>
@@ -440,21 +445,59 @@
     b.classList.add('active'); b.setAttribute('aria-checked','true');
     state.method = b.dataset.method;
     $$('.panel').forEach(p => p.classList.toggle('show', p.dataset.panel === state.method));
+    // Efectivo no puede ser recurrente
+    const mensual = $('.seg [data-freq="mensual"]');
+    mensual.disabled = state.method === 'paynet';
+    mensual.title = mensual.disabled ? 'El pago en efectivo solo admite donativo único' : '';
+    if (mensual.disabled && state.freq === 'mensual') $('.seg [data-freq="unica"]').click();
     updateSubmit();
   }));
 
   // Formato de tarjeta
+  // Tarjetas aceptadas (de prueba)
+  const TEST_OK = '4242424242424242', TEST_DECLINE = '4000000000000002';
+
   $('#ws-card').addEventListener('input', e => {
     const d = e.target.value.replace(/\D/g,'').slice(0,16);
     e.target.value = d.replace(/(.{4})/g,'$1 ').trim();
-    $('#ws-card-err').textContent = '';
+    liveCard();
   });
   $('#ws-exp').addEventListener('input', e => {
     let d = e.target.value.replace(/\D/g,'').slice(0,4);
     if (d.length > 2) d = d.slice(0,2) + '/' + d.slice(2);
     e.target.value = d;
+    liveCard();
   });
-  $('#ws-cvc').addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g,''));
+  $('#ws-cvc').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g,'');
+    liveCard();
+  });
+
+  function expValid(v){
+    const m = v.match(/^(\d{2})\/(\d{2})$/);
+    return !!m && +m[1] >= 1 && +m[1] <= 12 && new Date(2000 + +m[2], +m[1], 0) >= new Date();
+  }
+
+  // Marca en verde/rojo mientras se escribe
+  function liveCard(){
+    const card = $('#ws-card'), exp = $('#ws-exp'), cvc = $('#ws-cvc'), err = $('#ws-card-err');
+    const n = card.value.replace(/\s/g,'');
+    const numOk = n === TEST_OK || n === TEST_DECLINE;
+    const expOk = expValid(exp.value);
+    const cvcOk = cvc.value.length >= 3;
+    card.classList.toggle('valid', numOk);
+    card.classList.toggle('invalid', n.length === 16 && !numOk);
+    exp.classList.toggle('valid', expOk);
+    exp.classList.toggle('invalid', exp.value.length === 5 && !expOk);
+    cvc.classList.toggle('valid', cvcOk);
+    if (n.length === 16 && !numOk) err.textContent = 'Número de tarjeta no válido.';
+    else if (exp.value.length === 5 && !expOk) err.textContent = 'La fecha no es válida o la tarjeta expiró.';
+    else err.textContent = '';
+    $('#ws-card-ok').classList.toggle('show', numOk);
+    $('#ws-card-ok-text').textContent = (numOk && expOk && cvcOk)
+      ? 'Tarjeta Visa •••• ' + n.slice(-4) + ' verificada'
+      : 'Tarjeta Visa válida';
+  }
 
   // Términos
   const termsDlg = $('#ws-terms-dlg');
@@ -483,16 +526,15 @@
   }
 
   // Validación de tarjeta general
+  // Devuelve '' si es válida, 'DECLINE' si el banco la rechaza, o el mensaje de error
   function validateCard(){
     const n = $('#ws-card').value.replace(/\s/g,'');
     const exp = $('#ws-exp').value, cvc = $('#ws-cvc').value;
-    if (n.length < 15) return 'Ingresa un número de tarjeta válido.';
-    const m = exp.match(/^(\d{2})\/(\d{2})$/);
-    if (!m || +m[1] < 1 || +m[1] > 12) return 'Fecha inválida (MM/AA).';
-    const expDate = new Date(2000 + +m[2], +m[1], 0);
-    if (expDate < new Date()) return 'La tarjeta ingresada ha expirado.';
+    if (n !== TEST_OK && n !== TEST_DECLINE) return 'Número de tarjeta no válido.';
+    if (!/^\d{2}\/\d{2}$/.test(exp)) return 'Fecha inválida (MM/AA).';
+    if (!expValid(exp)) return 'La tarjeta ingresada ha expirado.';
     if (cvc.length < 3) return 'CVC inválido.';
-    return '';
+    return n === TEST_DECLINE ? 'DECLINE' : '';
   }
 
   const folio = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6);
@@ -509,14 +551,16 @@
     e.preventDefault();
     formError('');
     if (!state.amount || state.amount < 20){ formError('Ingresa un monto de al menos $20.'); return; }
+    if (state.amount > 50000){ formError('El monto máximo por donativo es de $50,000.'); return; }
     const email = $('#ws-email').value.trim();
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ formError('Revisa el formato del correo.'); return; }
 
-    let extra = '';
+    let extra = '', declined = false;
     if (state.method === 'stripe'){
       const r = validateCard();
-      if (r){ $('#ws-card-err').textContent = r; return; }
-      extra = '•••• ' + $('#ws-card').value.replace(/\s/g,'').slice(-4);
+      if (r && r !== 'DECLINE'){ $('#ws-card-err').textContent = r; return; }
+      declined = r === 'DECLINE';
+      extra = 'Visa •••• ' + $('#ws-card').value.replace(/\s/g,'').slice(-4);
     } else if (state.method === 'paypal'){
       extra = 'Pago seguro con PayPal';
     } else {
@@ -524,7 +568,7 @@
     }
 
     const who = $('#ws-anon').checked ? 'Anónimo' : ($('#ws-name').value.trim() || 'Sin nombre');
-    pending = { who, email: email || 'No proporcionado', extra };
+    pending = { who, email: email || 'No proporcionado', extra, declined };
 
     $('#ws-c-amount').textContent = fmt(state.amount) + ' MXN';
     $('#ws-c-freq').textContent = state.freq === 'mensual' ? 'Cargo mensual recurrente' : 'Pago único';
@@ -569,7 +613,11 @@
     const amount = fmt(state.amount) + ' MXN' + (state.freq === 'mensual' ? ' / mes' : '');
     const date = new Date().toLocaleString('es-MX', { dateStyle:'medium', timeStyle:'short' });
 
-    if (state.method === 'paynet'){
+    if (info.declined){
+      $('#ws-result-title').textContent = 'Pago rechazado';
+      body.innerHTML = '<div class="ok-ico" style="background:#fde8e7;color:#b3261e">✕</div>' +
+        '<p style="text-align:center">Tu banco rechazó la transacción. Intenta con otra tarjeta u otro método de pago.</p>';
+    } else if (state.method === 'paynet'){
       const ref = Array.from({length:4}, () => Math.floor(1000 + Math.random()*9000)).join(' ');
       $('#ws-result-title').textContent = 'Referencia generada';
       body.innerHTML = '<p>Presenta esta ficha en caja para realizar tu pago en efectivo.</p>' +
