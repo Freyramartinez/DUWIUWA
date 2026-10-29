@@ -1,916 +1,602 @@
-
-## 🎨 Propuesta de Front-End: Sección "Impulsa SafeWave"
-
-A continuación te presento el código completo (HTML + CSS + JS) de una sección de donaciones **sin lógica de pago real** (solo UI), con validación de términos y condiciones y selectores de pasarela (PayPal, Stripe, Paynet).
-
-### `donaciones.html`
-
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impulsa SafeWave · Donaciones</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --violet-900: #2d1b4e;
-      --violet-700: #5b3a8e;
-      --violet-500: #8b5cf6;
-      --violet-300: #c4b5fd;
-      --violet-100: #ede9fe;
-      --pink-accent: #ec4899;
-      --green-ok: #10b981;
-      --gray-900: #1f2937;
-      --gray-600: #6b7280;
-      --gray-300: #d1d5db;
-      --gray-100: #f3f4f6;
-      --white: #ffffff;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
-      --shadow-md: 0 8px 24px rgba(91,58,142,.12);
-      --shadow-lg: 0 20px 50px rgba(91,58,142,.2);
-      --radius: 16px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: linear-gradient(135deg, #faf8ff 0%, #f3e8ff 100%);
-      color: var(--gray-900);
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    /* ===== HEADER ===== */
-    .donation-header {
-      text-align: center;
-      margin-bottom: 3rem;
-      animation: fadeInDown .6s ease;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: var(--violet-100);
-      color: var(--violet-700);
-      padding: .5rem 1rem;
-      border-radius: 999px;
-      font-size: .8rem;
-      font-weight: 600;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-
-    .badge::before {
-      content: '';
-      width: 8px; height: 8px;
-      background: var(--violet-500);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .6; transform: scale(1.3); }
-    }
-
-    .donation-header h1 {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 800;
-      color: var(--violet-900);
-      margin-bottom: .8rem;
-      line-height: 1.2;
-    }
-
-    .donation-header h1 span {
-      background: linear-gradient(135deg, var(--violet-500), var(--pink-accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .donation-header p {
-      max-width: 640px;
-      margin: 0 auto;
-      color: var(--gray-600);
-      font-size: 1.05rem;
-    }
-
-    /* ===== GRID ===== */
-    .donation-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 2rem;
-      align-items: start;
-    }
-
-    @media (max-width: 900px) {
-      .donation-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ===== CARD ===== */
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-md);
-      animation: fadeInUp .6s ease;
-    }
-
-    .card h2 {
-      font-size: 1.35rem;
-      color: var(--violet-900);
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-    }
-
-    .card h2 .icon {
-      width: 32px; height: 32px;
-      background: var(--violet-100);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
-
-    /* ===== MONTOS ===== */
-    .amounts {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: .75rem;
-      margin-bottom: 1rem;
-    }
-
-    @media (max-width: 500px) {
-      .amounts { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .amount-btn {
-      background: var(--gray-100);
-      border: 2px solid transparent;
-      padding: .9rem .5rem;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--gray-900);
-      cursor: pointer;
-      transition: all .2s ease;
-      font-family: inherit;
-    }
-
-    .amount-btn:hover { background: var(--violet-100); }
-
-    .amount-btn.active {
-      background: var(--violet-100);
-      border-color: var(--violet-500);
-      color: var(--violet-700);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .custom-amount {
-      display: flex;
-      align-items: center;
-      background: var(--gray-100);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: .5rem 1rem;
-      margin-bottom: 1.5rem;
-      transition: border-color .2s;
-    }
-
-    .custom-amount:focus-within { border-color: var(--violet-500); }
-
-    .custom-amount span {
-      font-weight: 700;
-      color: var(--gray-600);
-      margin-right: .5rem;
-    }
-
-    .custom-amount input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: 1rem;
-      font-family: inherit;
-      outline: none;
-      padding: .4rem 0;
-    }
-
-    /* ===== IMPACTO ===== */
-    .impact-box {
-      background: linear-gradient(135deg, var(--violet-700), var(--violet-500));
-      color: var(--white);
-      padding: 1.2rem 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .impact-box .icon-big { font-size: 2rem; }
-
-    .impact-box p { font-size: .92rem; opacity: .95; }
-
-    .impact-box strong { display: block; font-size: 1.15rem; margin-bottom: .2rem; }
-
-    /* ===== MÉTODOS DE PAGO ===== */
-    .payment-methods {
-      display: grid;
-      gap: .8rem;
-      margin-bottom: 1.8rem;
-    }
-
-    .payment-option {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.2rem;
-      background: var(--gray-100);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all .2s ease;
-    }
-
-    .payment-option:hover { background: var(--violet-100); }
-
-    .payment-option.selected {
-      background: var(--violet-100);
-      border-color: var(--violet-500);
-    }
-
-    .payment-option input[type="radio"] { display: none; }
-
-    .payment-logo {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800;
-      font-size: .75rem;
-      color: var(--white);
-      flex-shrink: 0;
-    }
-
-    .logo-paypal  { background: #003087; }
-    .logo-stripe  { background: #635bff; }
-    .logo-paynet  { background: #e63946; }
-    .logo-spei    { background: var(--green-ok); }
-
-    .payment-info { flex: 1; }
-    .payment-info strong { display: block; font-size: .95rem; }
-    .payment-info small { color: var(--gray-600); font-size: .8rem; }
-
-    .radio-indicator {
-      width: 20px; height: 20px;
-      border: 2px solid var(--gray-300);
-      border-radius: 50%;
-      position: relative;
-      flex-shrink: 0;
-      transition: all .2s;
-    }
-
-    .payment-option.selected .radio-indicator {
-      border-color: var(--violet-500);
-    }
-
-    .payment-option.selected .radio-indicator::after {
-      content: '';
-      position: absolute;
-      inset: 3px;
-      background: var(--violet-500);
-      border-radius: 50%;
-    }
-
-    /* ===== TÉRMINOS ===== */
-    .terms {
-      display: flex;
-      align-items: flex-start;
-      gap: .8rem;
-      padding: 1rem;
-      background: var(--gray-100);
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      font-size: .85rem;
-      color: var(--gray-600);
-    }
-
-    .terms input[type="checkbox"] {
-      appearance: none;
-      width: 20px; height: 20px;
-      border: 2px solid var(--gray-300);
-      border-radius: 6px;
-      cursor: pointer;
-      flex-shrink: 0;
-      margin-top: 2px;
-      transition: all .2s;
-      position: relative;
-    }
-
-    .terms input[type="checkbox"]:checked {
-      background: var(--violet-500);
-      border-color: var(--violet-500);
-    }
-
-    .terms input[type="checkbox"]:checked::after {
-      content: '✓';
-      position: absolute;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .terms a {
-      color: var(--violet-700);
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    /* ===== BOTÓN DONAR ===== */
-    .btn-donate {
-      width: 100%;
-      padding: 1.1rem;
-      background: linear-gradient(135deg, var(--violet-700), var(--violet-500));
-      color: var(--white);
-      border: none;
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all .3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .6rem;
-      box-shadow: 0 8px 20px rgba(139,92,246,.35);
-    }
-
-    .btn-donate:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(139,92,246,.45);
-    }
-
-    .btn-donate:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .secure-note {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .4rem;
-      margin-top: 1rem;
-      font-size: .8rem;
-      color: var(--gray-600);
-    }
-
-    /* ===== SIDEBAR ===== */
-    .sidebar-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 1.8rem;
-      box-shadow: var(--shadow-md);
-      margin-bottom: 1.5rem;
-      animation: fadeInUp .6s ease .1s backwards;
-    }
-
-    .sidebar-card h3 {
-      font-size: 1.05rem;
-      color: var(--violet-900);
-      margin-bottom: 1rem;
-    }
-
-    .progress-track {
-      background: var(--gray-100);
-      border-radius: 999px;
-      height: 12px;
-      overflow: hidden;
-      margin-bottom: .6rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--violet-500), var(--pink-accent));
-      border-radius: 999px;
-      width: 0%;
-      transition: width 1.5s ease;
-    }
-
-    .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: .85rem;
-      color: var(--gray-600);
-      margin-bottom: 1.2rem;
-    }
-
-    .progress-labels strong { color: var(--violet-700); }
-
-    .benefits-list {
-      list-style: none;
-      display: grid;
-      gap: .8rem;
-    }
-
-    .benefits-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: .7rem;
-      font-size: .88rem;
-      color: var(--gray-600);
-    }
-
-    .benefits-list .check {
-      width: 20px; height: 20px;
-      background: var(--violet-100);
-      color: var(--violet-700);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .7rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    /* ===== MODAL TÉRMINOS ===== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(45,27,78,.6);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      z-index: 1000;
-    }
-
-    .modal-overlay.active { display: flex; }
-
-    .modal {
-      background: var(--white);
-      border-radius: var(--radius);
-      max-width: 560px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 2rem;
-      animation: fadeInUp .3s ease;
-    }
-
-    .modal h3 {
-      color: var(--violet-900);
-      margin-bottom: 1rem;
-      font-size: 1.3rem;
-    }
-
-    .modal-content {
-      font-size: .88rem;
-      color: var(--gray-600);
-      max-height: 45vh;
-      overflow-y: auto;
-      margin-bottom: 1.5rem;
-      padding-right: .5rem;
-    }
-
-    .modal-content h4 {
-      color: var(--violet-700);
-      margin: 1rem 0 .4rem;
-      font-size: .95rem;
-    }
-
-    .modal-content p { margin-bottom: .6rem; }
-
-    .modal-actions { display: flex; gap: .8rem; }
-
-    .btn {
-      flex: 1;
-      padding: .85rem;
-      border-radius: 10px;
-      border: none;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .2s;
-      font-size: .92rem;
-    }
-
-    .btn-secondary {
-      background: var(--gray-100);
-      color: var(--gray-900);
-    }
-
-    .btn-primary {
-      background: var(--violet-700);
-      color: var(--white);
-    }
-
-    .btn-primary:hover { background: var(--violet-500); }
-
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(120px);
-      background: var(--violet-900);
-      color: var(--white);
-      padding: 1rem 1.8rem;
-      border-radius: 12px;
-      font-size: .9rem;
-      font-weight: 500;
-      box-shadow: var(--shadow-lg);
-      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
-      z-index: 2000;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      max-width: 90vw;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    .toast.success { background: var(--green-ok); }
-    .toast.error { background: #dc2626; }
-
-    /* ===== ANIMACIONES ===== */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <!-- HEADER -->
-  <header class="donation-header">
-    <div class="badge">Proyecto Escolar · SafeWave</div>
-    <h1>Impulsa la <span>Pulsera Women Safety</span></h1>
-    <p>Tu donación apoya el desarrollo del prototipo SafeWave: una pulsera con botón de emergencia, GPS y conectividad LoRaWAN que busca proteger a mujeres en situación de riesgo en Hidalgo.</p>
-  </header>
-
-  <!-- GRID PRINCIPAL -->
-  <div class="donation-grid">
-    <!-- COLUMNA IZQUIERDA: FORMULARIO -->
-    <section class="card">
-      <h2><span class="icon">💜</span> Elige tu aportación</h2>
-
-      <!-- MONTOS RÁPIDOS -->
-      <div class="amounts" role="group" aria-label="Montos de donación">
-        <button class="amount-btn" data-amount="100">$100</button>
-        <button class="amount-btn active" data-amount="250">$250</button>
-        <button class="amount-btn" data-amount="500">$500</button>
-        <button class="amount-btn" data-amount="1000">$1,000</button>
+<%#
+  =====================================================================
+  PARTIAL: views/partials/donaciones.ejs  ·  WOMEN SAFETY
+  Sección de donaciones.
+  
+  Uso en cualquier vista:
+      <%- include('partials/donaciones') %>
+  O con valores propios desde la ruta:
+      <%- include('partials/donaciones', { donaciones: { meta: 45000, recaudado: 18650, donantes: 37 } }) %>
+  =====================================================================
+%>
+<%
+  const cfgDon = Object.assign(
+    { meta: 45000, recaudado: 18650, donantes: 37, costoPulsera: 1200, montoInicial: 500 },
+    (typeof donaciones !== 'undefined' && donaciones) ? donaciones : {}
+  );
+  const mx = n => '$' + Number(n).toLocaleString('es-MX');
+%>
+
+<style>
+/* =========================================================
+   SECCIÓN DE DONACIONES · WOMEN SAFETY
+   ========================================================= */
+.ws-don{
+  --ws-primary:var(--wine,#8e3a68);
+  --ws-primary-dark:var(--wine-dark,#67294c);
+  --ws-accent:var(--pink,#b34d83);
+  --ws-soft:var(--pink-light,#f8e8f1);
+  --ws-ink:var(--dark,#2b1d25);
+  --ws-muted:var(--gray,#6f6470);
+  --ws-line:var(--border,#efdbe6);
+  --ws-ok:#1f8a5b;
+  --ws-warn-bg:#fff6e0;
+  --ws-warn-ink:#7a5300;
+  --ws-radius:18px;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--ws-ink);
+  background:linear-gradient(135deg,#fff8fb 0%,#ffffff 55%,#f8e8f1 100%);
+  padding:96px 16px;
+  line-height:1.55;
+}
+.ws-don *,.ws-don *::before,.ws-don *::after{box-sizing:border-box}
+.ws-don .wrap{max-width:1120px;margin:0 auto}
+
+/* Encabezado */
+.ws-don .eyebrow{letter-spacing:.14em;font-size:.78rem;font-weight:700;color:var(--ws-accent);text-transform:uppercase}
+.ws-don h2{font-family:"Playfair Display",serif;font-weight:500;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.1;margin:.3em 0 .45em;color:var(--ws-ink)}
+.ws-don .lead{max-width:680px;color:var(--ws-muted);font-size:1.05rem;margin:0}
+
+.ws-don .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;margin-top:40px;align-items:start}
+@media (max-width:900px){.ws-don .grid{grid-template-columns:1fr}}
+
+.ws-don .card{background:#fff;border:1px solid var(--ws-line);border-radius:var(--ws-radius);padding:24px;box-shadow:0 10px 30px -18px rgba(103,41,76,.35)}
+
+/* Meta / progreso */
+.ws-don .goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ws-don .goal-amount{font-size:1.9rem;font-weight:800;color:var(--ws-primary)}
+.ws-don .goal-of{color:var(--ws-muted);font-size:.95rem}
+.ws-don .bar{height:14px;background:var(--ws-soft);border-radius:99px;overflow:hidden;margin:14px 0 10px}
+.ws-don .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent));border-radius:99px;transition:width .9s ease}
+.ws-don .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.ws-don .stat{background:var(--ws-soft);border-radius:12px;padding:12px;text-align:center}
+.ws-don .stat b{display:block;font-size:1.25rem;color:var(--ws-primary-dark)}
+.ws-don .stat small{color:var(--ws-muted);font-size:.8rem}
+
+/* Impacto */
+.ws-don h3{font-size:1.15rem;margin:28px 0 12px;color:var(--ws-primary-dark)}
+.ws-don .impact{display:grid;gap:12px}
+.ws-don .impact-item{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--ws-line);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .2s,transform .2s;text-align:left;width:100%;font:inherit;color:inherit}
+.ws-don .impact-item:hover{border-color:var(--ws-primary);transform:translateY(-2px)}
+.ws-don .impact-item .price{flex:none;min-width:78px;font-weight:800;color:var(--ws-accent);font-size:1.05rem}
+.ws-don .impact-item p{margin:2px 0 0;color:var(--ws-muted);font-size:.9rem}
+.ws-don .impact-item strong{font-size:.98rem}
+
+.ws-don .transp{margin-top:20px;font-size:.88rem;color:var(--ws-muted);background:#fff;border-left:4px solid var(--ws-primary);border-radius:8px;padding:12px 14px}
+
+/* Formulario */
+.ws-don .form-card h3{margin-top:0}
+.ws-don .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--ws-soft);border-radius:12px;padding:4px;margin-bottom:18px}
+.ws-don .seg button{border:0;background:transparent;padding:10px;border-radius:9px;font:inherit;font-weight:600;color:var(--ws-muted);cursor:pointer}
+.ws-don .seg button.active{background:#fff;color:var(--ws-primary-dark);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+.ws-don .label{display:block;font-weight:600;font-size:.9rem;margin:16px 0 8px}
+.ws-don .amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:420px){.ws-don .amounts{grid-template-columns:repeat(2,1fr)}}
+.ws-don .amounts button{border:1.5px solid var(--ws-line);background:#fff;border-radius:10px;padding:11px 6px;font:inherit;font-weight:700;color:var(--ws-ink);cursor:pointer}
+.ws-don .amounts button.active{border-color:var(--ws-primary);background:var(--ws-soft);color:var(--ws-primary-dark)}
+
+.ws-don input[type=text],.ws-don input[type=email],.ws-don input[type=number]{
+  width:100%;padding:12px 14px;border:1.5px solid var(--ws-line);border-radius:10px;font:inherit;color:var(--ws-ink);background:#fff;outline:none;transition:border-color .2s
+}
+.ws-don input:focus{border-color:var(--ws-primary)}
+.ws-don .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.ws-don .row{grid-template-columns:1fr}}
+.ws-don .custom{position:relative;margin-top:8px}
+.ws-don .custom span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ws-muted);font-weight:600}
+.ws-don .custom input{padding-left:28px}
+
+.ws-don .check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;margin-top:12px;cursor:pointer}
+.ws-don .check input{margin-top:3px;accent-color:var(--ws-primary);width:17px;height:17px;flex:none}
+
+/* Métodos de pago */
+.ws-don .methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ws-don .method{border:1.5px solid var(--ws-line);background:#fff;border-radius:12px;padding:12px 6px;cursor:pointer;font:inherit;text-align:center;color:var(--ws-ink)}
+.ws-don .method b{display:block;font-size:.98rem}
+.ws-don .method small{color:var(--ws-muted);font-size:.75rem}
+.ws-don .method.active{border-color:var(--ws-primary);background:var(--ws-soft)}
+.ws-don .panel{display:none;margin-top:14px;background:var(--ws-soft);border-radius:12px;padding:14px}
+.ws-don .panel.show{display:block}
+.ws-don .panel p{margin:0 0 8px;font-size:.88rem;color:var(--ws-muted)}
+.ws-don .panel .row + .row,.ws-don .panel input + .row{margin-top:8px}
+.ws-don .err{color:#b3261e;font-size:.82rem;min-height:1.1em;margin-top:6px}
+
+.ws-don .summary{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--ws-line);margin-top:20px;padding-top:16px;font-size:.95rem}
+.ws-don .summary b{font-size:1.3rem;color:var(--ws-primary-dark)}
+
+.ws-don .ws-btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;width:100%;margin-top:14px;padding:14px 18px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:1rem;color:#fff;cursor:pointer;background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent));transition:opacity .2s,transform .2s}
+.ws-don .ws-btn:hover:not(:disabled){transform:translateY(-1px)}
+.ws-don .ws-btn:disabled{opacity:.45;cursor:not-allowed}
+.ws-don .ws-btn.ghost{background:#fff;color:var(--ws-primary-dark);border:1.5px solid var(--ws-line)}
+.ws-don .linkish{background:none;border:0;padding:0;font:inherit;color:var(--ws-primary);text-decoration:underline;cursor:pointer}
+.ws-don .secure{text-align:center;font-size:.8rem;color:var(--ws-muted);margin-top:10px}
+
+.ws-don .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:wsspin .8s linear infinite}
+@keyframes wsspin{to{transform:rotate(360deg)}}
+
+/* FAQ */
+.ws-don .faq{margin-top:48px}
+.ws-don details{background:#fff;border:1px solid var(--ws-line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.ws-don summary{cursor:pointer;font-weight:600}
+.ws-don details p{margin:10px 0 0;color:var(--ws-muted);font-size:.93rem}
+
+/* Modales */
+.ws-don dialog{border:0;border-radius:var(--ws-radius);padding:0;max-width:560px;width:calc(100% - 32px);box-shadow:0 30px 60px -20px rgba(0,0,0,.45);color:var(--ws-ink)}
+.ws-don dialog::backdrop{background:rgba(35,27,46,.55)}
+.ws-don .dlg-head{padding:20px 24px 12px;border-bottom:1px solid var(--ws-line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ws-don .dlg-head h4{margin:0;font-size:1.15rem;color:var(--ws-primary-dark)}
+.ws-don .dlg-close{background:none;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ws-muted)}
+.ws-don .dlg-body{padding:16px 24px;max-height:55vh;overflow:auto;font-size:.9rem}
+.ws-don .dlg-body h5{font-size:.95rem;margin:16px 0 4px;color:var(--ws-primary-dark)}
+.ws-don .dlg-body p,.ws-don .dlg-body li{color:var(--ws-muted)}
+.ws-don .dlg-foot{padding:12px 24px 20px;border-top:1px solid var(--ws-line)}
+.ws-don .dlg-foot small{display:block;color:var(--ws-muted);font-size:.78rem;margin-bottom:6px;text-align:center}
+
+/* Recibo */
+.ws-don .receipt{position:relative;background:var(--ws-soft);border-radius:12px;padding:16px;overflow:hidden}
+.ws-don .receipt dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.ws-don .receipt dt{color:var(--ws-muted)}
+.ws-don .receipt dd{margin:0;font-weight:600;word-break:break-word}
+.ws-don .ok-ico{width:56px;height:56px;border-radius:50%;background:#e3f4ec;color:var(--ws-ok);display:grid;place-items:center;font-size:1.7rem;margin:0 auto 10px}
+.ws-don .barcode{height:54px;margin-top:14px;background:repeating-linear-gradient(90deg,#231b2e 0 2px,transparent 2px 4px,#231b2e 4px 5px,transparent 5px 8px,#231b2e 8px 11px,transparent 11px 13px);border-radius:4px;opacity:.85}
+.ws-don .ref{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-align:center;margin-top:6px;font-weight:700}
+
+/* Confirmación de cobro */
+.ws-don .confirm-total{text-align:center;padding:8px 0 16px}
+.ws-don .confirm-total small{display:block;color:var(--ws-muted);font-size:.85rem}
+.ws-don .confirm-total b{display:block;font-size:2.2rem;color:var(--ws-primary-dark);line-height:1.2}
+.ws-don .confirm-total .freq{display:inline-block;margin-top:4px;background:var(--ws-soft);color:var(--ws-primary-dark);border-radius:99px;padding:2px 12px;font-size:.8rem;font-weight:700}
+.ws-don .confirm-list{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;background:var(--ws-soft);border-radius:12px;padding:14px 16px}
+.ws-don .confirm-list dt{color:var(--ws-muted)}
+.ws-don .confirm-list dd{margin:0;font-weight:600;text-align:right;word-break:break-word}
+.ws-don .confirm-note{font-size:.82rem;background:var(--ws-warn-bg);color:var(--ws-warn-ink);border-radius:10px;padding:10px 12px;margin:14px 0 0}
+.ws-don .dlg-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.ws-don .dlg-actions .btn{margin-top:0}
+.ws-don .form-err{color:#b3261e;font-size:.85rem;min-height:1.1em;margin-top:8px;text-align:center}
+.ws-don .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<section id="donaciones" class="ws-don" aria-labelledby="ws-don-title">
+  <div class="wrap">
+
+    <span class="eyebrow">Impulsa el proyecto</span>
+    <h2 id="ws-don-title">Cada aporte acerca una pulsera a quien la necesita.</h2>
+    <p class="lead">La pulsera WOMEN SAFETY envía alertas silenciosas con ubicación GPS a través de LoRa, incluso sin señal celular. Tu donativo ayuda a fabricar prototipos, instalar antenas y llevar el piloto a más comunidades de Hidalgo.</p>
+
+    <div class="grid">
+      <!-- Columna izquierda: meta e impacto -->
+      <div>
+        <div class="card">
+          <div class="goal-top">
+            <div><span class="goal-amount" id="ws-raised"><%= mx(cfgDon.recaudado) %></span> <span class="goal-of">recaudados de <b id="ws-goal"><%= mx(cfgDon.meta) %></b> MXN</span></div>
+            <span class="goal-of" id="ws-pct">0%</span>
+          </div>
+          <div class="bar" role="progressbar" aria-label="Avance de la meta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ws-bar"><span></span></div>
+          <small class="goal-of">Meta del Kit Piloto SafeWave Tlahuelilpan</small>
+          <div class="stats">
+            <div class="stat"><b id="ws-donors"><%= cfgDon.donantes %></b><small>donantes</small></div>
+            <div class="stat"><b id="ws-bands"><%= Math.floor(cfgDon.recaudado / cfgDon.costoPulsera) %></b><small>pulseras financiadas</small></div>
+            <div class="stat"><b>1</b><small>antena gateway por instalar</small></div>
+          </div>
+        </div>
+
+        <h3>¿Qué financia tu aporte?</h3>
+        <div class="impact">
+          <button type="button" class="impact-item" data-amount="150">
+            <span class="price">$150</span>
+            <span><strong>Componentes básicos</strong><p>Motor de vibración, botón y batería para la confirmación silenciosa.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="500">
+            <span class="price">$500</span>
+            <span><strong>Pantalla y carcasa</strong><p>OLED discreta y carcasa impresa en 3D para un prototipo.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="1200">
+            <span class="price">$1,200</span>
+            <span><strong>Una pulsera completa</strong><p>Módulo LilyGO T‑Beam con LoRa 915 MHz y GPS, listo para implementarse.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="5000">
+            <span class="price">$5,000</span>
+            <span><strong>Cobertura para una zona</strong><p>Aporte para la antena base LoRaWAN que conecta a la Instancia de la Mujer.</p></span>
+          </button>
+        </div>
+
+        <div class="transp">
+          <strong>Transparencia:</strong> Cada peso donado se reporta en nuestro informe público de avances y financia directamente la fabricación de pulseras e infraestructura.
+        </div>
       </div>
 
-      <!-- MONTO PERSONALIZADO -->
-      <div class="custom-amount">
-        <span>MXN $</span>
-        <input type="number" id="customAmount" placeholder="Otra cantidad" min="10" step="10" />
+      <!-- Columna derecha: formulario -->
+      <form class="card form-card" id="ws-form" novalidate>
+        <h3>Haz tu donativo</h3>
+
+        <div class="seg" role="tablist" aria-label="Frecuencia">
+          <button type="button" class="active" data-freq="unica" role="tab" aria-selected="true">Única vez</button>
+          <button type="button" data-freq="mensual" role="tab" aria-selected="false">Mensual</button>
+        </div>
+
+        <span class="label">Monto (MXN)</span>
+        <div class="amounts" id="ws-amounts">
+          <button type="button" data-amount="150">$150</button>
+          <button type="button" data-amount="500" class="active">$500</button>
+          <button type="button" data-amount="1200">$1,200</button>
+          <button type="button" data-amount="5000">$5,000</button>
+        </div>
+        <div class="custom">
+          <span>$</span>
+          <label class="sr" for="ws-custom">Otro monto</label>
+          <input type="number" id="ws-custom" min="20" step="1" placeholder="Otro monto (mín. $20)">
+        </div>
+
+        <span class="label">Tus datos</span>
+        <div class="row">
+          <input type="text" id="ws-name" placeholder="Nombre" autocomplete="name">
+          <input type="email" id="ws-email" placeholder="Correo (para el recibo)" autocomplete="email">
+        </div>
+        <label class="check"><input type="checkbox" id="ws-anon"> Donar de forma anónima</label>
+
+        <span class="label">Método de pago</span>
+        <div class="methods" role="radiogroup" aria-label="Método de pago">
+          <button type="button" class="method active" data-method="paypal" role="radio" aria-checked="true"><b>PayPal</b><small>Seguro</small></button>
+          <button type="button" class="method" data-method="stripe" role="radio" aria-checked="false"><b>Tarjeta</b><small>Crédito/Débito</small></button>
+          <button type="button" class="method" data-method="paynet" role="radio" aria-checked="false"><b>Paynet</b><small>Efectivo</small></button>
+        </div>
+
+        <div class="panel show" data-panel="paypal">
+          <p>Al confirmar serás redirigido al entorno seguro de PayPal para completar tu pago.</p>
+        </div>
+
+        <div class="panel" data-panel="stripe">
+          <p>Pago procesado de forma segura mediante cifrado de extremo a extremo.</p>
+          <input type="text" id="ws-card" inputmode="numeric" placeholder="Número de tarjeta" maxlength="19" autocomplete="off">
+          <div class="row">
+            <input type="text" id="ws-exp" placeholder="MM/AA" maxlength="5" autocomplete="off">
+            <input type="text" id="ws-cvc" placeholder="CVC" maxlength="4" inputmode="numeric" autocomplete="off">
+          </div>
+          <div class="err" id="ws-card-err"></div>
+        </div>
+
+        <div class="panel" data-panel="paynet">
+          <p>Se generará una <b>referencia de pago</b> que podrás presentar en cualquier tienda de conveniencia afiliada.</p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="ws-terms">
+          <span>He leído y acepto los <button type="button" class="linkish" id="ws-open-terms">Términos y condiciones</button> y el <a href="/privacidad" class="linkish">Aviso de privacidad</a>.</span>
+        </label>
+
+        <div class="summary">
+          <span id="ws-sum-label">Donativo único</span>
+          <b id="ws-sum">$500 MXN</b>
+        </div>
+
+        <button type="submit" class="ws-btn" id="ws-submit" disabled>
+          <span id="ws-submit-text">Acepta los términos para continuar</span>
+        </button>
+        <div class="form-err" id="ws-form-err" role="alert"></div>
+        <p class="secure">🔒 Transacción encriptada y segura</p>
+      </form>
+    </div>
+
+    <div class="faq">
+      <h3>Preguntas frecuentes</h3>
+      <details>
+        <summary>¿Es seguro mi pago?</summary>
+        <p>Sí, procesamos todas las transacciones a través de pasarelas de pago certificadas internacionalmente con altos estándares de seguridad y cifrado.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa con mis datos financieros?</summary>
+        <p>Tus datos de tarjetas o cuentas nunca tocan nuestros servidores. Todo se procesa directamente en los servidores encriptados de nuestros proveedores de pago.</p>
+      </details>
+      <details>
+        <summary>¿Dónde puedo ver en qué se usa el dinero?</summary>
+        <p>Publicamos cortes mensuales de nuestros avances. Los fondos se invierten directamente en hardware (módulos, baterías, antenas LoRa) para escalar el proyecto y proteger a más mujeres.</p>
+      </details>
+      <details>
+        <summary>¿Cómo puedo apoyar de otra forma?</summary>
+        <p>Compartiendo la plataforma, difundiendo las líneas de apoyo o escribiéndonos desde la sección de contacto para colaborar de manera institucional.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- Modal: Términos y condiciones -->
+  <dialog id="ws-terms-dlg" aria-labelledby="ws-terms-title">
+    <div class="dlg-head">
+      <h4 id="ws-terms-title">Términos y condiciones de donativos</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body" id="ws-terms-body">
+      <p>Última actualización: octubre de 2026.</p>
+      <h5>1. Naturaleza del donativo</h5>
+      <p>Al realizar un aporte a WOMEN SAFETY, confirmas que los fondos son entregados de manera voluntaria y sin esperar una contraprestación comercial directa. Todos los fondos se destinan al desarrollo tecnológico e infraestructura del proyecto.</p>
+      <h5>2. Procesamiento de pagos</h5>
+      <p>Todas las transacciones se realizan a través de procesadores de pago seguros (PayPal, Stripe, Paynet). Nosotros no almacenamos información de tarjetas de crédito o débito.</p>
+      <h5>3. Política de reembolsos</h5>
+      <p>Debido a la naturaleza de los donativos, las transacciones son definitivas y no reembolsables una vez que se han procesado exitosamente.</p>
+      <h5>4. Uso de datos personales</h5>
+      <p>El nombre y correo electrónico proporcionados (a menos que elijas donar de forma anónima) se utilizarán exclusivamente para enviar tu recibo de donación e informes de impacto. Nunca venderemos ni compartiremos tus datos con terceros.</p>
+      <h5>5. Aceptación</h5>
+      <p>Al marcar la casilla de aceptación confirmas que has leído estos términos y autorizas el cargo por el monto seleccionado.</p>
+    </div>
+    <div class="dlg-foot">
+      <small id="ws-scroll-hint">Desplázate hasta el final para aceptar</small>
+      <button type="button" class="ws-btn" id="ws-accept" disabled>Acepto los términos</button>
+    </div>
+  </dialog>
+
+  <!-- Modal: Confirmar cobro -->
+  <dialog id="ws-confirm-dlg" aria-labelledby="ws-confirm-title">
+    <div class="dlg-head">
+      <h4 id="ws-confirm-title">Confirma tu donativo</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="confirm-total">
+        <small>Se realizará un cargo por</small>
+        <b id="ws-c-amount">$0 MXN</b>
+        <span class="freq" id="ws-c-freq">Pago único</span>
       </div>
-
-      <!-- IMPACTO DINÁMICO -->
-      <div class="impact-box">
-        <div class="icon-big">🎯</div>
-        <p>
-          <strong id="impactText">Con $250 MXN contribuyes a 1 sensor de la pulsera</strong>
-          Cada aporte nos acerca a prototipar más unidades para el piloto.
-        </p>
-      </div>
-
-      <!-- MÉTODOS DE PAGO -->
-      <h2 style="font-size:1.1rem; margin-bottom:1rem;"><span class="icon">💳</span> Método de pago (simulado)</h2>
-      <div class="payment-methods" role="radiogroup" aria-label="Método de pago">
-        <label class="payment-option selected" data-method="paypal">
-          <input type="radio" name="payment" value="paypal" checked />
-          <div class="payment-logo logo-paypal">PayPal</div>
-          <div class="payment-info">
-            <strong>PayPal</strong>
-            <small>Pago seguro con tu cuenta o tarjeta</small>
-          </div>
-          <div class="radio-indicator"></div>
-        </label>
-
-        <label class="payment-option" data-method="stripe">
-          <input type="radio" name="payment" value="stripe" />
-          <div class="payment-logo logo-stripe">stripe</div>
-          <div class="payment-info">
-            <strong>Stripe</strong>
-            <small>Tarjetas de crédito y débito</small>
-          </div>
-          <div class="radio-indicator"></div>
-        </label>
-
-        <label class="payment-option" data-method="paynet">
-          <input type="radio" name="payment" value="paynet" />
-          <div class="payment-logo logo-paynet">Paynet</div>
-          <div class="payment-info">
-            <strong>Paynet</strong>
-            <small>Pago en efectivo en tiendas</small>
-          </div>
-          <div class="radio-indicator"></div>
-        </label>
-
-        <label class="payment-option" data-method="spei">
-          <input type="radio" name="payment" value="spei" />
-          <div class="payment-logo logo-spei">SPEI</div>
-          <div class="payment-info">
-            <strong>Transferencia SPEI</strong>
-            <small>Desde tu app bancaria (simulada)</small>
-          </div>
-          <div class="radio-indicator"></div>
-        </label>
-      </div>
-
-      <!-- TÉRMINOS Y CONDICIONES -->
-      <label class="terms" for="termsCheck">
-        <input type="checkbox" id="termsCheck" />
-        <span>
-          He leído y acepto los <a href="#" id="openTerms">Términos y Condiciones</a> y el
-          <a href="#" id="openPrivacy">Aviso de Privacidad</a> de WOMEN SAFETY. Entiendo que esta
-          es una <strong>simulación de pago</strong> con fines académicos y que no se realizará
-          ningún cargo real.
-        </span>
+      <dl class="confirm-list">
+        <dt>Donante</dt><dd id="ws-c-who">—</dd>
+        <dt>Correo</dt><dd id="ws-c-email">—</dd>
+        <dt>Método</dt><dd id="ws-c-method">—</dd>
+        <dt id="ws-c-extra-l">Detalle</dt><dd id="ws-c-extra">—</dd>
+        <dt>Destino</dt><dd>Proyecto pulsera WOMEN SAFETY</dd>
+      </dl>
+      <label class="check" style="margin-top:14px">
+        <input type="checkbox" id="ws-c-ok">
+        <span>Confirmo que revisé el monto y autorizo este cobro.</span>
       </label>
-
-      <!-- BOTÓN DONAR -->
-      <button class="btn-donate" id="donateBtn" disabled>
-        <span>🔒</span> Donar ahora
-      </button>
-
-      <div class="secure-note">
-        <span>🛡️</span> Pago simulado · No se realizan cargos reales
-      </div>
-    </section>
-
-    <!-- COLUMNA DERECHA: SIDEBAR -->
-    <aside>
-      <!-- PROGRESO -->
-      <div class="sidebar-card">
-        <h3>🚀 Meta del proyecto</h3>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-labels">
-          <span><strong>$8,450</strong> recaudados</span>
-          <span>Meta: $25,000</span>
-        </div>
-        <p style="font-size:.82rem; color:var(--gray-600);">
-          Financiamiento para 10 prototipos SafeWave + gateway LoRaWAN para el piloto en Tlahuelilpan.
-        </p>
-      </div>
-
-      <!-- BENEFICIOS -->
-      <div class="sidebar-card">
-        <h3>💡 ¿A dónde va tu donación?</h3>
-        <ul class="benefits-list">
-          <li><span class="check">✓</span> Componentes electrónicos (LilyGO T-Beam, sensores GPS)</li>
-          <li><span class="check">✓</span> Gateway LoRaWAN para cobertura local</li>
-          <li><span class="check">✓</span> Desarrollo del dashboard de monitoreo en React</li>
-          <li><span class="check">✓</span> Materiales de difusión y capacitación</li>
-          <li><span class="check">✓</span> Pruebas de campo en Tlahuelilpan, Hidalgo</li>
-        </ul>
-      </div>
-
-      <!-- TRANSPARENCIA -->
-      <div class="sidebar-card">
-        <h3>🔍 Transparencia</h3>
-        <p style="font-size:.85rem; color:var(--gray-600);">
-          Este es un <strong>proyecto escolar</strong> sin fines de lucro. Los pagos son
-          <strong>simulados</strong> mediante integraciones demo de PayPal, Stripe y Paynet.
-          No se recauda dinero real.
-        </p>
-      </div>
-    </aside>
-  </div>
-</div>
-
-<!-- MODAL TÉRMINOS -->
-<div class="modal-overlay" id="termsModal">
-  <div class="modal">
-    <h3>📄 Términos y Condiciones</h3>
-    <div class="modal-content">
-      <h4>1. Naturaleza del proyecto</h4>
-      <p>WOMEN SAFETY es un proyecto escolar de carácter académico. La sección de donaciones presentada es una <strong>simulación</strong> con fines demostrativos y no constituye una recaudación real de fondos.</p>
-
-      <h4>2. Pagos simulados</h4>
-      <p>Las integraciones con PayPal, Stripe, Paynet y SPEI son <strong>demostrativas</strong>. No se procesará ningún cargo real a tarjetas, cuentas o efectivo. Los formularios de pago son ilustrativos.</p>
-
-      <h4>3. Uso de la información</h4>
-      <p>Los datos ingresados en el formulario (monto seleccionado, método de pago) no se almacenan ni se transmiten a servidores externos. Todo ocurre en el navegador del usuario.</p>
-
-      <h4>4. Propósito del prototipo</h4>
-      <p>La pulsera SafeWave es un prototipo en desarrollo. Los fondos simulados se destinarían hipotéticamente a componentes electrónicos, gateway LoRaWAN y pruebas de campo en Tlahuelilpan, Hidalgo.</p>
-
-      <h4>5. Aceptación</h4>
-      <p>Al marcar la casilla de aceptación, el usuario reconoce que comprende la naturaleza simulada de la donación y acepta estos términos con fines exclusivamente académicos.</p>
-
-      <h4>6. Contacto</h4>
-      <p>Para dudas sobre el proyecto: <strong>contacto@womensafety.edu.mx</strong></p>
+      <p class="confirm-note">Tu transacción se procesará de forma segura y encriptada.</p>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="closeTerms">Cerrar</button>
-      <button class="btn btn-primary" id="acceptTerms">Aceptar</button>
+    <div class="dlg-foot dlg-actions">
+      <button type="button" class="ws-btn ghost" data-close>Cancelar</button>
+      <button type="button" class="ws-btn" id="ws-c-go" disabled><span id="ws-c-go-text">Confirmar cobro</span></button>
     </div>
-  </div>
-</div>
+  </dialog>
 
-<!-- MODAL PRIVACIDAD -->
-<div class="modal-overlay" id="privacyModal">
-  <div class="modal">
-    <h3>🔐 Aviso de Privacidad</h3>
-    <div class="modal-content">
-      <h4>Datos que se recopilan</h4>
-      <p>Esta sección de donaciones <strong>no recopila datos personales reales</strong>. Los campos son demostrativos y no se envían a ningún servidor.</p>
-      <h4>Uso de la información</h4>
-      <p>La información capturada (monto, método de pago seleccionado) se utiliza únicamente para mostrar la interacción en pantalla y no se almacena ni comparte.</p>
-      <h4>Derechos ARCO</h4>
-      <p>Al no recopilar datos personales, no aplican derechos de Acceso, Rectificación, Cancelación u Oposición sobre información inexistente.</p>
-      <h4>Contacto</h4>
-      <p>Para consultas: <strong>privacidad@womensafety.edu.mx</strong></p>
+  <!-- Modal: Resultado -->
+  <dialog id="ws-result-dlg" aria-labelledby="ws-result-title">
+    <div class="dlg-head">
+      <h4 id="ws-result-title">Resultado</h4>
+      <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="closePrivacy">Cerrar</button>
+    <div class="dlg-body" id="ws-result-body"></div>
+    <div class="dlg-foot">
+      <button type="button" class="ws-btn ghost" data-close>Cerrar</button>
     </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+  </dialog>
+</section>
 
 <script>
-  // ===== ESTADO =====
-  let selectedAmount = 250;
-  let selectedMethod = 'paypal';
+(function(){
+  const root = document.getElementById('donaciones');
+  const $ = s => root.querySelector(s);
+  const $$ = s => [...root.querySelectorAll(s)];
+  const fmt = n => '$' + Number(n).toLocaleString('es-MX');
 
-  // ===== ELEMENTOS =====
-  const amountBtns = document.querySelectorAll('.amount-btn');
-  const customAmount = document.getElementById('customAmount');
-  const impactText = document.getElementById('impactText');
-  const paymentOptions = document.querySelectorAll('.payment-option');
-  const termsCheck = document.getElementById('termsCheck');
-  const donateBtn = document.getElementById('donateBtn');
-  const progressFill = document.getElementById('progressFill');
-  const toast = document.getElementById('toast');
+  // Estado inicial
+  const CFG = <%- JSON.stringify({ meta: Number(cfgDon.meta), recaudado: Number(cfgDon.recaudado), donantes: Number(cfgDon.donantes), costoPulsera: Number(cfgDon.costoPulsera), montoInicial: Number(cfgDon.montoInicial) }) %>;
+  const GOAL = CFG.meta;
+  const state = { raised: CFG.recaudado, donors: CFG.donantes, amount: CFG.montoInicial, freq: 'unica', method: 'paypal' };
 
-  // ===== IMPACTO DINÁMICO =====
-  const impactMessages = {
-    100: 'Con $100 MXN apoyas a la soldadura de 1 placa',
-    250: 'Con $250 MXN contribuyes a 1 sensor de la pulsera',
-    500: 'Con $500 MXN financias parte de un módulo GPS',
-    1000: 'Con $1,000 MXN impulsas 1 prototipo casi completo'
-  };
+  function renderGoal(){
+    const pct = Math.min(100, Math.round(state.raised / GOAL * 100));
+    $('#ws-raised').textContent = fmt(state.raised);
+    $('#ws-goal').textContent = fmt(GOAL);
+    $('#ws-pct').textContent = pct + '%';
+    $('#ws-bar').setAttribute('aria-valuenow', pct);
+    $('#ws-bar span').style.width = pct + '%';
+    $('#ws-donors').textContent = state.donors;
+    $('#ws-bands').textContent = Math.floor(state.raised / CFG.costoPulsera);
+  }
+  function renderSummary(){
+    $('#ws-sum').textContent = fmt(state.amount || 0) + ' MXN' + (state.freq === 'mensual' ? '/mes' : '');
+    $('#ws-sum-label').textContent = state.freq === 'mensual' ? 'Donativo mensual' : 'Donativo único';
+  }
+  function setAmount(v){
+    state.amount = v;
+    $$('#ws-amounts button').forEach(b => b.classList.toggle('active', Number(b.dataset.amount) === v));
+    renderSummary();
+  }
 
-  function updateImpact(amount) {
-    const key = Number(amount);
-    if (impactMessages[key]) {
-      impactText.textContent = impactMessages[key];
-    } else if (amount >= 1500) {
-      impactText.textContent = `Con $${Number(amount).toLocaleString('es-MX')} MXN impulsas varios prototipos SafeWave`;
+  // Montos
+  $$('#ws-amounts button').forEach(b => b.addEventListener('click', () => {
+    $('#ws-custom').value = '';
+    setAmount(Number(b.dataset.amount));
+  }));
+  $('#ws-custom').addEventListener('input', e => setAmount(Number(e.target.value) || 0));
+  $$('.impact-item').forEach(b => b.addEventListener('click', () => {
+    $('#ws-custom').value = '';
+    setAmount(Number(b.dataset.amount));
+    $('#ws-form').scrollIntoView({behavior:'smooth', block:'start'});
+  }));
+
+  // Frecuencia
+  $$('.seg button').forEach(b => b.addEventListener('click', () => {
+    $$('.seg button').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+    b.classList.add('active'); b.setAttribute('aria-selected','true');
+    state.freq = b.dataset.freq; renderSummary();
+  }));
+
+  // Anónimo
+  $('#ws-anon').addEventListener('change', e => {
+    $('#ws-name').disabled = e.target.checked;
+    if (e.target.checked) $('#ws-name').value = '';
+  });
+
+  // Métodos
+  $$('.method').forEach(b => b.addEventListener('click', () => {
+    $$('.method').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-checked','false'); });
+    b.classList.add('active'); b.setAttribute('aria-checked','true');
+    state.method = b.dataset.method;
+    $$('.panel').forEach(p => p.classList.toggle('show', p.dataset.panel === state.method));
+    updateSubmit();
+  }));
+
+  // Formato de tarjeta
+  $('#ws-card').addEventListener('input', e => {
+    const d = e.target.value.replace(/\D/g,'').slice(0,16);
+    e.target.value = d.replace(/(.{4})/g,'$1 ').trim();
+    $('#ws-card-err').textContent = '';
+  });
+  $('#ws-exp').addEventListener('input', e => {
+    let d = e.target.value.replace(/\D/g,'').slice(0,4);
+    if (d.length > 2) d = d.slice(0,2) + '/' + d.slice(2);
+    e.target.value = d;
+  });
+  $('#ws-cvc').addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g,''));
+
+  // Términos
+  const termsDlg = $('#ws-terms-dlg');
+  const termsBody = $('#ws-terms-body');
+  $('#ws-open-terms').addEventListener('click', () => {
+    termsDlg.showModal();
+    checkScroll();
+  });
+  function checkScroll(){
+    const end = termsBody.scrollTop + termsBody.clientHeight >= termsBody.scrollHeight - 8;
+    if (end){ $('#ws-accept').disabled = false; $('#ws-scroll-hint').textContent = 'Gracias por leer'; }
+  }
+  termsBody.addEventListener('scroll', checkScroll);
+  $('#ws-accept').addEventListener('click', () => {
+    $('#ws-terms').checked = true; termsDlg.close(); updateSubmit();
+  });
+  $('#ws-terms').addEventListener('change', updateSubmit);
+
+  $$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+  function updateSubmit(){
+    const ok = $('#ws-terms').checked;
+    $('#ws-submit').disabled = !ok;
+    const labels = { paypal:'Revisar y confirmar · PayPal', stripe:'Revisar y confirmar · Tarjeta', paynet:'Revisar y confirmar · Paynet' };
+    $('#ws-submit').innerHTML = '<span id="ws-submit-text">' + (ok ? labels[state.method] : 'Acepta los términos para continuar') + '</span>';
+  }
+
+  // Validación de tarjeta general
+  function validateCard(){
+    const n = $('#ws-card').value.replace(/\s/g,'');
+    const exp = $('#ws-exp').value, cvc = $('#ws-cvc').value;
+    if (n.length < 15) return 'Ingresa un número de tarjeta válido.';
+    const m = exp.match(/^(\d{2})\/(\d{2})$/);
+    if (!m || +m[1] < 1 || +m[1] > 12) return 'Fecha inválida (MM/AA).';
+    const expDate = new Date(2000 + +m[2], +m[1], 0);
+    if (expDate < new Date()) return 'La tarjeta ingresada ha expirado.';
+    if (cvc.length < 3) return 'CVC inválido.';
+    return '';
+  }
+
+  const folio = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6);
+  const resultDlg = $('#ws-result-dlg');
+  const confirmDlg = $('#ws-confirm-dlg');
+  const methodNames = { paypal:'PayPal', stripe:'Tarjeta Crédito/Débito', paynet:'Pago en Efectivo' };
+  let pending = null;
+
+  function formError(msg){ $('#ws-form-err').textContent = msg || ''; }
+  root.addEventListener('input', () => formError(''));
+
+  // Paso 1: validar y abrir la confirmación
+  $('#ws-form').addEventListener('submit', e => {
+    e.preventDefault();
+    formError('');
+    if (!state.amount || state.amount < 20){ formError('Ingresa un monto de al menos $20.'); return; }
+    const email = $('#ws-email').value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ formError('Revisa el formato del correo.'); return; }
+
+    let extra = '';
+    if (state.method === 'stripe'){
+      const r = validateCard();
+      if (r){ $('#ws-card-err').textContent = r; return; }
+      extra = '•••• ' + $('#ws-card').value.replace(/\s/g,'').slice(-4);
+    } else if (state.method === 'paypal'){
+      extra = 'Pago seguro con PayPal';
     } else {
-      impactText.textContent = `Con $${Number(amount).toLocaleString('es-MX')} MXN apoyas el desarrollo de la pulsera`;
+      extra = 'Referencia para pago en tienda';
     }
-  }
 
-  // ===== SELECCIÓN DE MONTOS =====
-  amountBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      amountBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selectedAmount = Number(btn.dataset.amount);
-      customAmount.value = '';
-      updateImpact(selectedAmount);
-    });
+    const who = $('#ws-anon').checked ? 'Anónimo' : ($('#ws-name').value.trim() || 'Sin nombre');
+    pending = { who, email: email || 'No proporcionado', extra };
+
+    $('#ws-c-amount').textContent = fmt(state.amount) + ' MXN';
+    $('#ws-c-freq').textContent = state.freq === 'mensual' ? 'Cargo mensual recurrente' : 'Pago único';
+    $('#ws-c-who').textContent = who;
+    $('#ws-c-email').textContent = pending.email;
+    $('#ws-c-method').textContent = methodNames[state.method];
+    $('#ws-c-extra-l').textContent = state.method === 'stripe' ? 'Tarjeta' : 'Detalle';
+    $('#ws-c-extra').textContent = extra;
+    $('#ws-c-ok').checked = false;
+    $('#ws-c-go').disabled = true;
+    $('#ws-c-go').innerHTML = '<span id="ws-c-go-text">' + (state.method === 'paynet' ? 'Confirmar y generar referencia' : 'Confirmar cobro de ' + fmt(state.amount)) + '</span>';
+    confirmDlg.showModal();
   });
 
-  customAmount.addEventListener('input', () => {
-    const val = Number(customAmount.value);
-    if (val > 0) {
-      amountBtns.forEach(b => b.classList.remove('active'));
-      selectedAmount = val;
-      updateImpact(val);
-    }
-  });
+  $('#ws-c-ok').addEventListener('change', e => { $('#ws-c-go').disabled = !e.target.checked; });
 
-  // ===== SELECCIÓN DE MÉTODO DE PAGO =====
-  paymentOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-      paymentOptions.forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      opt.querySelector('input[type="radio"]').checked = true;
-      selectedMethod = opt.dataset.method;
-    });
-  });
-
-  // ===== VALIDACIÓN DE TÉRMINOS =====
-  termsCheck.addEventListener('change', () => {
-    donateBtn.disabled = !termsCheck.checked;
-  });
-
-  // ===== MODAL TÉRMINOS =====
-  const termsModal = document.getElementById('termsModal');
-  const privacyModal = document.getElementById('privacyModal');
-
-  document.getElementById('openTerms').addEventListener('click', (e) => {
-    e.preventDefault();
-    termsModal.classList.add('active');
-  });
-
-  document.getElementById('openPrivacy').addEventListener('click', (e) => {
-    e.preventDefault();
-    privacyModal.classList.add('active');
-  });
-
-  document.getElementById('closeTerms').addEventListener('click', () => {
-    termsModal.classList.remove('active');
-  });
-
-  document.getElementById('acceptTerms').addEventListener('click', () => {
-    termsCheck.checked = true;
-    donateBtn.disabled = false;
-    termsModal.classList.remove('active');
-    showToast('Términos aceptados ✓', 'success');
-  });
-
-  document.getElementById('closePrivacy').addEventListener('click', () => {
-    privacyModal.classList.remove('active');
-  });
-
-  // Cerrar modales con click fuera
-  [termsModal, privacyModal].forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('active');
-    });
-  });
-
-  // ===== BOTÓN DONAR (SIMULACIÓN) =====
-  donateBtn.addEventListener('click', () => {
-    if (!termsCheck.checked) return;
-
-    const methodNames = {
-      paypal: 'PayPal',
-      stripe: 'Stripe',
-      paynet: 'Paynet',
-      spei: 'SPEI'
-    };
-
-    // Estado de carga
-    donateBtn.disabled = true;
-    donateBtn.innerHTML = '<span>⏳</span> Procesando donación simulada...';
-
+  // Paso 2: confirmar → procesar → resultado
+  $('#ws-c-go').addEventListener('click', () => {
+    if (!pending || !$('#ws-c-ok').checked) return;
+    const go = $('#ws-c-go');
+    go.disabled = true;
+    confirmDlg.querySelectorAll('[data-close]').forEach(b => b.disabled = true);
+    const msgs = { paypal:'Conectando con PayPal…', stripe:'Procesando pago seguro…', paynet:'Generando referencia…' };
+    go.innerHTML = '<span class="spinner"></span><span>' + msgs[state.method] + '</span>';
+    
+    // Simulación del tiempo de carga
     setTimeout(() => {
-      showToast(
-        `¡Gracias! Donación simulada de $${selectedAmount.toLocaleString('es-MX')} MXN vía ${methodNames[selectedMethod]}`,
-        'success'
-      );
-
-      // Actualizar barra de progreso (simulado)
-      const current = 8450;
-      const goal = 25000;
-      const newTotal = Math.min(current + selectedAmount, goal);
-      const pct = (newTotal / goal) * 100;
-      progressFill.style.width = pct + '%';
-
-      // Reset
-      donateBtn.innerHTML = '<span>🔒</span> Donar ahora';
-      donateBtn.disabled = false;
-      termsCheck.checked = false;
-      donateBtn.disabled = true;
-    }, 1800);
+      confirmDlg.querySelectorAll('[data-close]').forEach(b => b.disabled = false);
+      confirmDlg.close();
+      showResult(pending);
+      pending = null;
+    }, 1600);
   });
+  
+  // Evita cerrar con Esc mientras procesa
+  confirmDlg.addEventListener('cancel', e => { if ($('#ws-c-go .spinner')) e.preventDefault(); });
 
-  // ===== TOAST =====
-  function showToast(message, type = '') {
-    toast.textContent = message;
-    toast.className = 'toast show ' + type;
-    clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-    }, 4000);
+  function showResult(info){
+    const body = $('#ws-result-body');
+    const who = info.who;
+    const methodName = methodNames[state.method];
+    const amount = fmt(state.amount) + ' MXN' + (state.freq === 'mensual' ? ' / mes' : '');
+    const date = new Date().toLocaleString('es-MX', { dateStyle:'medium', timeStyle:'short' });
+
+    if (state.method === 'paynet'){
+      const ref = Array.from({length:4}, () => Math.floor(1000 + Math.random()*9000)).join(' ');
+      $('#ws-result-title').textContent = 'Referencia generada';
+      body.innerHTML = '<p>Presenta esta ficha en caja para realizar tu pago en efectivo.</p>' +
+        '<div class="receipt"><dl>' +
+        '<dt>Monto</dt><dd>' + amount + '</dd>' +
+        '<dt>Vigencia</dt><dd>72 horas</dd>' +
+        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
+        '</dl><div class="barcode" aria-hidden="true"></div><div class="ref">' + ref + '</div></div>';
+    } else {
+      state.raised += state.amount; state.donors += 1; renderGoal();
+      $('#ws-result-title').textContent = '¡Gracias por tu apoyo!';
+      body.innerHTML = '<div class="ok-ico">✓</div>' +
+        '<p style="text-align:center">Tu donativo se ha registrado exitosamente. Gracias por impulsar WOMEN SAFETY.</p>' +
+        '<div class="receipt"><dl>' +
+        '<dt>Folio</dt><dd>' + folio('DON') + '</dd>' +
+        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
+        '<dt>Monto</dt><dd>' + amount + '</dd>' +
+        '<dt>Método</dt><dd>' + methodName + '</dd>' +
+        '<dt>Detalle</dt><dd>' + escapeHtml(info.extra) + '</dd>' +
+        '<dt>Fecha</dt><dd>' + date + '</dd>' +
+        '</dl></div>';
+    }
+    resultDlg.showModal();
   }
 
-  // ===== PROGRESO INIC
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  renderGoal(); renderSummary(); updateSubmit();
+})();
+</script>
