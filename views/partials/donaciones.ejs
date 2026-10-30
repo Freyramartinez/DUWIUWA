@@ -284,7 +284,7 @@
           <b id="ws-sum">$500 MXN</b>
         </div>
 
-        <button type="submit" class="ws-btn" id="ws-submit" disabled>
+        <button type="submit" class="ws-btn" id="ws-submit" disabled > 
           <span id="ws-submit-text">Acepta los términos para continuar</span>
         </button>
         <div class="form-err" id="ws-form-err" role="alert"></div>
@@ -376,9 +376,16 @@
       <button type="button" class="dlg-close" data-close aria-label="Cerrar">×</button>
     </div>
     <div class="dlg-body" id="ws-result-body"></div>
+    
     <div class="dlg-foot">
+      <!-- Botón de PDF (Oculto por defecto, se muestra solo si el pago fue exitoso) -->
+      <button type="button" class="ws-btn" id="ws-download-pdf" style="display:none; margin-bottom:10px; background-color:#6a1b9a;">
+        Descargar Ticket PDF
+      </button>
+      
       <button type="button" class="ws-btn ghost" data-close>Cerrar</button>
     </div>
+
   </dialog>
 </section>
 
@@ -606,7 +613,7 @@
   // Evita cerrar con Esc mientras procesa
   confirmDlg.addEventListener('cancel', e => { if ($('#ws-c-go .spinner')) e.preventDefault(); });
 
-  function showResult(info){
+    function showResult(info){
     const body = $('#ws-result-body');
     const who = info.who;
     const methodName = methodNames[state.method];
@@ -622,28 +629,97 @@
       $('#ws-result-title').textContent = 'Referencia generada';
       body.innerHTML = '<p>Presenta esta ficha en caja para realizar tu pago en efectivo.</p>' +
         '<div class="receipt"><dl>' +
-        '<dt>Monto</dt><dd>' + amount + '</dd>' +
+        '<dt>Monto</dt><dd id="pdf-monto">' + amount + '</dd>' +
         '<dt>Vigencia</dt><dd>72 horas</dd>' +
-        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
+        '<dt>Donante</dt><dd id="pdf-donante">' + escapeHtml(who) + '</dd>' +
+        '<dt>Folio</dt><dd id="pdf-folio">' + folio('REF') + '</dd>' +
+        '<dt>Método</dt><dd id="pdf-metodo">' + methodName + '</dd>' +
+        '<dt>Fecha</dt><dd id="pdf-fecha">' + date + '</dd>' +
         '</dl><div class="barcode" aria-hidden="true"></div><div class="ref">' + ref + '</div></div>';
+      
+      // Hacemos visible el botón para Paynet
+      document.getElementById('ws-download-pdf').style.display = 'block'; 
+
     } else {
-      state.raised += state.amount; state.donors += 1; renderGoal();
+      state.raised += state.amount; 
+      state.donors += 1; 
+      renderGoal();
+      
       $('#ws-result-title').textContent = '¡Gracias por tu apoyo!';
+      
+      const folioGenerado = folio('DON');
+
       body.innerHTML = '<div class="ok-ico">✓</div>' +
         '<p style="text-align:center">Tu donativo se ha registrado exitosamente. Gracias por impulsar WOMEN SAFETY.</p>' +
         '<div class="receipt"><dl>' +
-        '<dt>Folio</dt><dd>' + folio('DON') + '</dd>' +
-        '<dt>Donante</dt><dd>' + escapeHtml(who) + '</dd>' +
-        '<dt>Monto</dt><dd>' + amount + '</dd>' +
-        '<dt>Método</dt><dd>' + methodName + '</dd>' +
+        '<dt>Folio</dt><dd id="pdf-folio">' + folioGenerado + '</dd>' +
+        '<dt>Donante</dt><dd id="pdf-donante">' + escapeHtml(who) + '</dd>' +
+        '<dt>Monto</dt><dd id="pdf-monto">' + amount + '</dd>' +
+        '<dt>Método</dt><dd id="pdf-metodo">' + methodName + '</dd>' +
         '<dt>Detalle</dt><dd>' + escapeHtml(info.extra) + '</dd>' +
-        '<dt>Fecha</dt><dd>' + date + '</dd>' +
+        '<dt>Fecha</dt><dd id="pdf-fecha">' + date + '</dd>' +
         '</dl></div>';
+        
+      // Hacemos visible el botón para PayPal y Tarjeta
+      document.getElementById('ws-download-pdf').style.display = 'block';
     }
     resultDlg.showModal();
   }
 
   function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // Lógica para descargar el PDF
+  document.getElementById('ws-download-pdf').addEventListener('click', async function() {
+    const btn = this;
+    const textoOriginal = btn.innerHTML;
+    
+    // Cambiamos el texto mientras carga
+    btn.innerHTML = 'Generando PDF...';
+    btn.disabled = true;
+
+    // Tomamos los datos del recibo que acabamos de pintar en el modal
+    const datos = {
+      folio: document.getElementById('pdf-folio').innerText,
+      donante: document.getElementById('pdf-donante').innerText,
+      correo: document.getElementById('ws-email').value || 'No proporcionado',
+      monto: document.getElementById('pdf-monto').innerText.replace('$', '').replace(' MXN', '').replace(' / mes', ''),
+      metodo: document.getElementById('pdf-metodo').innerText,
+      fecha: document.getElementById('pdf-fecha').innerText
+    };
+
+    try {
+      // Hacemos la petición a tu backend (Node.js)
+      const response = await fetch('/donaciones/ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+
+      if (response.ok) {
+        // Si el backend responde con el PDF, lo descargamos
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Ticket-${datos.folio}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        alert('Hubo un error al generar el ticket en el servidor.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error de conexión con el servidor.');
+    } finally {
+      // Restauramos el botón a su estado normal
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+    }
+  });
+
+
 
   renderGoal(); renderSummary(); updateSubmit();
 })();
