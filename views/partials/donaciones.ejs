@@ -534,13 +534,17 @@
 
   // Validación de tarjeta general
   // Devuelve '' si es válida, 'DECLINE' si el banco la rechaza, o el mensaje de error
-  function validateCard(){
+    function validateCard(){
     const n = $('#ws-card').value.replace(/\s/g,'');
     const exp = $('#ws-exp').value, cvc = $('#ws-cvc').value;
-    if (n !== TEST_OK && n !== TEST_DECLINE) return 'Número de tarjeta no válido.';
+    
+    // Aceptar cualquier tarjeta de 16 dígitos
+    if (n.length !== 16) return 'El número de tarjeta debe tener 16 dígitos.';
     if (!/^\d{2}\/\d{2}$/.test(exp)) return 'Fecha inválida (MM/AA).';
     if (!expValid(exp)) return 'La tarjeta ingresada ha expirado.';
     if (cvc.length < 3) return 'CVC inválido.';
+    
+    
     return n === TEST_DECLINE ? 'DECLINE' : '';
   }
 
