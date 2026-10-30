@@ -8,6 +8,15 @@ const session = require("express-session");
 // Railway está detrás de un proxy: necesario para que req.protocol sea "https"
 app.set("trust proxy", 1);
 
+//
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static("public"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 app.use(session({
   secret: process.env.SESSION_SECRET || "cambia-esto-por-una-frase-larga-y-secreta",
   resave: false,
@@ -29,15 +38,15 @@ app.get('/preview/jefe',      (req, res) => res.render('jefe'));
 app.use("/", require("./routes/panelRoutes"));
 ///
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 
 const connectDB = require("./config/db");
 
+
+
+
 app.use("/", require("./routes/web"));
+
 
 const PORT = process.env.PORT || 3000;
 
