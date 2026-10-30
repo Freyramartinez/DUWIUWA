@@ -489,7 +489,7 @@
   function liveCard(){
     const card = $('#ws-card'), exp = $('#ws-exp'), cvc = $('#ws-cvc'), err = $('#ws-card-err');
     const n = card.value.replace(/\s/g,'');
-    const numOk = n === TEST_OK || n === TEST_DECLINE;
+    card.classList.toggle('invalid', n.length === 16 && !numOk);
     const expOk = expValid(exp.value);
     const cvcOk = cvc.value.length >= 3;
     card.classList.toggle('valid', numOk);
