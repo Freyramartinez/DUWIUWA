@@ -8,6 +8,7 @@ const AboutController = require('../controllers/AboutController');
 const MapController = require('../controllers/MapController');
 
 const DonacionController = require('../controllers/DonacionController');
+const { requireRole } = require('../middleware/auth');
 
 // Home route
 router.get("/", ProductController.getAll);
@@ -20,6 +21,10 @@ router.get('/contacto', ContactController.getContactPage);
 
 // Ruta para generar el PDF de la donación (NUEVA)
 router.post('/donaciones/ticket', DonacionController.generarTicket);
+
+// Historial de donaciones
+router.post('/donaciones/registrar', DonacionController.registrar);
+router.get('/donaciones/historial', requireRole('jefe'), DonacionController.historial);
 
 // Alias para el mapa (soporta tanto /mapa como /ubicacion)
 const { getMap, getPlaces } = require('../controllers/MapController');
