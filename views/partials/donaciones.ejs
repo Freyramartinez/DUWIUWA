@@ -618,7 +618,22 @@
   // Evita cerrar con Esc mientras procesa
   confirmDlg.addEventListener('cancel', e => { if ($('#ws-c-go .spinner')) e.preventDefault(); });
 
-    function showResult(info){
+      function registrarDonacion(folioTxt, who, methodName, estado){
+    fetch('/donaciones/registrar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        folio: folioTxt,
+        donante: who,
+        correo: $('#ws-email').value.trim(),
+        monto: state.amount,
+        metodo: methodName,
+        frecuencia: state.freq,
+        estado: estado
+      })
+    }).catch(err => console.error('No se registró la donación:', err));
+  }
+  function showResult(info){
     const body = $('#ws-result-body');
     const who = info.who;
     const methodName = methodNames[state.method];
@@ -631,13 +646,15 @@
         '<p style="text-align:center">Tu banco rechazó la transacción. Intenta con otra tarjeta u otro método de pago.</p>';
     } else if (state.method === 'paynet'){
       const ref = Array.from({length:4}, () => Math.floor(1000 + Math.random()*9000)).join(' ');
+      const folioRef = folio('REF');
+      registrarDonacion(folioRef, who, methodName, 'pendiente');
       $('#ws-result-title').textContent = 'Referencia generada';
       body.innerHTML = '<p>Presenta esta ficha en caja para realizar tu pago en efectivo.</p>' +
         '<div class="receipt"><dl>' +
         '<dt>Monto</dt><dd id="pdf-monto">' + amount + '</dd>' +
         '<dt>Vigencia</dt><dd>72 horas</dd>' +
         '<dt>Donante</dt><dd id="pdf-donante">' + escapeHtml(who) + '</dd>' +
-        '<dt>Folio</dt><dd id="pdf-folio">' + folio('REF') + '</dd>' +
+        '<dt>Folio</dt><dd id="pdf-folio">' + folioRef + '</dd>' +
         '<dt>Método</dt><dd id="pdf-metodo">' + methodName + '</dd>' +
         '<dt>Fecha</dt><dd id="pdf-fecha">' + date + '</dd>' +
         '</dl><div class="barcode" aria-hidden="true"></div><div class="ref">' + ref + '</div></div>';
@@ -653,6 +670,7 @@
       $('#ws-result-title').textContent = '¡Gracias por tu apoyo!';
       
       const folioGenerado = folio('DON');
+      registrarDonacion(folioGenerado, who, methodName, 'completada');
 
       body.innerHTML = '<div class="ok-ico">✓</div>' +
         '<p style="text-align:center">Tu donativo se ha registrado exitosamente. Gracias por impulsar WOMEN SAFETY.</p>' +

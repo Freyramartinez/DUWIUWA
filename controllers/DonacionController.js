@@ -1,5 +1,6 @@
 // controllers/DonacionController.js
 const PDFDocument = require('pdfkit');
+const Donacion = require('../models/Donacion');
 
 exports.generarTicket = (req, res) => {
   try {
@@ -52,5 +53,50 @@ exports.generarTicket = (req, res) => {
   } catch (error) {
     console.error('Error al generar PDF:', error);
     res.status(500).send('Error al generar el ticket');
+  }
+};
+
+const METODOS = ['PayPal', 'Tarjeta Crédito/Débito', 'Pago en Efectivo'];
+
+exports.registrar = async (req, res) => {
+  try {
+    const { folio, donante, correo, monto, metodo, frecuencia, estado } = req.body;
+    const montoNum = Number(monto);
+
+    if (!folio || !Number.isFinite(montoNum) || montoNum < 20 || montoNum > 50000 || !METODOS.includes(metodo)) {
+      return res.status(400).json({ ok: false, error: 'Datos de donación inválidos' });
+    }
+
+    await Donacion.updateOne(
+      { folio: String(folio) },
+      { $setOnInsert: {
+          folio: String(folio),
+          donante: String(donante || 'Anónimo').slice(0, 120),
+          correo: String(correo || '').slice(0, 160),
+          monto: montoNum,
+          metodo,
+          frecuencia: frecuencia === 'mensual' ? 'mensual' : 'unica',
+          estado: estado === 'pendiente' ? 'pendiente' : 'completada',
+          fecha: new Date()
+      } },
+      { upsert: true }
+    );
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error al registrar donación:', error);
+    res.status(500).json({ ok: false, error: 'No se pudo registrar' });
+  }
+};
+
+exports.historial = async (req, res) => {
+  try {
+    const donaciones = await Donacion.find().sort({ fecha: -1 }).lean();
+    const total = donaciones
+      .filter(d => d.estado === 'completada')
+      .reduce((suma, d) => suma + d.monto, 0);
+    res.render('historial-donaciones', { donaciones, total });
+  } catch (error) {
+    console.error('Error al cargar historial:', error);
+    res.status(500).send('Error al cargar el historial');
   }
 };
