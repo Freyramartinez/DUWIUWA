@@ -1,488 +1,118 @@
-<!-- ESTILOS DEL CARRUSEL -->
 <style>
-    /* ===== CARRUSEL ===== */
+  .ws-car { background:#fff8fc; padding:72px 0; }
+  .ws-car h2.ws-car-title { color:#8e3a68; font-weight:800; font-size:2.3rem; text-align:center; margin-bottom:8px; }
+  .ws-car .ws-car-sub { text-align:center; color:#6f6470; margin-bottom:36px; }
 
-    .shero-carousel-wrapper {
-        border-radius: 24px;
-        box-shadow: 0 25px 50px rgba(142, 58, 104, 0.2);
-        overflow: hidden;
-    }
+  .ws-car .ws-car-card { background:#fff; border-radius:24px; box-shadow:0 20px 50px rgba(142,58,104,.15); overflow:hidden; }
+  .ws-car .carousel-item .row { min-height:400px; }
 
-    /* Altura del carrusel */
-    .shero-carousel-wrapper .carousel-item {
-        height: 550px;
-        position: relative;
-    }
+  .ws-car .ws-car-text { padding:40px; display:flex; flex-direction:column; justify-content:center; }
+  .ws-car .ws-car-icon { width:56px; height:56px; border-radius:50%; background:#f8e8f1; color:#8e3a68; display:grid; place-items:center; font-size:1.6rem; margin-bottom:16px; }
+  .ws-car .ws-car-count { font-size:.8rem; font-weight:700; letter-spacing:.12em; color:#b34d83; margin-bottom:8px; }
+  .ws-car h3 { font-size:1.9rem; font-weight:800; color:#2b1d25; line-height:1.15; margin-bottom:14px; }
+  .ws-car .ws-car-text p { color:#6f6470; font-size:1.05rem; line-height:1.65; margin:0; }
 
-    /* Imagen */
-    .shero-carousel-wrapper .carousel-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
+  .ws-car .ws-car-img { height:100%; min-height:400px; padding:16px; }
+  .ws-car .ws-car-img img { width:100%; height:100%; min-height:368px; object-fit:cover; border-radius:18px; display:block; }
 
-    /* Degradado sobre la imagen */
-    .overlay-gradient {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-            90deg,
-            rgba(45, 36, 48, 0.95) 0%,
-            rgba(142, 58, 104, 0.6) 55%,
-            rgba(0, 0, 0, 0) 100%
-        );
-        z-index: 1;
-    }
+  /* Pestañas (usan los indicadores de Bootstrap) */
+  .ws-car .carousel-indicators { position:static; margin:0; padding:20px 16px 8px; justify-content:center; flex-wrap:wrap; gap:8px; }
+  .ws-car .carousel-indicators [data-bs-target] { width:auto; height:auto; text-indent:0; margin:0; flex:none; padding:8px 16px; border:1.5px solid #efdbe6; border-radius:99px; background:#fff; color:#6f6470; opacity:1; font-weight:600; font-size:.9rem; box-sizing:border-box; }
+  .ws-car .carousel-indicators .active { background:#8e3a68; border-color:#8e3a68; color:#fff; }
 
-    /* Texto */
-    .carousel-caption-custom {
-        position: absolute;
-        z-index: 2;
-        top: 0;
-        bottom: 0;
-        left: 8%;
-        right: 25%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: left;
-    }
+  .ws-car .ws-car-arrows { display:flex; justify-content:center; gap:12px; padding:4px 0 20px; }
+  .ws-car .ws-car-arrow { width:44px; height:44px; border-radius:50%; border:1.5px solid #efdbe6; background:#fff; color:#8e3a68; display:grid; place-items:center; cursor:pointer; transition:background .2s,color .2s; }
+  .ws-car .ws-car-arrow:hover { background:#8e3a68; color:#fff; }
 
-    .slide-title-overlay {
-        color: #ffffff;
-        font-size: 3.2rem;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 20px;
-        letter-spacing: -1px;
-        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .slide-text-overlay {
-        color: #f8f9fa;
-        font-size: 1.25rem;
-        line-height: 1.6;
-        margin: 0;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    /* Botones */
-    .btn-carrusel {
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        margin: 0 20px;
-        z-index: 3;
-        transition: all 0.3s ease;
-    }
-
-    .btn-carrusel:hover {
-        background: #8e3a68;
-        border-color: #8e3a68;
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    /* Indicadores */
-    .carousel-indicators {
-        z-index: 3;
-        bottom: 20px;
-    }
-
-    .carousel-indicators [data-bs-target] {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: white;
-        margin: 0 8px;
-        opacity: 0.5;
-        transition: all 0.3s ease;
-    }
-
-    .carousel-indicators .active {
-        opacity: 1;
-        width: 30px;
-        border-radius: 10px;
-        background-color: #fbeaf3;
-    }
-
-
-    /* ==========================================
-       RESPONSIVE - TABLET
-       ========================================== */
-
-    @media (max-width: 992px) {
-
-        .shero-carousel-wrapper .carousel-item {
-            height: 500px;
-        }
-
-        .carousel-caption-custom {
-            left: 7%;
-            right: 15%;
-        }
-
-        .slide-title-overlay {
-            font-size: 2.5rem;
-        }
-
-        .slide-text-overlay {
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
-    }
-
-
-    /* ==========================================
-       RESPONSIVE - CELULAR
-       ========================================== */
-
-    @media (max-width: 768px) {
-
-        .shero-carousel-wrapper .carousel-item {
-            height: 520px;
-        }
-
-        .overlay-gradient {
-            background: linear-gradient(
-                180deg,
-                rgba(45, 36, 48, 0.35) 0%,
-                rgba(45, 36, 48, 0.92) 65%,
-                rgba(45, 36, 48, 0.98) 100%
-            );
-        }
-
-        .carousel-caption-custom {
-            left: 7%;
-            right: 7%;
-            top: auto;
-            bottom: 65px;
-            height: auto;
-            justify-content: flex-end;
-        }
-
-        .slide-title-overlay {
-            font-size: 2rem;
-            line-height: 1.15;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
-        }
-
-        .slide-text-overlay {
-            font-size: 0.98rem;
-            line-height: 1.45;
-        }
-
-        .btn-carrusel {
-            width: 42px;
-            height: 42px;
-            margin: 0 8px;
-        }
-
-        .carousel-indicators {
-            bottom: 12px;
-        }
-
-        .carousel-indicators [data-bs-target] {
-            width: 9px;
-            height: 9px;
-            margin: 0 5px;
-        }
-
-        .carousel-indicators .active {
-            width: 22px;
-        }
-    }
-
-
-    /* ==========================================
-       CELULAR PEQUEÑO
-       ========================================== */
-
-    @media (max-width: 480px) {
-
-        .shero-carousel-wrapper .carousel-item {
-            height: 540px;
-        }
-
-        .carousel-caption-custom {
-            left: 6%;
-            right: 6%;
-            bottom: 58px;
-        }
-
-        .slide-title-overlay {
-            font-size: 1.65rem;
-            margin-bottom: 10px;
-        }
-
-        .slide-text-overlay {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .btn-carrusel {
-            width: 38px;
-            height: 38px;
-            margin: 0 5px;
-        }
-    }
+  @media (max-width:991px) {
+    .ws-car { padding:48px 0; }
+    .ws-car .ws-car-text { padding:28px 24px 12px; }
+    .ws-car h3 { font-size:1.5rem; }
+    .ws-car .ws-car-img { min-height:0; padding:16px 16px 0; }
+    .ws-car .ws-car-img img { min-height:0; height:240px; }
+    .ws-car .carousel-item .row { min-height:0; }
+  }
 </style>
 
+<section id="slider" class="ws-car">
+  <div class="container">
+    <h2 class="ws-car-title">Cómo funciona la pulsera</h2>
+    <p class="ws-car-sub">Cuatro funciones pensadas para actuar rápido y sin llamar la atención.</p>
 
-<!-- ==============================================
-     CARRUSEL - DESCRIPCIÓN DEL SERVICIO
-     ============================================== -->
+    <div id="sheroCarousel" class="carousel slide ws-car-card" data-bs-ride="carousel">
 
-<section id="slider" class="py-5" style="background:#fff8fc;">
+      <div class="carousel-inner">
 
-    <div class="container">
-
-        <h2
-            class="text-center mb-5"
-            style="
-                color:#8e3a68;
-                font-weight:800;
-                font-size:2.5rem;
-            "
-        >
-            Descripción del servicio
-        </h2>
-
-
-        <div
-            id="sheroCarousel"
-            class="carousel slide carousel-fade shero-carousel-wrapper"
-            data-bs-ride="carousel"
-        >
-
-            <!-- INDICADORES -->
-
-            <div class="carousel-indicators">
-
-                <button
-                    type="button"
-                    data-bs-target="#sheroCarousel"
-                    data-bs-slide-to="0"
-                    class="active"
-                    aria-current="true"
-                    aria-label="Slide 1"
-                ></button>
-
-                <button
-                    type="button"
-                    data-bs-target="#sheroCarousel"
-                    data-bs-slide-to="1"
-                    aria-label="Slide 2"
-                ></button>
-
-                <button
-                    type="button"
-                    data-bs-target="#sheroCarousel"
-                    data-bs-slide-to="2"
-                    aria-label="Slide 3"
-                ></button>
-
-                <button
-                    type="button"
-                    data-bs-target="#sheroCarousel"
-                    data-bs-slide-to="3"
-                    aria-label="Slide 4"
-                ></button>
-
+        <div class="carousel-item active">
+          <div class="row g-0 align-items-center">
+            <div class="col-lg-6 order-2 order-lg-1 ws-car-text">
+              <div class="ws-car-icon"><i class="bi bi-hand-index"></i></div>
+              <div class="ws-car-count">01 / 04</div>
+              <h3>Activación con control total</h3>
+              <p>Un toque corto cancela una alerta accidental sin avisar a nadie. Mantener el botón 3 segundos bajo coacción envía la alerta real, mientras la pantalla OLED sigue mostrando algo neutro, como si nada pasara.</p>
             </div>
-
-
-            <!-- CONTENIDO DEL CARRUSEL -->
-
-            <div class="carousel-inner">
-
-
-                <!-- =================================
-                     SLIDE 1
-                     ================================= -->
-
-                <div class="carousel-item active">
-
-                    <!-- CORREGIDO: /img/ en lugar de /public/img/ -->
-                    <img
-                        src="/img/m1.jpg"
-                        alt="Activación con control total"
-                    >
-
-                    <div class="overlay-gradient"></div>
-
-                    <div class="carousel-caption-custom">
-
-                        <h4 class="slide-title-overlay">
-                            Activación con control total
-                        </h4>
-
-                        <p class="slide-text-overlay">
-                            Un toque corto cancela una alerta accidental sin
-                            avisar a nadie. Mantener el botón 3 segundos bajo
-                            coacción envía la alerta real, mientras la pantalla
-                            OLED sigue mostrando algo neutro, como si nada pasara.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================
-                     SLIDE 2
-                     ================================= -->
-
-                <div class="carousel-item">
-
-                    <!-- CORREGIDO -->
-                    <img
-                        src="/img/m2.jpg"
-                        alt="Confirmación silenciosa"
-                    >
-
-                    <div class="overlay-gradient"></div>
-
-                    <div class="carousel-caption-custom">
-
-                        <h4 class="slide-title-overlay">
-                            Confirmación silenciosa
-                        </h4>
-
-                        <p class="slide-text-overlay">
-                            Una vibración corta y discreta confirma que la alerta
-                            se envió correctamente, sin luces ni sonidos que la
-                            delaten frente al agresor.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================
-                     SLIDE 3
-                     ================================= -->
-
-                <div class="carousel-item">
-
-                    <!-- CORREGIDO -->
-                    <img
-                        src="/img/m3.jpg"
-                        alt="Modo Acompáñame"
-                    >
-
-                    <div class="overlay-gradient"></div>
-
-                    <div class="carousel-caption-custom">
-
-                        <h4 class="slide-title-overlay">
-                            Modo "Acompáñame"
-                        </h4>
-
-                        <p class="slide-text-overlay">
-                            Activación voluntaria para trayectos cortos: la pulsera
-                            comparte su ubicación con tus contactos de confianza
-                            cada cierto tiempo mientras caminas a casa. Uso diario,
-                            no solo de emergencia.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================
-                     SLIDE 4
-                     ================================= -->
-
-                <div class="carousel-item">
-
-                    <!-- CORREGIDO -->
-                    <img
-                        src="/img/m4.jpg"
-                        alt="Funciona sin señal celular"
-                    >
-
-                    <div class="overlay-gradient"></div>
-
-                    <div class="carousel-caption-custom">
-
-                        <h4 class="slide-title-overlay">
-                            Funciona sin señal celular
-                        </h4>
-
-                        <p class="slide-text-overlay">
-                            Comunicación LoRa 915 MHz de largo alcance y bajo
-                            consumo. La alerta llega aunque no haya cobertura móvil,
-                            y queda registrada con GPS y sello de tiempo como evidencia.
-                        </p>
-
-                    </div>
-
-                </div>
-
+            <div class="col-lg-6 order-1 order-lg-2 ws-car-img">
+              <img src="/img/m1.jpg" alt="Activación con control total">
             </div>
-
-
-            <!-- =================================
-                 BOTÓN ANTERIOR
-                 ================================= -->
-
-            <button
-                class="carousel-control-prev btn-carrusel"
-                type="button"
-                data-bs-target="#sheroCarousel"
-                data-bs-slide="prev"
-                aria-label="Anterior"
-            >
-
-                <span
-                    class="carousel-control-prev-icon"
-                    aria-hidden="true"
-                ></span>
-
-                <span class="visually-hidden">
-                    Anterior
-                </span>
-
-            </button>
-
-
-            <!-- =================================
-                 BOTÓN SIGUIENTE
-                 ================================= -->
-
-            <button
-                class="carousel-control-next btn-carrusel"
-                type="button"
-                data-bs-target="#sheroCarousel"
-                data-bs-slide="next"
-                aria-label="Siguiente"
-            >
-
-                <span
-                    class="carousel-control-next-icon"
-                    aria-hidden="true"
-                ></span>
-
-                <span class="visually-hidden">
-                    Siguiente
-                </span>
-
-            </button>
-
+          </div>
         </div>
 
-    </div>
+        <div class="carousel-item">
+          <div class="row g-0 align-items-center">
+            <div class="col-lg-6 order-2 order-lg-1 ws-car-text">
+              <div class="ws-car-icon"><i class="bi bi-check2-circle"></i></div>
+              <div class="ws-car-count">02 / 04</div>
+              <h3>Confirmación silenciosa</h3>
+              <p>Una vibración corta y discreta confirma que la alerta se envió correctamente, sin luces ni sonidos que la delaten frente al agresor.</p>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 ws-car-img">
+              <img src="/img/m2.jpg" alt="Confirmación silenciosa">
+            </div>
+          </div>
+        </div>
 
+        <div class="carousel-item">
+          <div class="row g-0 align-items-center">
+            <div class="col-lg-6 order-2 order-lg-1 ws-car-text">
+              <div class="ws-car-icon"><i class="bi bi-geo-alt"></i></div>
+              <div class="ws-car-count">03 / 04</div>
+              <h3>Modo "Acompáñame"</h3>
+              <p>Activación voluntaria para trayectos cortos: la pulsera comparte su ubicación con tus contactos de confianza cada cierto tiempo mientras caminas a casa. Uso diario, no solo de emergencia.</p>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 ws-car-img">
+              <img src="/img/m3.jpg" alt="Modo Acompáñame">
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-item">
+          <div class="row g-0 align-items-center">
+            <div class="col-lg-6 order-2 order-lg-1 ws-car-text">
+              <div class="ws-car-icon"><i class="bi bi-broadcast"></i></div>
+              <div class="ws-car-count">04 / 04</div>
+              <h3>Funciona sin señal celular</h3>
+              <p>Comunicación LoRa 915 MHz de largo alcance y bajo consumo. La alerta llega aunque no haya cobertura móvil, y queda registrada con GPS y sello de tiempo como evidencia.</p>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 ws-car-img">
+              <img src="/img/m4.jpg" alt="Funciona sin señal celular">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Activación">Activación</button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="1" aria-label="Confirmación">Confirmación</button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="2" aria-label="Acompáñame">Acompáñame</button>
+        <button type="button" data-bs-target="#sheroCarousel" data-bs-slide-to="3" aria-label="Sin señal">Sin señal</button>
+      </div>
+
+      <div class="ws-car-arrows">
+        <button class="ws-car-arrow" type="button" data-bs-target="#sheroCarousel" data-bs-slide="prev" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+        <button class="ws-car-arrow" type="button" data-bs-target="#sheroCarousel" data-bs-slide="next" aria-label="Siguiente"><i class="bi bi-chevron-right"></i></button>
+      </div>
+
+    </div>
+  </div>
 </section>
