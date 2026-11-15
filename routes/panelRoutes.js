@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-router.use(express.urlencoded({ extended: true })); // lee los datos de los formularios (req.body)
+router.use(express.urlencoded({ extended: true }));
+
 const { requireLogin, requireRole } = require('../middleware/auth');
 const Account = require('../controllers/AccountController');
 const Jefe = require('../controllers/JefeController');
 const Psicologa = require('../controllers/PsicologaController');
 const Victima = require('../controllers/VictimaController');
+const Seguridad = require('../controllers/SeguridadController'); // 👈 1. Importar controlador
 const Verificacion = require('../controllers/VerificationController');
 
 // Verificación de correo por código (públicas)
@@ -13,7 +15,7 @@ router.get('/verificar', Verificacion.form);
 router.post('/verificar', Verificacion.verificar);
 router.post('/verificar/reenviar', Verificacion.reenviar);
 
-// Cambio de contraseña (obligatorio en el primer inicio de las psicólogas)
+// Cambio de contraseña
 router.get('/cambiar-password', requireLogin, Account.form);
 router.post('/cambiar-password', requireLogin, Account.cambiar);
 
@@ -31,5 +33,10 @@ router.post('/psicologa/citas/:id/cancelar', requireRole('psicologa'), Psicologa
 // Víctima
 router.get('/victima', requireRole('victima'), Victima.panel);
 router.post('/victima/citas/:id/cancelar', requireRole('victima'), Victima.cancelar);
+
+// Seguridad Pública (Conectado a Node-RED)
+
+router.get('/seguridad', requireRole('seguridad'), Seguridad.panel);
+router.get('/seguridad/estado', requireRole('seguridad'), Seguridad.estadoAlerta); // 👈 Nueva ruta API
 
 module.exports = router;

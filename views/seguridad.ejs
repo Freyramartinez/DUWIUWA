@@ -1,0 +1,221 @@
+<%- include('partials/panel-top', { titulo, rol, nombre }) %>
+
+<!-- Estilos de Leaflet para el mapa -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  .ws-brand-text { color: #831843; }
+  .ws-bg-brand { background-color: #831843; color: #fff; }
+  .ws-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+  }
+  .ws-pulse {
+    animation: pulse-red 1.5s infinite;
+  }
+  @keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+</style>
+
+<div class="container-fluid py-4 px-lg-4">
+  <!-- Encabezado -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold ws-brand-text mb-1" style="font-family: 'Playfair Display', serif;">
+        Centro de Monitoreo · Seguridad Pública
+      </h3>
+      <p class="text-muted mb-0 small">Supervisión en tiempo real de dispositivos de emergencia Women Safety</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span id="badge-conexion" class="badge bg-secondary-subtle text-secondary-emphasis border px-3 py-2 rounded-pill">
+        <i class="bi bi-arrow-repeat me-1"></i> Conectando con Node-RED...
+      </span>
+      <a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold">
+        <i class="bi bi-telephone-fill me-1"></i> Enlace 911
+      </a>
+    </div>
+  </div>
+
+  <!-- Tarjetas de estado (KPIs) -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div id="card-estado" class="card ws-card h-100 p-3 border-start border-4 border-success">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Situación Actual</span>
+            <h4 id="txt-estado" class="fw-bold text-success mt-1 mb-0">TODO EN ORDEN</h4>
+          </div>
+          <div id="icon-estado" class="rounded-circle bg-success-subtle text-success p-2">
+            <i class="bi bi-shield-check fs-4"></i>
+          </div>
+        </div>
+        <small id="txt-actualizacion" class="text-muted mt-3 d-block">Último reporte: --:--:--</small>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card ws-card h-100 p-3 border-start border-4" style="border-color: #831843 !important;">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Dispositivo / Usuaria</span>
+            <h5 id="txt-usuaria" class="fw-bold text-dark mt-1 mb-0">Sin alertas activas</h5>
+          </div>
+          <div class="rounded-circle p-2" style="background-color: #fdf2f8; color: #831843;">
+            <i class="bi bi-person-heart fs-4"></i>
+          </div>
+        </div>
+        <small id="txt-coords" class="text-muted mt-3 d-block">Coordenadas: 20.1304, -99.2333</small>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card ws-card h-100 p-3 border-start border-4 border-primary">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Batería Pulsera</span>
+            <h4 id="txt-bateria" class="fw-bold text-dark mt-1 mb-0">-- %</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle text-primary p-2">
+            <i class="bi bi-battery-charging fs-4"></i>
+          </div>
+        </div>
+        <small class="text-muted mt-3 d-block">Telemetría IoT vía Node-RED</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa y Bitácora -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card ws-card overflow-hidden">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <span class="fw-bold ws-brand-text"><i class="bi bi-geo-alt-fill me-2"></i>Geolocalización en Tiempo Real</span>
+          <button onclick="centrarMapa()" class="btn btn-sm btn-outline-secondary rounded-pill">
+            <i class="bi bi-crosshair me-1"></i> Centrar ubicación
+          </button>
+        </div>
+        <div id="mapa-seguridad" style="height: 460px; width: 100%; z-index: 1;"></div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card ws-card h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <span class="fw-bold ws-brand-text"><i class="bi bi-clock-history me-2"></i>Bitácora de Eventos</span>
+        </div>
+        <div class="card-body p-3" style="max-height: 460px; overflow-y: auto;">
+          <ul id="lista-eventos" class="list-group list-group-flush small">
+            <li class="list-group-item text-muted text-center py-4">
+              En espera de señales de la pulsera...
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script de Leaflet y actualización en vivo -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  let latActual = 20.1304;
+  let lngActual = -99.2333;
+  let ultimoEstadoAlerta = null;
+
+  // Inicializar mapa
+  const mapa = L.map('mapa-seguridad').setView([latActual, lngActual], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(mapa);
+
+  const marcador = L.marker([latActual, lngActual]).addTo(mapa)
+    .bindPopup('<b>Ubicación del dispositivo</b><br>Monitoreo activo')
+    .openPopup();
+
+  function centrarMapa() {
+    mapa.setView([latActual, lngActual], 16);
+  }
+
+  function agregarEvento(texto, esAlerta) {
+    const lista = document.getElementById('lista-eventos');
+    if (lista.children.length === 1 && lista.children[0].classList.contains('text-center')) {
+      lista.innerHTML = '';
+    }
+    const li = document.createElement('li');
+    li.className = `list-group-item px-2 py-2 ${esAlerta ? 'list-group-item-danger fw-semibold' : ''}`;
+    li.innerHTML = `<span class="text-muted me-1">[${new Date().toLocaleTimeString()}]</span> ${texto}`;
+    lista.prepend(li);
+  }
+
+  async function consultarNodeRed() {
+    try {
+      const res = await fetch('/seguridad/estado');
+      const data = await res.json();
+
+      // Badge de conexión
+      const badge = document.getElementById('badge-conexion');
+      if (data.conectado) {
+        badge.className = 'badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2 rounded-pill';
+        badge.innerHTML = '<i class="bi bi-broadcast me-1"></i> Node-RED En Línea';
+      } else {
+        badge.className = 'badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill';
+        badge.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Node-RED Sin Conexión (Modo Espera)';
+      }
+
+      // Actualizar tarjeta de alerta
+      const cardEstado = document.getElementById('card-estado');
+      const txtEstado = document.getElementById('txt-estado');
+      const iconEstado = document.getElementById('icon-estado');
+
+      if (data.alertaActiva) {
+        cardEstado.className = 'card ws-card h-100 p-3 border-start border-4 border-danger ws-pulse';
+        txtEstado.className = 'fw-bold text-danger mt-1 mb-0';
+        txtEstado.textContent = '¡ALERTA SOS ACTIVA!';
+        iconEstado.className = 'rounded-circle bg-danger-subtle text-danger p-2';
+        iconEstado.innerHTML = '<i class="bi bi-exclamation-triangle-fill fs-4"></i>';
+      } else {
+        cardEstado.className = 'card ws-card h-100 p-3 border-start border-4 border-success';
+        txtEstado.className = 'fw-bold text-success mt-1 mb-0';
+        txtEstado.textContent = 'TODO EN ORDEN';
+        iconEstado.className = 'rounded-circle bg-success-subtle text-success p-2';
+        iconEstado.innerHTML = '<i class="bi bi-shield-check fs-4"></i>';
+      }
+
+      // Registrar cambio en bitácora si cambió el estado
+      if (ultimoEstadoAlerta !== data.alertaActiva) {
+        agregarEvento(
+          data.alertaActiva ? `🚨 Alerta SOS activada por ${data.usuaria}` : '✅ Estado normalizado',
+          data.alertaActiva
+        );
+        ultimoEstadoAlerta = data.alertaActiva;
+      }
+
+      // Datos de usuaria y batería
+      document.getElementById('txt-usuaria').textContent = data.usuaria || 'Usuaria #01';
+      document.getElementById('txt-bateria').textContent = data.bateria !== '--' ? `${data.bateria}%` : '-- %';
+      document.getElementById('txt-actualizacion').textContent = `Último reporte: ${data.ultimaActualizacion || new Date().toLocaleTimeString()}`;
+
+      // Actualizar coordenadas en mapa
+      if (data.lat && data.lng) {
+        latActual = parseFloat(data.lat);
+        lngActual = parseFloat(data.lng);
+        marcador.setLatLng([latActual, lngActual]);
+        document.getElementById('txt-coords').textContent = `Coordenadas: ${latActual.toFixed(5)}, ${lngActual.toFixed(5)}`;
+        if (data.alertaActiva) centrarMapa();
+      }
+    } catch (e) {
+      console.error('Error consultando estado:', e);
+    }
+  }
+
+  // Consultar cada 3 segundos
+  consultarNodeRed();
+  setInterval(consultarNodeRed, 3000);
+</script>
+
+<%- include('partials/panel-bottom') %>
