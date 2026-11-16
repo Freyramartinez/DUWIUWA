@@ -35,8 +35,8 @@ router.get('/victima', requireRole('victima'), Victima.panel);
 router.post('/victima/citas/:id/cancelar', requireRole('victima'), Victima.cancelar);
 
 // Seguridad Pública (Conectado a Node-RED)
-
 router.get('/seguridad', requireRole('seguridad'), Seguridad.panel);
-router.get('/seguridad/estado', requireRole('seguridad'), Seguridad.estadoAlerta); // 👈 Nueva ruta API
+router.get('/seguridad/estado', requireRole('seguridad'), Seguridad.estadoAlerta);
+router.get('/seguridad/eventos', requireRole('seguridad'), Seguridad.eventos);
 
 module.exports = router;

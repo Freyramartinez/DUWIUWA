@@ -1,221 +1,371 @@
 <%- include('partials/panel-top', { titulo, rol, nombre }) %>
 
-<!-- Estilos de Leaflet para el mapa -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
   .ws-brand-text { color: #831843; }
-  .ws-bg-brand { background-color: #831843; color: #fff; }
-  .ws-card {
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
-  }
-  .ws-pulse {
-    animation: pulse-red 1.5s infinite;
-  }
-  @keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-    70% { box-shadow: 0 0 0 12px rgba(220, 53, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-  }
+  .ws-ico { width: 72px; height: 72px; font-size: 2.2rem; }
+  .ws-dot { display: block; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+  .ws-dot-ok { background: #198754; }
+  .ws-dot-alert { background: #dc3545; animation: ws-ring 1.5s infinite; }
+  .ws-pulse { animation: ws-glow 1.6s infinite; }
+  .ws-scroll { max-height: 420px; overflow-y: auto; }
+  @keyframes ws-ring { 0% { box-shadow: 0 0 0 0 rgba(220,53,69,.7); } 70% { box-shadow: 0 0 0 14px rgba(220,53,69,0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); } }
+  @keyframes ws-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,53,69,.5); } 50% { box-shadow: 0 0 0 10px rgba(220,53,69,0); } }
+  @media (prefers-reduced-motion: reduce) { .ws-dot-alert, .ws-pulse { animation: none; } }
 </style>
 
-<div class="container-fluid py-4 px-lg-4">
+<div class="container-fluid py-3 px-lg-4">
+
   <!-- Encabezado -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-      <h3 class="fw-bold ws-brand-text mb-1" style="font-family: 'Playfair Display', serif;">
-        Centro de Monitoreo · Seguridad Pública
-      </h3>
-      <p class="text-muted mb-0 small">Supervisión en tiempo real de dispositivos de emergencia Women Safety</p>
+      <h1 class="h4 fw-bold ws-brand-text mb-0" style="font-family: 'Playfair Display', serif;">Centro de monitoreo · Seguridad Pública</h1>
+      <p class="text-body-secondary small mb-0">Pulseras Women Safety y llegadas a la Instancia de la Mujer, en tiempo real</p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <span id="badge-conexion" class="badge bg-secondary-subtle text-secondary-emphasis border px-3 py-2 rounded-pill">
-        <i class="bi bi-arrow-repeat me-1"></i> Conectando con Node-RED...
-      </span>
-      <a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold">
-        <i class="bi bi-telephone-fill me-1"></i> Enlace 911
-      </a>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <span id="b-sse" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Conectando…</span>
+      <span id="b-mqtt" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Pulseras</span>
+      <span id="b-serial" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Lector de puerta</span>
+      <a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-3"><i class="bi bi-telephone-fill me-1"></i>Llamar al 911</a>
     </div>
   </div>
 
-  <!-- Tarjetas de estado (KPIs) -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div id="card-estado" class="card ws-card h-100 p-3 border-start border-4 border-success">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Situación Actual</span>
-            <h4 id="txt-estado" class="fw-bold text-success mt-1 mb-0">TODO EN ORDEN</h4>
-          </div>
-          <div id="icon-estado" class="rounded-circle bg-success-subtle text-success p-2">
-            <i class="bi bi-shield-check fs-4"></i>
+  <!-- Situación actual -->
+  <section id="banner" class="rounded-3 p-3 p-md-4 mb-3 d-flex gap-3 align-items-center bg-success-subtle text-success-emphasis border border-success-subtle" role="status" aria-live="assertive">
+    <div id="bn-ico" class="ws-ico flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold border border-3 border-success bg-white">✓</div>
+    <div class="flex-grow-1">
+      <div id="bn-eti" class="small fw-semibold">Todo en orden</div>
+      <h2 id="bn-tit" class="h3 fw-bold mb-1">Sin alertas activas</h2>
+      <div id="bn-det">Esperando datos de las pulseras…</div>
+      <span id="bn-debe" class="badge rounded-pill text-bg-light text-danger fs-6 mt-2 d-none"></span>
+      <div id="bn-acc" class="mt-2 p-2 px-3 rounded bg-black bg-opacity-25 fw-semibold d-none"></div>
+    </div>
+  </section>
+
+  <div id="pasos" class="card border-0 shadow-sm mb-3 d-none">
+    <div class="card-body py-3"><div id="pasos-row" class="row text-center g-0"></div></div>
+  </div>
+
+  <!-- Mapa y personas -->
+  <div class="row g-3 mb-3">
+    <div class="col-xl-8">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <span class="fw-semibold ws-brand-text"><i class="bi bi-geo-alt-fill me-2"></i>Ubicación en tiempo real</span>
+          <div class="d-flex align-items-center gap-3">
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" role="switch" id="seguir" checked>
+              <label class="form-check-label small" for="seguir">Seguir alerta</label>
+            </div>
+            <button id="btn-centrar" type="button" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-crosshair me-1"></i>Centrar</button>
           </div>
         </div>
-        <small id="txt-actualizacion" class="text-muted mt-3 d-block">Último reporte: --:--:--</small>
+        <div id="mapa-seguridad" style="height: 480px; width: 100%; z-index: 1;"></div>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card ws-card h-100 p-3 border-start border-4" style="border-color: #831843 !important;">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Dispositivo / Usuaria</span>
-            <h5 id="txt-usuaria" class="fw-bold text-dark mt-1 mb-0">Sin alertas activas</h5>
-          </div>
-          <div class="rounded-circle p-2" style="background-color: #fdf2f8; color: #831843;">
-            <i class="bi bi-person-heart fs-4"></i>
-          </div>
+    <div class="col-xl-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-semibold ws-brand-text"><i class="bi bi-person-heart me-2"></i>Personas con pulsera</span>
+          <span class="badge text-bg-light border">En seguimiento</span>
         </div>
-        <small id="txt-coords" class="text-muted mt-3 d-block">Coordenadas: 20.1304, -99.2333</small>
+        <ul id="lista-personas" class="list-group list-group-flush">
+          <li class="list-group-item small text-body-secondary">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</li>
+        </ul>
       </div>
-    </div>
 
-    <div class="col-md-4">
-      <div class="card ws-card h-100 p-3 border-start border-4 border-primary">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <span class="text-uppercase text-muted fw-semibold" style="font-size: 0.75rem;">Batería Pulsera</span>
-            <h4 id="txt-bateria" class="fw-bold text-dark mt-1 mb-0">-- %</h4>
-          </div>
-          <div class="rounded-circle bg-primary-subtle text-primary p-2">
-            <i class="bi bi-battery-charging fs-4"></i>
-          </div>
+      <div id="card-otras" class="card border-0 shadow-sm mb-3 d-none">
+        <div class="card-header bg-white fw-semibold">Otras personas en la puerta</div>
+        <div class="card-body py-2">
+          <p id="otras-nota" class="small text-body-secondary mb-2"></p>
+          <ul id="lista-otras" class="list-group list-group-flush"></ul>
         </div>
-        <small class="text-muted mt-3 d-block">Telemetría IoT vía Node-RED</small>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold"><i class="bi bi-door-open me-2 ws-brand-text"></i>Entrada de la Instancia</div>
+        <div id="txt-puerta" class="card-body py-3 small text-body-secondary">Esperando conexión del lector de la puerta</div>
       </div>
     </div>
   </div>
 
-  <!-- Mapa y Bitácora -->
-  <div class="row g-4">
-    <div class="col-lg-8">
-      <div class="card ws-card overflow-hidden">
-        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-          <span class="fw-bold ws-brand-text"><i class="bi bi-geo-alt-fill me-2"></i>Geolocalización en Tiempo Real</span>
-          <button onclick="centrarMapa()" class="btn btn-sm btn-outline-secondary rounded-pill">
-            <i class="bi bi-crosshair me-1"></i> Centrar ubicación
-          </button>
+  <!-- Signos vitales, movimiento y registro -->
+  <div class="row g-3">
+    <div class="col-xl-8">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-semibold ws-brand-text"><i class="bi bi-activity me-2"></i>Signos vitales y movimiento</span>
+          <small id="txt-foco" class="text-body-secondary">Sin datos</small>
         </div>
-        <div id="mapa-seguridad" style="height: 460px; width: 100%; z-index: 1;"></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-4"><div id="k-bpm" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
+              <div class="small text-body-secondary">Pulso</div>
+              <div class="fs-3 fw-semibold lh-1"><span id="v-bpm">—</span> <small class="fs-6 fw-normal text-body-secondary">lpm</small></div>
+              <div id="n-bpm" class="small fw-semibold mt-1">Sin datos</div></div></div>
+            <div class="col-4"><div id="k-spo2" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
+              <div class="small text-body-secondary">Oxígeno (SpO₂)</div>
+              <div class="fs-3 fw-semibold lh-1"><span id="v-spo2">—</span> <small class="fs-6 fw-normal text-body-secondary">%</small></div>
+              <div id="n-spo2" class="small fw-semibold mt-1">Sin datos</div></div></div>
+            <div class="col-4"><div id="k-g" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
+              <div class="small text-body-secondary">Magnitud</div>
+              <div class="fs-3 fw-semibold lh-1"><span id="v-g">—</span> <small class="fs-6 fw-normal text-body-secondary">g</small></div>
+              <div id="n-g" class="small fw-semibold mt-1">Sin datos</div></div></div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6"><div class="small fw-semibold mb-1">Aceleración total (g)</div><svg id="sp-acel" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial de aceleración total"></svg></div>
+            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje X (g)</div><svg id="sp-x" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje X"></svg></div>
+            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje Y (g)</div><svg id="sp-y" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje Y"></svg></div>
+            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje Z (g)</div><svg id="sp-z" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje Z"></svg></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="col-lg-4">
-      <div class="card ws-card h-100">
-        <div class="card-header bg-white border-bottom py-3">
-          <span class="fw-bold ws-brand-text"><i class="bi bi-clock-history me-2"></i>Bitácora de Eventos</span>
-        </div>
-        <div class="card-body p-3" style="max-height: 460px; overflow-y: auto;">
-          <ul id="lista-eventos" class="list-group list-group-flush small">
-            <li class="list-group-item text-muted text-center py-4">
-              En espera de señales de la pulsera...
-            </li>
-          </ul>
-        </div>
+    <div class="col-xl-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white fw-semibold ws-brand-text"><i class="bi bi-clock-history me-2"></i>Registro de eventos</div>
+        <ul id="lista-eventos" class="list-group list-group-flush ws-scroll">
+          <li class="list-group-item small text-body-secondary">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</li>
+        </ul>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Script de Leaflet y actualización en vivo -->
+<div id="centro-data" data-centro="<%= JSON.stringify(centro) %>" hidden></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  let latActual = 20.1304;
-  let lngActual = -99.2333;
-  let ultimoEstadoAlerta = null;
+(() => {
+  const CENTRO = JSON.parse(document.getElementById('centro-data').dataset.centro);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // Inicializar mapa
-  const mapa = L.map('mapa-seguridad').setView([latActual, lngActual], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(mapa);
+  // ---------- Mapa
+  const mapa = L.map('mapa-seguridad').setView([CENTRO.lat, CENTRO.lon], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapa);
+  const marcadores = {};
 
-  const marcador = L.marker([latActual, lngActual]).addTo(mapa)
-    .bindPopup('<b>Ubicación del dispositivo</b><br>Monitoreo activo')
-    .openPopup();
-
-  function centrarMapa() {
-    mapa.setView([latActual, lngActual], 16);
+  function pintarMarcadores(lista) {
+    lista.forEach(u => {
+      if (!u.lat || !u.lon) return;
+      const alerta = u.situacion === 'emergencia';
+      const popup = `<b>${esc(u.nombre)}</b><br>${esc(u.etiqueta)}<br>Pulso: ${esc(u.pulso)} lpm`;
+      let m = marcadores[u.nombre];
+      if (!m) {
+        m = marcadores[u.nombre] = L.marker([u.lat, u.lon]).addTo(mapa).bindPopup(popup);
+        m._alerta = null;
+      } else {
+        m.setLatLng([u.lat, u.lon]);
+        m.getPopup().setContent(popup);
+      }
+      if (m._alerta !== alerta) {
+        m._alerta = alerta;
+        m.setIcon(L.divIcon({ className: '', html: `<span class="ws-dot ${alerta ? 'ws-dot-alert' : 'ws-dot-ok'}"></span>`, iconSize: [22, 22], iconAnchor: [11, 11] }));
+      }
+    });
   }
 
-  function agregarEvento(texto, esAlerta) {
-    const lista = document.getElementById('lista-eventos');
-    if (lista.children.length === 1 && lista.children[0].classList.contains('text-center')) {
-      lista.innerHTML = '';
+  let focoActual = null;
+  $('btn-centrar').addEventListener('click', () => {
+    const p = focoActual && focoActual.lat ? [focoActual.lat, focoActual.lon] : [CENTRO.lat, CENTRO.lon];
+    mapa.setView(p, 16);
+  });
+
+  // ---------- Insignias de conexión
+  function badge(id, estado, texto) {
+    const el = $(id);
+    const cls = { ok: 'text-bg-success', warn: 'text-bg-warning', off: 'text-bg-secondary' }[estado];
+    el.className = 'badge rounded-pill ' + cls;
+    el.innerHTML = `<i class="bi bi-circle-fill me-1"></i>${esc(texto)}`;
+  }
+
+  // ---------- Banner
+  const ESTILO = {
+    alerta: 'text-bg-danger ws-pulse',
+    ok: 'text-bg-success',
+    calma: 'bg-success-subtle text-success-emphasis border border-success-subtle'
+  };
+  function pintarBanner(b) {
+    $('banner').className = 'rounded-3 p-3 p-md-4 mb-3 d-flex gap-3 align-items-center ' + (ESTILO[b.nivel] || ESTILO.calma);
+    $('bn-ico').className = 'ws-ico flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold border border-3 bg-white ' +
+      (b.nivel === 'alerta' ? 'border-danger text-danger' : 'border-success text-success');
+    $('bn-ico').textContent = b.icono;
+    $('bn-eti').textContent = b.etiqueta;
+    $('bn-tit').textContent = b.titulo;
+    $('bn-det').textContent = b.detalle || '';
+    const debe = $('bn-debe');
+    debe.classList.toggle('d-none', !b.debe);
+    if (b.debe) debe.textContent = `Quien debe llegar: ${b.debe} (es su pulsera)`;
+    const acc = $('bn-acc');
+    acc.classList.toggle('d-none', !b.accion);
+    if (b.accion) acc.textContent = b.accion;
+
+    const caja = $('pasos');
+    caja.classList.toggle('d-none', !b.pasos);
+    if (b.pasos) {
+      $('pasos-row').innerHTML = b.pasos.map(p => {
+        const cls = p.est === 'hecho' ? 'text-bg-success' : p.est === 'activo' ? 'text-bg-warning' : 'text-bg-secondary';
+        return `<div class="col-4"><span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold mb-1 ${cls}" style="width:32px;height:32px">${p.est === 'hecho' ? '✓' : p.n}</span>` +
+          `<div class="small ${p.est === 'activo' ? 'fw-bold' : ''}">${esc(p.txt)}</div></div>`;
+      }).join('');
     }
-    const li = document.createElement('li');
-    li.className = `list-group-item px-2 py-2 ${esAlerta ? 'list-group-item-danger fw-semibold' : ''}`;
-    li.innerHTML = `<span class="text-muted me-1">[${new Date().toLocaleTimeString()}]</span> ${texto}`;
-    lista.prepend(li);
   }
 
-  async function consultarNodeRed() {
+  // ---------- Listas
+  const BADGE = { emergencia: 'text-bg-danger', llego_espera: 'text-bg-warning', a_salvo: 'text-bg-success', normal: 'text-bg-secondary' };
+  const BORDE = { emergencia: 'border-danger', llego_espera: 'border-warning', a_salvo: 'border-success', normal: 'border-secondary' };
+
+  function pintarPersonas(lista) {
+    $('lista-personas').innerHTML = lista.length ? lista.map(u =>
+      `<li class="list-group-item d-flex justify-content-between align-items-center gap-2 border-start border-4 ${BORDE[u.situacion] || 'border-secondary'}">` +
+      `<div><div class="fw-semibold">${esc(u.nombre)}</div><div class="small text-body-secondary">${esc(u.texto)}</div></div>` +
+      `<span class="badge rounded-pill ${BADGE[u.situacion] || 'text-bg-secondary'}">${esc(u.etiqueta)}</span></li>`
+    ).join('') : '<li class="list-group-item small text-body-secondary">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</li>';
+  }
+
+  function pintarOtras(otras, nota) {
+    const card = $('card-otras');
+    card.classList.toggle('d-none', !otras || !otras.length);
+    if (!otras || !otras.length) return;
+    $('otras-nota').textContent = nota || '';
+    $('lista-otras').innerHTML = otras.map(o =>
+      `<li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">` +
+      `<div><div class="fw-semibold small">${esc(o.nombre)}</div><div class="text-body-secondary" style="font-size:0.75rem;">Llegó a las ${esc(o.hora)}</div></div>` +
+      `<span class="badge text-bg-light border">Otra persona</span></li>`
+    ).join('');
+  }
+
+  const EV_COLOR = { alto: 'list-group-item-danger', ok: 'list-group-item-success', info: '' };
+  function pintarHistorial(hist) {
+    $('lista-eventos').innerHTML = hist && hist.length ? hist.map(h =>
+      `<li class="list-group-item ${EV_COLOR[h.nivel] || ''} py-2">` +
+      `<div class="d-flex justify-content-between small"><strong class="text-dark">${esc(h.nombre)}</strong><span class="text-body-secondary">${esc(h.hora)}</span></div>` +
+      `<div class="small text-body-secondary">${esc(h.texto)}</div></li>`
+    ).join('') : '<li class="list-group-item small text-body-secondary">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</li>';
+  }
+
+  // ---------- Signos vitales y Gráficas SVG (Sparklines)
+  const series = { acel: [], x: [], y: [], z: [] };
+  const MAX_PUNTOS = 40;
+
+  function dibujarSparkline(svgId, arr, color) {
+    const svg = $(svgId);
+    if (!svg) return;
+    if (arr.length < 2) {
+      svg.innerHTML = `<line x1="0" y1="35" x2="300" y2="35" stroke="#dee2e6" stroke-dasharray="4" />`;
+      return;
+    }
+    const min = Math.min(...arr, -0.5);
+    const max = Math.max(...arr, 1.5);
+    const rango = (max - min) || 1;
+    const pts = arr.map((v, i) => {
+      const x = (i / (MAX_PUNTOS - 1)) * 300;
+      const y = 62 - ((v - min) / rango) * 54;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    svg.innerHTML = `<polyline fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${pts}" />`;
+  }
+
+  function actualizarBiometria(foco) {
+    if (!foco) {
+      $('txt-foco').textContent = 'Sin datos';
+      return;
+    }
+    $('txt-foco').textContent = `Monitoreando a: ${foco.nombre}`;
+
+    const bpm = foco.pulso || 0;
+    $('v-bpm').textContent = bpm > 0 ? bpm : '—';
+    const altoBpm = bpm > 130 || (bpm > 0 && bpm < 50);
+    $('k-bpm').className = `border-top border-4 ${bpm === 0 ? 'border-secondary' : altoBpm ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
+    $('n-bpm').textContent = bpm === 0 ? 'Sin datos' : bpm > 140 ? 'Muy acelerado' : bpm > 100 ? 'Acelerado' : 'Normal';
+    $('n-bpm').className = `small fw-semibold mt-1 ${bpm === 0 ? 'text-body-secondary' : altoBpm ? 'text-danger' : 'text-success'}`;
+
+    const spo2 = foco.oxigeno || 0;
+    $('v-spo2').textContent = spo2 > 0 ? spo2 : '—';
+    const bajoSpo2 = spo2 > 0 && spo2 < 92;
+    $('k-spo2').className = `border-top border-4 ${spo2 === 0 ? 'border-secondary' : bajoSpo2 ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
+    $('n-spo2').textContent = spo2 === 0 ? 'Sin datos' : bajoSpo2 ? 'Oxigenación baja' : 'Óptimo';
+    $('n-spo2').className = `small fw-semibold mt-1 ${spo2 === 0 ? 'text-body-secondary' : bajoSpo2 ? 'text-danger' : 'text-success'}`;
+
+    const mov = Number(foco.mov || 0);
+    $('v-g').textContent = mov > 0 ? mov.toFixed(2) : '—';
+    const impacto = mov > 2.5;
+    $('k-g').className = `border-top border-4 ${mov === 0 ? 'border-secondary' : impacto ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
+    $('n-g').textContent = mov === 0 ? 'Sin datos' : impacto ? 'Impacto / Caída' : 'Estable';
+    $('n-g').className = `small fw-semibold mt-1 ${mov === 0 ? 'text-body-secondary' : impacto ? 'text-danger' : 'text-success'}`;
+  }
+
+  function registrarMuestraGrafica(t) {
+    const push = (arr, val) => {
+      arr.push(Number(val) || 0);
+      if (arr.length > MAX_PUNTOS) arr.shift();
+    };
+    push(series.acel, t.acel);
+    push(series.x, t.ax);
+    push(series.y, t.ay);
+    push(series.z, t.az);
+
+    dibujarSparkline('sp-acel', series.acel, '#831843');
+    dibujarSparkline('sp-x', series.x, '#0d6efd');
+    dibujarSparkline('sp-y', series.y, '#198754');
+    dibujarSparkline('sp-z', series.z, '#fd7e14');
+  }
+
+  // ---------- Aplicar Snapshot Completo
+  function aplicarEstado(s) {
+    if (!s) return;
+    if (s.conexion) {
+      badge('b-mqtt', s.conexion.mqtt ? 'ok' : 'warn', s.conexion.mqtt ? 'Pulseras: En línea' : 'Pulseras: Sin conexión');
+      if (s.conexion.serial === null) {
+        badge('b-serial', 'off', 'Lector puerta: No configurado');
+      } else {
+        badge('b-serial', s.conexion.serial ? 'ok' : 'warn', s.conexion.serial ? 'Lector puerta: Activo' : 'Lector puerta: Desconectado');
+      }
+    }
+
+    if (s.banner) pintarBanner(s.banner);
+    pintarPersonas(s.usuarias || []);
+    pintarOtras(s.otras || [], s.otrasNota);
+    pintarHistorial(s.historial || []);
+    $('txt-puerta').textContent = s.puerta || 'Esperando conexión del lector de la puerta';
+
+    pintarMarcadores(s.usuarias || []);
+    focoActual = s.foco;
+    actualizarBiometria(focoActual);
+
+    if (focoActual && focoActual.lat && focoActual.lon && $('seguir').checked) {
+      mapa.setView([focoActual.lat, focoActual.lon], mapa.getZoom());
+    }
+  }
+
+  // ---------- Conexión en Tiempo Real (Server-Sent Events)
+  const fuente = new EventSource('/seguridad/eventos');
+
+  fuente.onopen = () => {
+    badge('b-sse', 'ok', 'Tiempo real: Activo');
+  };
+
+  fuente.onerror = () => {
+    badge('b-sse', 'warn', 'Reconectando…');
+  };
+
+  fuente.addEventListener('estado', e => {
+    try { aplicarEstado(JSON.parse(e.data)); } catch (err) { console.error(err); }
+  });
+
+  fuente.addEventListener('telemetria', e => {
     try {
-      const res = await fetch('/seguridad/estado');
-      const data = await res.json();
-
-      // Badge de conexión
-      const badge = document.getElementById('badge-conexion');
-      if (data.conectado) {
-        badge.className = 'badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2 rounded-pill';
-        badge.innerHTML = '<i class="bi bi-broadcast me-1"></i> Node-RED En Línea';
-      } else {
-        badge.className = 'badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill';
-        badge.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Node-RED Sin Conexión (Modo Espera)';
+      const t = JSON.parse(e.data);
+      if (!focoActual || focoActual.nombre === t.nombre) {
+        registrarMuestraGrafica(t);
       }
-
-      // Actualizar tarjeta de alerta
-      const cardEstado = document.getElementById('card-estado');
-      const txtEstado = document.getElementById('txt-estado');
-      const iconEstado = document.getElementById('icon-estado');
-
-      if (data.alertaActiva) {
-        cardEstado.className = 'card ws-card h-100 p-3 border-start border-4 border-danger ws-pulse';
-        txtEstado.className = 'fw-bold text-danger mt-1 mb-0';
-        txtEstado.textContent = '¡ALERTA SOS ACTIVA!';
-        iconEstado.className = 'rounded-circle bg-danger-subtle text-danger p-2';
-        iconEstado.innerHTML = '<i class="bi bi-exclamation-triangle-fill fs-4"></i>';
-      } else {
-        cardEstado.className = 'card ws-card h-100 p-3 border-start border-4 border-success';
-        txtEstado.className = 'fw-bold text-success mt-1 mb-0';
-        txtEstado.textContent = 'TODO EN ORDEN';
-        iconEstado.className = 'rounded-circle bg-success-subtle text-success p-2';
-        iconEstado.innerHTML = '<i class="bi bi-shield-check fs-4"></i>';
-      }
-
-      // Registrar cambio en bitácora si cambió el estado
-      if (ultimoEstadoAlerta !== data.alertaActiva) {
-        agregarEvento(
-          data.alertaActiva ? `🚨 Alerta SOS activada por ${data.usuaria}` : '✅ Estado normalizado',
-          data.alertaActiva
-        );
-        ultimoEstadoAlerta = data.alertaActiva;
-      }
-
-      // Datos de usuaria y batería
-      document.getElementById('txt-usuaria').textContent = data.usuaria || 'Usuaria #01';
-      document.getElementById('txt-bateria').textContent = data.bateria !== '--' ? `${data.bateria}%` : '-- %';
-      document.getElementById('txt-actualizacion').textContent = `Último reporte: ${data.ultimaActualizacion || new Date().toLocaleTimeString()}`;
-
-      // Actualizar coordenadas en mapa
-      if (data.lat && data.lng) {
-        latActual = parseFloat(data.lat);
-        lngActual = parseFloat(data.lng);
-        marcador.setLatLng([latActual, lngActual]);
-        document.getElementById('txt-coords').textContent = `Coordenadas: ${latActual.toFixed(5)}, ${lngActual.toFixed(5)}`;
-        if (data.alertaActiva) centrarMapa();
-      }
-    } catch (e) {
-      console.error('Error consultando estado:', e);
-    }
-  }
-
-  // Consultar cada 3 segundos
-  consultarNodeRed();
-  setInterval(consultarNodeRed, 3000);
+    } catch (err) { console.error(err); }
+  });
+})();
 </script>
 
 <%- include('partials/panel-bottom') %>

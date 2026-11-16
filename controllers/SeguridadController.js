@@ -1,30 +1,46 @@
+const svc = require('../utils/seguridadService');
+
 exports.panel = (req, res) => {
   res.render('seguridad', {
     titulo: 'Seguridad Pública',
     rol: 'Seguridad Pública',
     nombre: req.session.user ? req.session.user.nombre : 'Central',
-    usuario: req.session.user
+    usuario: req.session.user,
+    centro: svc.centro()
   });
 };
 
-// Endpoint JSON que consulta a Node-RED
-exports.estadoAlerta = async (req, res) => {
-  const baseUrl = (process.env.NODERED_URL || 'http://localhost:1880/ui').replace(/\/ui\/?$/, '');
-  try {
-    const respuesta = await fetch(`${baseUrl}/api/estado-alerta`);
-    if (!respuesta.ok) throw new Error('Node-RED no respondió');
-    const data = await respuesta.json();
-    res.json({ conectado: true, ...data });
-  } catch (err) {
-    // Si Node-RED está apagado, devuelve un estado seguro por defecto para no romper la vista
-    res.json({
-      conectado: false,
-      alertaActiva: false,
-      usuaria: 'Sin alertas activas',
-      bateria: '--',
-      lat: 20.1304, // Coordenadas base (Tlahuelilpan, Hgo.)
-      lng: -99.2333,
-      ultimaActualizacion: new Date().toLocaleTimeString()
-    });
-  }
+// Foto del estado actual (útil para pruebas y como respaldo)
+exports.estadoAlerta = (req, res) => {
+  res.json(svc.snapshot());
+};
+
+// Tiempo real: Server-Sent Events (el navegador reconecta solo)
+exports.eventos = (req, res) => {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+  res.flushHeaders();
+
+  const enviar = (evento, datos) => {
+    res.write(`event: ${evento}\ndata: ${JSON.stringify(datos)}\n\n`);
+    if (typeof res.flush === 'function') res.flush();   // por si hay compression()
+  };
+
+  enviar('estado', svc.snapshot());
+  const onEstado = s => enviar('estado', s);
+  const onTelemetria = t => enviar('telemetria', t);
+  svc.bus.on('estado', onEstado);
+  svc.bus.on('telemetria', onTelemetria);
+
+  const latido = setInterval(() => { res.write(': ping\n\n'); }, 25000);
+
+  req.on('close', () => {
+    clearInterval(latido);
+    svc.bus.off('estado', onEstado);
+    svc.bus.off('telemetria', onTelemetria);
+  });
 };
