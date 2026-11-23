@@ -12,7 +12,6 @@ const serviciosSafeWave = [
     price: 0,
     image: "/img/s1.jpg",
     specs: [
-      "1 Antena Base Gateway LoRaWAN",
       "5 a 10 Botones de pánico LilyGO T-Beam",
       "Integración directa con Firebase Realtime Database"
     ]
