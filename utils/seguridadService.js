@@ -6,6 +6,7 @@
  *  - Máquina de estados: emergencia -> llegó (espera confirmación) -> a salvo
  *  - WhatsApp (CallMeBot) con límite de frecuencia
  *  - Eventos en tiempo real para el panel (EventEmitter -> SSE en el controlador)
+ *  - API para la aplicación móvil (signos vitales en vivo, SOS y cancelación por PIN)
  */
 const crypto = require('crypto');
 const EventEmitter = require('events');
@@ -21,10 +22,10 @@ const cfg = {
   serialBaud: Number(env.SERIAL_BAUD) || 115200,
   nombreDefault: env.NOMBRE_DEFAULT || 'Julieta',
   pulseras: (env.PULSERAS || env.NOMBRE_DEFAULT || 'Julieta').split(',').map(s => s.trim()).filter(Boolean),
-  sinAlertaMs: Number(env.SIN_ALERTA_MS) || 30 * 1000,       // sin PANICO durante este tiempo -> vuelve a normal
-  avisoOkMs: Number(env.AVISO_OK_MS) || 2 * 60 * 1000,        // cuánto dura el aviso verde
-  ignorarSosMs: 10 * 1000,                                    // ignora SOS atrasados tras la confirmación
-  waIntervaloMs: Number(env.WA_INTERVALO_MS) || 3 * 60 * 1000, // mínimo entre WhatsApp de emergencia
+  sinAlertaMs: Number(env.SIN_ALERTA_MS) || 30 * 1000,         // sin PANICO durante este tiempo -> vuelve a normal
+  avisoOkMs: Number(env.AVISO_OK_MS) || 2 * 60 * 1000,          // cuánto dura el aviso verde
+  ignorarSosMs: 10 * 1000,                                      // ignora SOS atrasados tras la confirmación
+  waIntervaloMs: Number(env.WA_INTERVALO_MS) || 3 * 60 * 1000,  // mínimo entre WhatsApp de emergencia
   waContactos: (env.WA_CONTACTOS || '').split(',').map(s => s.trim()).filter(Boolean)
     .map(c => { const [telefono, apikey] = c.split(':'); return { telefono, apikey }; }),
   mapLat: Number(env.MAP_LAT) || 20.2274,
@@ -57,6 +58,7 @@ function persona(nombre) {
     S.usuarias[nombre] = {
       nombre, situacion: 'normal', nota: 'Sin alertas', hora: hora(),
       pulso: 0, oxigeno: 0, mov: 0, ax: 0, ay: 0, az: 0, lat: 0, lon: 0,
+      bat: 0, ultimaLectura: 0,
       silencioHasta: 0, ackPulsera: false, tEspera: 0,
       conPulsera: cfg.pulseras.includes(nombre), tLlegada: 0, tPanico: 0
     };
@@ -130,7 +132,8 @@ function snapshot() {
     situacion: activa(q) ? 'emergencia' : q.situacion,
     etiqueta: ETIQ[q.situacion] || 'Sin alertas',
     texto: `${q.nota}, ${q.hora}`,
-    pulso: q.pulso, oxigeno: q.oxigeno, mov: q.mov, ax: q.ax, ay: q.ay, az: q.az, lat: q.lat, lon: q.lon
+    pulso: q.pulso, oxigeno: q.oxigeno, mov: q.mov, ax: q.ax, ay: q.ay, az: q.az,
+    lat: q.lat, lon: q.lon, bat: q.bat, ultimaLectura: q.ultimaLectura
   })).sort((a, b) => (b.situacion === 'emergencia') - (a.situacion === 'emergencia'));
 
   const otras = todas.filter(q => !q.conPulsera && q.tLlegada)
@@ -164,7 +167,7 @@ function snapshot() {
     banner = {
       nivel: 'ok', icono: '✓', etiqueta: 'Alarma cancelada',
       titulo: `${S.aviso.nombre} está segura y a salvo`,
-      detalle: (S.aviso.porUsuaria ? 'Canceló la alarma desde su pulsera' : 'La alarma se apagó desde la pulsera') + ` a las ${S.aviso.hora}.`,
+      detalle: (S.aviso.porUsuaria ? 'Canceló la alarma' : 'La alarma se apagó desde la pulsera') + ` a las ${S.aviso.hora}.`,
       pasos: pasos(3, -1)
     };
   } else if (S.aviso && S.aviso.tipo === 'llegada') {
@@ -223,6 +226,8 @@ function onTelemetria(d) {
   if (panico && ahora < u.silencioHasta) return;      // SOS atrasado tras la confirmación
 
   u.pulso = bpm; u.oxigeno = spo2; u.mov = acel; u.ax = ax; u.ay = ay; u.az = az;
+  if (d.bat !== undefined) u.bat = Number(d.bat);
+  u.ultimaLectura = ahora;
   if (lat && lon) { u.lat = lat; u.lon = lon; }
   S.ultimo = nombre;
 
@@ -240,7 +245,7 @@ function onTelemetria(d) {
     }
   }
 
-  bus.emit('telemetria', { nombre, bpm, spo2, acel, ax, ay, az, t: ahora });
+  bus.emit('telemetria', { nombre, bpm, spo2, acel, ax, ay, az, bat: u.bat, t: ahora });
   emitir();
 }
 
@@ -248,7 +253,6 @@ function onLlegada(n) {
   const ahora = Date.now();
   const p = persona(n);
   if (p.situacion === 'emergencia') {
-    // La alarma NO se apaga: se avisa a la pulsera y se espera su confirmación
     p.situacion = 'llego_espera'; p.ackPulsera = false; p.tEspera = ahora; p.hora = hora();
     p.nota = 'Llegó a la Instancia, esperando que confirme con su pulsera';
     registrar(n, 'Llegó a la Instancia. La alarma sigue activa: falta que confirme con su pulsera', 'alto');
@@ -256,7 +260,6 @@ function onLlegada(n) {
   } else if (p.situacion === 'llego_espera') {
     // lectura repetida del TAG: no se hace nada
   } else if (!p.conPulsera) {
-    // Otra persona: se muestra aparte, sin cambiar el aviso principal ni mandar WhatsApp
     if (ahora - p.tLlegada > 30000) {
       const hayAlerta = Object.values(S.usuarias).some(activa);
       p.situacion = 'a_salvo'; p.nota = 'Llegó a la Instancia'; p.hora = hora(); p.tLlegada = ahora;
@@ -283,7 +286,7 @@ function onEstado(ev) {
       registrar(en, 'La pulsera recibió el aviso de llegada', 'info');
     }
   } else if (ev.evento === 'CANCELADA') {
-    if (activa(qe)) {                                  // si ya estaba a salvo es un duplicado: se ignora
+    if (activa(qe)) {
       const porUsuaria = (ev.por === 'usuaria');
       qe.situacion = 'a_salvo'; qe.hora = hora(); qe.ackPulsera = false;
       qe.silencioHasta = ahora + cfg.ignorarSosMs;
@@ -305,21 +308,20 @@ function onPuerta(d) {
   emitir();
 }
 
-// Revisión cada 10 s ("Reintento cada 10 s" del flujo)
 function revisar() {
   const ahora = Date.now();
   let cambio = false;
   let cmdPend = null;
   Object.values(S.usuarias).forEach(q => {
     if (!activa(q)) return;
-    if (ahora - (q.tPanico || 0) > cfg.sinAlertaMs) {  // la pulsera dejó de mandar pánico: vuelve a normal
+    if (ahora - (q.tPanico || 0) > cfg.sinAlertaMs) {
       q.situacion = 'normal'; q.ackPulsera = false; q.nota = 'Sin alertas'; q.hora = hora();
       S.aviso = null;
       registrar(q.nombre, 'La alerta terminó: la pulsera dejó de enviar el aviso de pánico', 'info');
       cambio = true;
       return;
     }
-    if (q.situacion === 'llego_espera' && !cmdPend) cmdPend = q.nombre;   // reenvía hasta que confirme
+    if (q.situacion === 'llego_espera' && !cmdPend) cmdPend = q.nombre;
   });
   if (S.aviso && ahora - (S.aviso.t || 0) > cfg.avisoOkMs) { S.aviso = null; cambio = true; }
   if (cmdPend) publicarCmd(cmdPend, 'LLEGADA');
@@ -381,7 +383,7 @@ function iniciarSerial() {
 
   port.pipe(new ReadlineParser({ delimiter: '\n' })).on('data', seguro(linea => {
     const s = String(linea).trim();
-    if (s.charAt(0) !== '{') return;                   // ignora textos de arranque que no son JSON
+    if (s.charAt(0) !== '{') return;
     let d;
     try { d = JSON.parse(s); } catch (e) { return; }
     if (d.Estado === 'A salvo' && d.Nombre) onLlegada(d.Nombre);
@@ -398,6 +400,49 @@ function start() {
   setInterval(seguro(revisar), 10 * 1000);
 }
 
+// -------------------------------------------------- acciones desde la App Móvil
+function activarDesdeApp(nombre = cfg.nombreDefault, lat = 0, lon = 0) {
+  const ahora = Date.now();
+  const u = persona(nombre);
+  u.conPulsera = true;
+  u.tPanico = ahora;
+  if (lat && lon) { u.lat = Number(lat); u.lon = Number(lon); }
+  if (!activa(u)) {
+    u.situacion = 'emergencia';
+    u.ackPulsera = false;
+    u.hora = hora();
+    S.aviso = null;
+    registrar(nombre, 'Alerta SOS activada desde la aplicación móvil', 'alto');
+  }
+  u.nota = 'Botón de pánico (App Móvil)';
+  S.ultimo = nombre;
+  enviarWhatsApp({ tipo: 'EMERGENCIA', nombre, bpm: u.pulso, lat: u.lat, lon: u.lon, motivo: u.nota });
+  emitir();
+}
+
+function cancelarDesdeApp(nombre = cfg.nombreDefault) {
+  const ahora = Date.now();
+  const u = persona(nombre);
+  if (activa(u)) {
+    u.situacion = 'a_salvo';
+    u.hora = hora();
+    u.ackPulsera = false;
+    u.silencioHasta = ahora + cfg.ignorarSosMs;
+    u.nota = 'Alarma cancelada con PIN desde la app';
+    S.aviso = { nivel: 'ok', tipo: 'segura', nombre, hora: hora(), porUsuaria: true, t: ahora };
+    registrar(nombre, 'La usuaria canceló la alerta con su PIN desde la app', 'ok');
+    enviarWhatsApp({ tipo: 'LLEGADA', nombre });
+    emitir();
+  }
+}
+
 reiniciarEstado();
 
-module.exports = { start, snapshot, bus, centro: () => ({ lat: cfg.mapLat, lon: cfg.mapLon }) };
+module.exports = {
+  start,
+  snapshot,
+  bus,
+  centro: () => ({ lat: cfg.mapLat, lon: cfg.mapLon }),
+  activarDesdeApp,
+  cancelarDesdeApp
+};

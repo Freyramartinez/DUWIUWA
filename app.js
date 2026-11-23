@@ -33,6 +33,7 @@ app.get('/preview/psicologa', (req, res) => res.render('psicologa'));
 app.get('/preview/jefe',      (req, res) => res.render('jefe'));
 
 // Rutas
+app.use('/api/app', require('./routes/apiAppRoutes'));
 app.use("/", require("./routes/panelRoutes"));
 app.use("/", require("./routes/web"));
 
