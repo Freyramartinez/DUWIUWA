@@ -13,6 +13,14 @@
     (typeof donaciones !== 'undefined' && donaciones) ? donaciones : {}
   );
   const mx = n => '$' + Number(n).toLocaleString('es-MX');
+
+  // Niveles de donación: aquí cambias montos y textos
+    const niveles = [
+    { monto: 150,  titulo: 'Componentes básicos',  texto: 'Cubre el botón de ayuda y la batería que garantizan el funcionamiento continuo de la pulsera.' },
+    { monto: 500,  titulo: 'Pantalla y carcasa',   texto: 'Financia una pantalla compacta y una carcasa discreta que protegen el dispositivo y facilitan su uso cotidiano.' },
+    { monto: 1200, titulo: 'Una pulsera completa', texto: 'Permite fabricar una pulsera lista para su uso, que emite una alerta con un botón o con la voz y comparte la ubicación de la usuaria.' },
+    { monto: 5000, titulo: 'Equipar la Instancia', texto: 'Aporta el equipo que notifica al personal de la Instancia de la Mujer la llegada de una usuaria, para brindarle atención inmediata.' }
+  ];
 %>
 
 <style>
@@ -175,7 +183,7 @@
 
     <span class="eyebrow">Impulsa el proyecto</span>
     <h2 id="ws-don-title">Cada aporte acerca una pulsera a quien la necesita.</h2>
-    <p class="lead">La pulsera WOMEN SAFETY envía alertas silenciosas con ubicación GPS a través de red celular. Tu donativo ayuda a fabricar prototipos, instalar antenas y llevar el piloto a más comunidades de Hidalgo.</p>
+    <p class="lead">WOMEN SAFETY es una pulsera para mujeres en situación de violencia. Con solo presionar un botón o pedir ayuda en voz alta, envía una alerta silenciosa a la Instancia de la Mujer y le dice dónde se encuentra. Tu donativo ayuda a fabricar más pulseras, equipar a la Instancia para atenderlas cuando lleguen y llevar el proyecto a más comunidades de Hidalgo.</p>
 
     <div class="grid">
       <!-- Columna izquierda: meta e impacto -->
@@ -190,28 +198,18 @@
           <div class="stats">
             <div class="stat"><b id="ws-donors"><%= cfgDon.donantes %></b><small>donantes</small></div>
             <div class="stat"><b id="ws-bands"><%= Math.floor(cfgDon.recaudado / cfgDon.costoPulsera) %></b><small>pulseras financiadas</small></div>
-            <div class="stat"><b>1</b><small>antena gateway por instalar</small></div>
+            <div class="stat"><b>1</b><small>Instancia por equipar</small></div>
           </div>
         </div>
 
         <h3>¿Qué financia tu aporte?</h3>
         <div class="impact">
-          <button type="button" class="impact-item" data-amount="150">
-            <span class="price">$150</span>
-            <span><strong>Componentes básicos</strong><p>Motor de vibración, botón y batería para la confirmación silenciosa.</p></span>
+          <% niveles.forEach(function(n){ %>
+          <button type="button" class="impact-item" data-amount="<%= n.monto %>">
+            <span class="price"><%= mx(n.monto) %></span>
+            <span><strong><%= n.titulo %></strong><p><%= n.texto %></p></span>
           </button>
-          <button type="button" class="impact-item" data-amount="500">
-            <span class="price">$500</span>
-            <span><strong>Pantalla y carcasa</strong><p>OLED discreta y carcasa impresa en 3D para un prototipo.</p></span>
-          </button>
-          <button type="button" class="impact-item" data-amount="1200">
-            <span class="price">$1,200</span>
-            <span><strong>Una pulsera completa</strong><p>Módulo LilyGO T‑Beam con LoRa 915 MHz y GPS, listo para implementarse.</p></span>
-          </button>
-          <button type="button" class="impact-item" data-amount="5000">
-            <span class="price">$5,000</span>
-            <span><strong>Cobertura para una zona</strong><p>Aporte para la antena base LoRaWAN que conecta a la Instancia de la Mujer.</p></span>
-          </button>
+          <% }); %>
         </div>
 
         <div class="transp">
@@ -230,10 +228,9 @@
 
         <span class="label">Monto (MXN)</span>
         <div class="amounts" id="ws-amounts">
-          <button type="button" data-amount="150">$150</button>
-          <button type="button" data-amount="500" class="active">$500</button>
-          <button type="button" data-amount="1200">$1,200</button>
-          <button type="button" data-amount="5000">$5,000</button>
+          <% niveles.forEach(function(n){ %>
+          <button type="button" data-amount="<%= n.monto %>"<%- n.monto === Number(cfgDon.montoInicial) ? ' class="active"' : '' %>><%= mx(n.monto) %></button>
+          <% }); %>
         </div>
         <div class="custom">
           <span>$</span>
@@ -304,7 +301,7 @@
       </details>
       <details>
         <summary>¿Dónde puedo ver en qué se usa el dinero?</summary>
-        <p>Publicamos cortes mensuales de nuestros avances. Los fondos se invierten directamente en hardware (módulos, baterías, antenas LoRa) para escalar el proyecto y proteger a más mujeres.</p>
+        <p>Publicamos cortes mensuales de nuestros avances. Los fondos se invierten directamente en hardware (módulos celulares, sensores, baterías y el lector RFID de la Instancia) para escalar el proyecto y proteger a más mujeres.</p>
       </details>
       <details>
         <summary>¿Cómo puedo apoyar de otra forma?</summary>
