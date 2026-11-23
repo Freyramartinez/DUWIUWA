@@ -204,10 +204,28 @@
 
         <h3>¿Qué financia tu aporte?</h3>
         <div class="impact">
+<<<<<<< HEAD
           <% niveles.forEach(function(n){ %>
           <button type="button" class="impact-item" data-amount="<%= n.monto %>">
             <span class="price"><%= mx(n.monto) %></span>
             <span><strong><%= n.titulo %></strong><p><%= n.texto %></p></span>
+=======
+          <button type="button" class="impact-item" data-amount="150">
+            <span class="price">$150</span>
+            <span><strong>Componentes básicos</strong><p>Motor de vibración, botón y batería para la confirmación silenciosa.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="500">
+            <span class="price">$500</span>
+            <span><strong>Pantalla y carcasa</strong><p>OLED discreta y carcasa impresa en 3D para un prototipo.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="1200">
+            <span class="price">$1,200</span>
+            <span><strong>Una pulsera completa</strong><p>Módulo LilyGO T‑Beam con LoRa 915 MHz y GPS, listo para implementarse.</p></span>
+          </button>
+          <button type="button" class="impact-item" data-amount="5000">
+            <span class="price">$5,000</span>
+            <span><strong>Pulseras para una comunidad</strong><p>Financia un lote de pulseras para entregar a mujeres de una comunidad a través de la Instancia de la Mujer.</p></span>
+>>>>>>> 43531b1e6d10a1399def43b0e3f538c98158e0ce
           </button>
           <% }); %>
         </div>
