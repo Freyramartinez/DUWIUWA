@@ -90,7 +90,7 @@
                         <span class="ws-ring <%= restante > 0 ? '' : 'd-none' %>" aria-hidden="true">
                             <svg viewBox="0 0 36 36">
                                 <circle class="ws-ring-bg" cx="18" cy="18" r="16" pathLength="100"></circle>
-                                <circle class="ws-ring-fg" cx="18" cy="18" r="16" pathLength="100" style="stroke-dashoffset: <%= (100 * (1 - restante / total)).toFixed(1) %>"></circle>
+                                <circle class="ws-ring-fg" cx="18" cy="18" r="16" pathLength="100" stroke-dashoffset="<%= (100 * (1 - restante / total)).toFixed(1) %>"></circle>
                             </svg>
                             <span class="ws-ring-num" id="ringNum"><%= restante %></span>
                         </span>

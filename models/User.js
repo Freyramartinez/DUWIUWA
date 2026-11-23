@@ -13,8 +13,12 @@ const userSchema = new mongoose.Schema({
   verificationAttempts: { type: Number, default: 0 },     // intentos fallidos
   verificationSentAt: { type: Date },                     // para limitar los reenvíos
 
-  // ---- NUEVO ----
-  role: { type: String, enum: ["jefe", "psicologa", "victima"], default: "victima" },
+  // ---- Roles y estado ----
+  role: { 
+    type: String, 
+    enum: ["jefe", "psicologa", "victima", "seguridad"], // 👈 Agregado "seguridad"
+    default: "victima" 
+  },
   validada: { type: Boolean, default: false },            // solo psicólogas: aprobación del jefe
   mustChangePassword: { type: Boolean, default: false },  // psicólogas: cambian la temporal al entrar
 }, { timestamps: true });

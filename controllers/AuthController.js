@@ -3,7 +3,12 @@ const User = require("../models/User");
 const { vincularPorCorreo } = require("../utils/vincularFicha");
 const { emitirCodigo, avisarNovedades } = require("../utils/verificacion");
 
-const destinos = { jefe: "/jefe", psicologa: "/psicologa", victima: "/victima" };
+const destinos = { 
+  jefe: "/jefe", 
+  psicologa: "/psicologa", 
+  victima: "/victima", 
+  seguridad: "/seguridad" 
+};
 const str = v => (typeof v === "string" ? v.trim() : "");
 
 // GET /login
