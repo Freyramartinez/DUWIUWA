@@ -1791,7 +1791,22 @@
     .ws-emergency-bar { background: var(--gob-guinda); color: #fff; }
     .ws-footer        { background: var(--gob-guinda); color: rgba(255, 255, 255, 0.85); }
     
-   </style>
+           /* =========================================================
+           ORDEN DE LAS SECCIONES (igual que el menú de arriba)
+        ========================================================= */
+        #contenido { display: flex; flex-direction: column; }
+
+        #inicio            { order: 1; }
+        #quienes-somos     { order: 2; }
+        #pulsera           { order: 3; }
+        #funcionalidades   { order: 4; }
+        #servicios         { order: 5; }
+        #red-de-apoyo      { order: 6; }
+        #donaciones        { order: 7; }
+        #violentometro     { order: 8; }
+        #cartilla          { order: 9; }
+        #privacidad        { order: 10; }
+        </style>
 </head>
 
 
@@ -1824,7 +1839,7 @@
                 <a href="#funcionalidades">Funcionalidades</a>
                 <a href="#servicios">Servicios</a>
                 <a href="#red-de-apoyo">Red de apoyo</a>
-                <!-- <a href="#donaciones">Dona</a> -->
+                <a href="#donaciones">Dona</a> 
                 <a href="/contacto">Líneas de apoyo</a>
             
 
