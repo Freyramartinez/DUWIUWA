@@ -386,6 +386,10 @@
   </dialog>
 </section>
 
+<script type="application/json" id="donaciones-config">
+  <%- JSON.stringify({ meta: Number(cfgDon.meta), recaudado: Number(cfgDon.recaudado), donantes: Number(cfgDon.donantes), costoPulsera: Number(cfgDon.costoPulsera), montoInicial: Number(cfgDon.montoInicial) }) %>
+</script>
+
 <script>
 (function(){
   const root = document.getElementById('donaciones');
@@ -394,7 +398,7 @@
   const fmt = n => '$' + Number(n).toLocaleString('es-MX');
 
   // Estado inicial
-  const CFG = <%- JSON.stringify({ meta: Number(cfgDon.meta), recaudado: Number(cfgDon.recaudado), donantes: Number(cfgDon.donantes), costoPulsera: Number(cfgDon.costoPulsera), montoInicial: Number(cfgDon.montoInicial) }) %>;
+  const CFG = JSON.parse(document.getElementById('donaciones-config').textContent);
   const GOAL = CFG.meta;
   const state = { raised: CFG.recaudado, donors: CFG.donantes, amount: CFG.montoInicial, freq: 'unica', method: 'paypal' };
 

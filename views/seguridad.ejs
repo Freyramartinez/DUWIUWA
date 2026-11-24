@@ -3,90 +3,184 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
-  .ws-brand-text { color: #831843; }
-  .ws-ico { width: 72px; height: 72px; font-size: 2.2rem; }
-  .ws-dot { display: block; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
-  .ws-dot-ok { background: #198754; }
-  .ws-dot-alert { background: #dc3545; animation: ws-ring 1.5s infinite; }
-  .ws-pulse { animation: ws-glow 1.6s infinite; }
-  .ws-scroll { max-height: 420px; overflow-y: auto; }
-  @keyframes ws-ring { 0% { box-shadow: 0 0 0 0 rgba(220,53,69,.7); } 70% { box-shadow: 0 0 0 14px rgba(220,53,69,0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); } }
-  @keyframes ws-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,53,69,.5); } 50% { box-shadow: 0 0 0 10px rgba(220,53,69,0); } }
-  @media (prefers-reduced-motion: reduce) { .ws-dot-alert, .ws-pulse { animation: none; } }
+  :root {
+    --ws-vino: #831843;
+    --ws-vino-osc: #6b1237;
+    --ws-rosa: #fdf2f6;
+    --ws-rosa-borde: #f3d5e1;
+    --ws-verde: #198754;
+    --ws-verde-fondo: #e8f4ee;
+    --ws-rojo: #dc3545;
+    --ws-ambar: #b45309;
+    --ws-ambar-fondo: #fdf3e3;
+    --ws-gris: #6c757d;
+    --ws-gris-fondo: #f1f2f4;
+    --ws-texto: #2b2b2b;
+  }
+  body { background: var(--ws-rosa); }
+  .ws-wrap { max-width: 1400px; margin: 0 auto; }
+  .ws-titulo { font-family: 'Playfair Display', serif; color: var(--ws-vino); font-size: 1.35rem; font-weight: 700; margin: 0; }
+  .ws-sub { color: var(--ws-gris); font-size: .85rem; margin: 0; }
+
+  /* Indicadores de conexión */
+  .ws-chip { display: inline-flex; align-items: center; gap: .45rem; padding: .3rem .75rem; border-radius: 999px;
+    background: #fff; border: 1px solid var(--ws-rosa-borde); font-size: .8rem; color: var(--ws-texto); white-space: nowrap; }
+  .ws-chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--ws-gris); display: inline-block; }
+  .ws-chip.ok i { background: var(--ws-verde); }
+  .ws-chip.warn i { background: var(--ws-ambar); }
+  .ws-chip.off i { background: #adb5bd; }
+
+  /* Tarjetas */
+  .ws-card { background: #fff; border: 1px solid var(--ws-rosa-borde); border-radius: 10px; }
+  .ws-card-h { padding: .7rem 1rem; border-bottom: 1px solid var(--ws-rosa-borde); display: flex; justify-content: space-between;
+    align-items: center; gap: .5rem; font-weight: 600; color: var(--ws-vino); font-size: .95rem; }
+  .ws-card-b { padding: 1rem; }
+
+  /* Situación actual */
+  .ws-banner { border-radius: 10px; padding: 1.1rem 1.25rem; display: flex; gap: 1.1rem; align-items: center; border: 1px solid transparent; }
+  .ws-banner .ico { width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; font-weight: 700; background: #fff; border: 3px solid currentColor; }
+  .ws-banner .eti { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; opacity: .9; }
+  .ws-banner .tit { font-size: 1.6rem; font-weight: 700; line-height: 1.15; margin: .15rem 0; }
+  .ws-banner .det { font-size: .95rem; }
+  .ws-banner .acc { margin-top: .6rem; padding: .5rem .75rem; border-radius: 6px; font-weight: 600; font-size: .9rem; background: rgba(0,0,0,.18); }
+  .ws-banner .debe { display: inline-block; margin-top: .5rem; padding: .2rem .7rem; border-radius: 999px; background: #fff; color: var(--ws-rojo); font-weight: 600; font-size: .85rem; }
+  .ws-b-alerta { background: var(--ws-rojo); color: #fff; }
+  .ws-b-alerta .ico { color: var(--ws-rojo); }
+  .ws-b-llegada { background: var(--ws-ambar-fondo); color: #5a3305; border-color: #ecc98f; border-left: 8px solid var(--ws-ambar); }
+  .ws-b-llegada .ico { color: var(--ws-ambar); }
+  .ws-b-llegada .acc { background: rgba(180,83,9,.12); }
+  .ws-b-ok { background: var(--ws-verde); color: #fff; }
+  .ws-b-ok .ico { color: var(--ws-verde); }
+  .ws-b-calma { background: var(--ws-verde-fondo); color: #14532d; border-color: #bfdccb; }
+  .ws-b-calma .ico { color: var(--ws-verde); }
+
+  /* Progreso */
+  .ws-pasos { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
+  .ws-paso { text-align: center; position: relative; padding: 0 .5rem; }
+  .ws-paso::before { content: ''; position: absolute; top: 17px; left: -50%; width: 100%; height: 2px; background: #dee2e6; z-index: 0; }
+  .ws-paso:first-child::before { display: none; }
+  .ws-paso.hecho::before, .ws-paso.activo::before { background: var(--ws-verde); }
+  .ws-paso .n { position: relative; z-index: 1; width: 36px; height: 36px; border-radius: 50%; margin: 0 auto .35rem; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; background: #ced4da; color: #fff; }
+  .ws-paso.hecho .n { background: var(--ws-verde); }
+  .ws-paso.activo .n { background: var(--ws-ambar); }
+  .ws-paso .t { font-size: .85rem; color: var(--ws-gris); }
+  .ws-paso.hecho .t, .ws-paso.activo .t { color: var(--ws-texto); font-weight: 600; }
+  .ws-paso .h { font-size: .75rem; color: var(--ws-gris); min-height: 1rem; }
+
+  /* Listas */
+  .ws-fila { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .65rem 1rem; border-bottom: 1px solid #f3e6ec; border-left: 4px solid transparent; }
+  .ws-fila:last-child { border-bottom: 0; }
+  .ws-fila .nom { font-weight: 600; font-size: .95rem; }
+  .ws-fila .sub { font-size: .8rem; color: var(--ws-gris); }
+  .ws-fila.emergencia { border-left-color: var(--ws-rojo); }
+  .ws-fila.llego_espera { border-left-color: var(--ws-ambar); }
+  .ws-fila.a_salvo { border-left-color: var(--ws-verde); }
+  .ws-fila.normal { border-left-color: #adb5bd; }
+  .ws-vacio { padding: .9rem 1rem; font-size: .85rem; color: var(--ws-gris); }
+  .ws-tag { font-size: .72rem; font-weight: 600; padding: .2rem .6rem; border-radius: 999px; white-space: nowrap; }
+  .tag-emergencia { background: var(--ws-rojo); color: #fff; }
+  .tag-llego_espera, .tag-alerta { background: var(--ws-ambar-fondo); color: var(--ws-ambar); border: 1px solid #ecc98f; }
+  .tag-a_salvo, .tag-pulsera { background: var(--ws-verde-fondo); color: var(--ws-verde); border: 1px solid #bfdccb; }
+  .tag-normal, .tag-otra { background: var(--ws-gris-fondo); color: var(--ws-gris); border: 1px solid #dee2e6; }
+
+  /* Signos vitales */
+  .ws-kpi { background: var(--ws-gris-fondo); border-radius: 8px; border-top: 4px solid #adb5bd; padding: .75rem .9rem; height: 100%; }
+  .ws-kpi.ok { border-top-color: var(--ws-verde); }
+  .ws-kpi.mal { border-top-color: var(--ws-rojo); }
+  .ws-kpi .l { font-size: .78rem; color: var(--ws-gris); }
+  .ws-kpi .v { font-size: 1.75rem; font-weight: 600; line-height: 1.1; }
+  .ws-kpi .v small { font-size: .85rem; font-weight: 400; color: var(--ws-gris); }
+  .ws-kpi .n { font-size: .8rem; font-weight: 600; margin-top: .2rem; color: var(--ws-gris); }
+  .ws-kpi.ok .n { color: var(--ws-verde); }
+  .ws-kpi.mal .n { color: var(--ws-rojo); }
+  .ws-graf-t { font-size: .8rem; font-weight: 600; margin-bottom: .25rem; }
+  .ws-graf { width: 100%; background: var(--ws-gris-fondo); border-radius: 6px; }
+
+  /* Registro */
+  .ws-log { max-height: 440px; overflow-y: auto; }
+  .ws-ev { padding: .55rem 1rem; border-bottom: 1px solid #f3e6ec; border-left: 4px solid #adb5bd; }
+  .ws-ev.alto { border-left-color: var(--ws-rojo); }
+  .ws-ev.ok { border-left-color: var(--ws-verde); }
+  .ws-ev .c { display: flex; justify-content: space-between; font-size: .8rem; }
+  .ws-ev .c span { color: var(--ws-gris); }
+  .ws-ev .x { font-size: .82rem; color: #495057; }
+
+  .ws-dot { display: block; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.3); }
+  .btn-911 { background: var(--ws-rojo); color: #fff; border-radius: 999px; font-size: .85rem; font-weight: 600; padding: .35rem 1rem; text-decoration: none; }
+  .btn-911:hover { background: #bb2d3b; color: #fff; }
+
+  @media (max-width: 575px) {
+    .ws-banner { flex-direction: column; align-items: flex-start; }
+    .ws-banner .tit { font-size: 1.3rem; }
+    .ws-paso .t { font-size: .75rem; }
+  }
 </style>
 
-<div class="container-fluid py-3 px-lg-4">
+<div class="ws-wrap container-fluid py-3 px-lg-4">
 
   <!-- Encabezado -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
     <div>
-      <h1 class="h4 fw-bold ws-brand-text mb-0" style="font-family: 'Playfair Display', serif;">Centro de monitoreo · Seguridad Pública</h1>
-      <p class="text-body-secondary small mb-0">Pulseras Women Safety y llegadas a la Instancia de la Mujer, en tiempo real</p>
+      <h1 class="ws-titulo">Centro de monitoreo · Seguridad Pública</h1>
+      <p class="ws-sub">Pulseras Women Safety y llegadas a la Instancia de la Mujer, en tiempo real</p>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
-      <span id="b-sse" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Conectando…</span>
-      <span id="b-mqtt" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Pulseras</span>
-      <span id="b-serial" class="badge rounded-pill text-bg-secondary"><i class="bi bi-circle-fill me-1"></i>Lector de puerta</span>
-      <a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-3"><i class="bi bi-telephone-fill me-1"></i>Llamar al 911</a>
+      <span id="b-sse" class="ws-chip off"><i></i>Conectando…</span>
+      <span id="b-mqtt" class="ws-chip off"><i></i>Pulseras</span>
+      <span id="b-serial" class="ws-chip off"><i></i>Lector puerta</span>
+      <a href="tel:911" class="btn-911"><i class="bi bi-telephone-fill me-1"></i>Llamar al 911</a>
     </div>
   </div>
 
   <!-- Situación actual -->
-  <section id="banner" class="rounded-3 p-3 p-md-4 mb-3 d-flex gap-3 align-items-center bg-success-subtle text-success-emphasis border border-success-subtle" role="status" aria-live="assertive">
-    <div id="bn-ico" class="ws-ico flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold border border-3 border-success bg-white">✓</div>
+  <section id="banner" class="ws-banner ws-b-calma mb-3" role="status" aria-live="assertive">
+    <div id="bn-ico" class="ico">✓</div>
     <div class="flex-grow-1">
-      <div id="bn-eti" class="small fw-semibold">Todo en orden</div>
-      <h2 id="bn-tit" class="h3 fw-bold mb-1">Sin alertas activas</h2>
-      <div id="bn-det">Esperando datos de las pulseras…</div>
-      <span id="bn-debe" class="badge rounded-pill text-bg-light text-danger fs-6 mt-2 d-none"></span>
-      <div id="bn-acc" class="mt-2 p-2 px-3 rounded bg-black bg-opacity-25 fw-semibold d-none"></div>
+      <div id="bn-eti" class="eti">Todo en orden</div>
+      <h2 id="bn-tit" class="tit">Sin alertas activas</h2>
+      <div id="bn-det" class="det">Esperando datos de las pulseras…</div>
+      <span id="bn-debe" class="debe d-none"></span>
+      <div id="bn-acc" class="acc d-none"></div>
     </div>
   </section>
 
-  <div id="pasos" class="card border-0 shadow-sm mb-3 d-none">
-    <div class="card-body py-3"><div id="pasos-row" class="row text-center g-0"></div></div>
+  <!-- Progreso de la llegada -->
+  <div id="pasos" class="ws-card mb-3 d-none">
+    <div class="ws-card-b"><div id="pasos-row" class="ws-pasos"></div></div>
   </div>
 
   <!-- Mapa y personas -->
   <div class="row g-3 mb-3">
     <div class="col-xl-8">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <span class="fw-semibold ws-brand-text"><i class="bi bi-geo-alt-fill me-2"></i>Ubicación en tiempo real</span>
+      <div class="ws-card h-100">
+        <div class="ws-card-h">
+          <span><i class="bi bi-geo-alt-fill me-2"></i>Ubicación en tiempo real</span>
           <div class="d-flex align-items-center gap-3">
             <div class="form-check form-switch mb-0">
               <input class="form-check-input" type="checkbox" role="switch" id="seguir" checked>
-              <label class="form-check-label small" for="seguir">Seguir alerta</label>
+              <label class="form-check-label small fw-normal text-body" for="seguir">Seguir alerta</label>
             </div>
             <button id="btn-centrar" type="button" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-crosshair me-1"></i>Centrar</button>
           </div>
         </div>
-        <div id="mapa-seguridad" style="height: 480px; width: 100%; z-index: 1;"></div>
+        <div id="mapa-seguridad" style="height: 460px; width: 100%; z-index: 1; border-radius: 0 0 10px 10px;"></div>
       </div>
     </div>
 
-    <div class="col-xl-4">
-      <div class="card border-0 shadow-sm mb-3">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <span class="fw-semibold ws-brand-text"><i class="bi bi-person-heart me-2"></i>Personas con pulsera</span>
-          <span class="badge text-bg-light border">En seguimiento</span>
-        </div>
-        <ul id="lista-personas" class="list-group list-group-flush">
-          <li class="list-group-item small text-body-secondary">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</li>
-        </ul>
+    <div class="col-xl-4 d-flex flex-column gap-3">
+      <div class="ws-card">
+        <div class="ws-card-h"><span>Personas con pulsera</span><span class="ws-tag tag-normal">En seguimiento</span></div>
+        <div id="lista-personas"><div class="ws-vacio">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</div></div>
       </div>
 
-      <div id="card-otras" class="card border-0 shadow-sm mb-3 d-none">
-        <div class="card-header bg-white fw-semibold">Otras personas en la puerta</div>
-        <div class="card-body py-2">
-          <p id="otras-nota" class="small text-body-secondary mb-2"></p>
-          <ul id="lista-otras" class="list-group list-group-flush"></ul>
-        </div>
-      </div>
-
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white fw-semibold"><i class="bi bi-door-open me-2 ws-brand-text"></i>Entrada de la Instancia</div>
-        <div id="txt-puerta" class="card-body py-3 small text-body-secondary">Esperando conexión del lector de la puerta</div>
+      <div class="ws-card flex-grow-1">
+        <div class="ws-card-h"><span>Puerta de la Instancia</span></div>
+        <div id="txt-puerta" class="ws-vacio pb-1">Esperando conexión del lector de la puerta</div>
+        <div class="px-3 pt-2 small fw-semibold text-body-secondary">Personas detectadas</div>
+        <p id="otras-nota" class="px-3 mb-1 small text-body-secondary d-none"></p>
+        <div id="lista-detectadas"><div class="ws-vacio">Nadie ha sido detectado en la puerta todavía.</div></div>
       </div>
     </div>
   </div>
@@ -94,43 +188,41 @@
   <!-- Signos vitales, movimiento y registro -->
   <div class="row g-3">
     <div class="col-xl-8">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <span class="fw-semibold ws-brand-text"><i class="bi bi-activity me-2"></i>Signos vitales y movimiento</span>
-          <small id="txt-foco" class="text-body-secondary">Sin datos</small>
+      <div class="ws-card h-100">
+        <div class="ws-card-h">
+          <span><i class="bi bi-activity me-2"></i>Signos vitales y movimiento</span>
+          <small id="txt-foco" class="text-body-secondary fw-normal">Sin datos</small>
         </div>
-        <div class="card-body">
+        <div class="ws-card-b">
           <div class="row g-3 mb-3">
-            <div class="col-4"><div id="k-bpm" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
-              <div class="small text-body-secondary">Pulso</div>
-              <div class="fs-3 fw-semibold lh-1"><span id="v-bpm">—</span> <small class="fs-6 fw-normal text-body-secondary">lpm</small></div>
-              <div id="n-bpm" class="small fw-semibold mt-1">Sin datos</div></div></div>
-            <div class="col-4"><div id="k-spo2" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
-              <div class="small text-body-secondary">Oxígeno (SpO₂)</div>
-              <div class="fs-3 fw-semibold lh-1"><span id="v-spo2">—</span> <small class="fs-6 fw-normal text-body-secondary">%</small></div>
-              <div id="n-spo2" class="small fw-semibold mt-1">Sin datos</div></div></div>
-            <div class="col-4"><div id="k-g" class="border-top border-4 border-secondary rounded bg-body-tertiary p-2 p-md-3 h-100">
-              <div class="small text-body-secondary">Magnitud</div>
-              <div class="fs-3 fw-semibold lh-1"><span id="v-g">—</span> <small class="fs-6 fw-normal text-body-secondary">g</small></div>
-              <div id="n-g" class="small fw-semibold mt-1">Sin datos</div></div></div>
+            <div class="col-4"><div id="k-bpm" class="ws-kpi">
+              <div class="l">Pulso</div>
+              <div class="v"><span id="v-bpm">—</span> <small>lpm</small></div>
+              <div id="n-bpm" class="n">Sin datos</div></div></div>
+            <div class="col-4"><div id="k-spo2" class="ws-kpi">
+              <div class="l">Oxígeno (SpO₂)</div>
+              <div class="v"><span id="v-spo2">—</span> <small>%</small></div>
+              <div id="n-spo2" class="n">Sin datos</div></div></div>
+            <div class="col-4"><div id="k-g" class="ws-kpi">
+              <div class="l">Magnitud</div>
+              <div class="v"><span id="v-g">—</span> <small>g</small></div>
+              <div id="n-g" class="n">Sin datos</div></div></div>
           </div>
 
           <div class="row g-3">
-            <div class="col-md-6"><div class="small fw-semibold mb-1">Aceleración total (g)</div><svg id="sp-acel" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial de aceleración total"></svg></div>
-            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje X (g)</div><svg id="sp-x" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje X"></svg></div>
-            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje Y (g)</div><svg id="sp-y" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje Y"></svg></div>
-            <div class="col-md-6"><div class="small fw-semibold mb-1">Eje Z (g)</div><svg id="sp-z" class="w-100 bg-body-tertiary rounded" viewBox="0 0 300 70" role="img" aria-label="Historial eje Z"></svg></div>
+            <div class="col-md-6"><div class="ws-graf-t">Aceleración total (g)</div><svg id="sp-acel" class="ws-graf" viewBox="0 0 300 70" role="img" aria-label="Historial de aceleración total"></svg></div>
+            <div class="col-md-6"><div class="ws-graf-t">Eje X (g)</div><svg id="sp-x" class="ws-graf" viewBox="0 0 300 70" role="img" aria-label="Historial eje X"></svg></div>
+            <div class="col-md-6"><div class="ws-graf-t">Eje Y (g)</div><svg id="sp-y" class="ws-graf" viewBox="0 0 300 70" role="img" aria-label="Historial eje Y"></svg></div>
+            <div class="col-md-6"><div class="ws-graf-t">Eje Z (g)</div><svg id="sp-z" class="ws-graf" viewBox="0 0 300 70" role="img" aria-label="Historial eje Z"></svg></div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white fw-semibold ws-brand-text"><i class="bi bi-clock-history me-2"></i>Registro de eventos</div>
-        <ul id="lista-eventos" class="list-group list-group-flush ws-scroll">
-          <li class="list-group-item small text-body-secondary">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</li>
-        </ul>
+      <div class="ws-card h-100">
+        <div class="ws-card-h"><span><i class="bi bi-clock-history me-2"></i>Registro de eventos</span></div>
+        <div id="lista-eventos" class="ws-log"><div class="ws-vacio">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</div></div>
       </div>
     </div>
   </div>
@@ -148,23 +240,24 @@
   const mapa = L.map('mapa-seguridad').setView([CENTRO.lat, CENTRO.lon], 15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapa);
   const marcadores = {};
+  const COLOR_PIN = { emergencia: '#dc3545', llego_espera: '#b45309', a_salvo: '#198754', normal: '#198754' };
 
   function pintarMarcadores(lista) {
     lista.forEach(u => {
       if (!u.lat || !u.lon) return;
-      const alerta = u.situacion === 'emergencia';
       const popup = `<b>${esc(u.nombre)}</b><br>${esc(u.etiqueta)}<br>Pulso: ${esc(u.pulso)} lpm`;
       let m = marcadores[u.nombre];
       if (!m) {
         m = marcadores[u.nombre] = L.marker([u.lat, u.lon]).addTo(mapa).bindPopup(popup);
-        m._alerta = null;
+        m._estado = null;
       } else {
         m.setLatLng([u.lat, u.lon]);
         m.getPopup().setContent(popup);
       }
-      if (m._alerta !== alerta) {
-        m._alerta = alerta;
-        m.setIcon(L.divIcon({ className: '', html: `<span class="ws-dot ${alerta ? 'ws-dot-alert' : 'ws-dot-ok'}"></span>`, iconSize: [22, 22], iconAnchor: [11, 11] }));
+      if (m._estado !== u.estado) {
+        m._estado = u.estado;
+        const c = COLOR_PIN[u.estado] || COLOR_PIN.normal;
+        m.setIcon(L.divIcon({ className: '', html: `<span class="ws-dot" style="background:${c}"></span>`, iconSize: [20, 20], iconAnchor: [10, 10] }));
       }
     });
   }
@@ -175,24 +268,17 @@
     mapa.setView(p, 16);
   });
 
-  // ---------- Insignias de conexión
-  function badge(id, estado, texto) {
+  // ---------- Indicadores de conexión
+  function chip(id, estado, texto) {
     const el = $(id);
-    const cls = { ok: 'text-bg-success', warn: 'text-bg-warning', off: 'text-bg-secondary' }[estado];
-    el.className = 'badge rounded-pill ' + cls;
-    el.innerHTML = `<i class="bi bi-circle-fill me-1"></i>${esc(texto)}`;
+    el.className = 'ws-chip ' + estado;
+    el.innerHTML = `<i></i>${esc(texto)}`;
   }
 
-  // ---------- Banner
-  const ESTILO = {
-    alerta: 'text-bg-danger ws-pulse',
-    ok: 'text-bg-success',
-    calma: 'bg-success-subtle text-success-emphasis border border-success-subtle'
-  };
+  // ---------- Situación actual
+  const CLASE_BANNER = { alerta: 'ws-b-alerta', llegada: 'ws-b-llegada', ok: 'ws-b-ok', calma: 'ws-b-calma' };
   function pintarBanner(b) {
-    $('banner').className = 'rounded-3 p-3 p-md-4 mb-3 d-flex gap-3 align-items-center ' + (ESTILO[b.nivel] || ESTILO.calma);
-    $('bn-ico').className = 'ws-ico flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold border border-3 bg-white ' +
-      (b.nivel === 'alerta' ? 'border-danger text-danger' : 'border-success text-success');
+    $('banner').className = 'ws-banner mb-3 ' + (CLASE_BANNER[b.nivel] || CLASE_BANNER.calma);
     $('bn-ico').textContent = b.icono;
     $('bn-eti').textContent = b.etiqueta;
     $('bn-tit').textContent = b.titulo;
@@ -204,51 +290,44 @@
     acc.classList.toggle('d-none', !b.accion);
     if (b.accion) acc.textContent = b.accion;
 
-    const caja = $('pasos');
-    caja.classList.toggle('d-none', !b.pasos);
+    $('pasos').classList.toggle('d-none', !b.pasos);
     if (b.pasos) {
-      $('pasos-row').innerHTML = b.pasos.map(p => {
-        const cls = p.est === 'hecho' ? 'text-bg-success' : p.est === 'activo' ? 'text-bg-warning' : 'text-bg-secondary';
-        return `<div class="col-4"><span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold mb-1 ${cls}" style="width:32px;height:32px">${p.est === 'hecho' ? '✓' : p.n}</span>` +
-          `<div class="small ${p.est === 'activo' ? 'fw-bold' : ''}">${esc(p.txt)}</div></div>`;
-      }).join('');
+      $('pasos-row').innerHTML = b.pasos.map(p =>
+        `<div class="ws-paso ${esc(p.est)}"><div class="n">${p.est === 'hecho' ? '✓' : p.n}</div>` +
+        `<div class="t">${esc(p.txt)}</div><div class="h">${p.hora ? esc(p.hora) : ''}</div></div>`
+      ).join('');
     }
   }
 
   // ---------- Listas
-  const BADGE = { emergencia: 'text-bg-danger', llego_espera: 'text-bg-warning', a_salvo: 'text-bg-success', normal: 'text-bg-secondary' };
-  const BORDE = { emergencia: 'border-danger', llego_espera: 'border-warning', a_salvo: 'border-success', normal: 'border-secondary' };
-
   function pintarPersonas(lista) {
     $('lista-personas').innerHTML = lista.length ? lista.map(u =>
-      `<li class="list-group-item d-flex justify-content-between align-items-center gap-2 border-start border-4 ${BORDE[u.situacion] || 'border-secondary'}">` +
-      `<div><div class="fw-semibold">${esc(u.nombre)}</div><div class="small text-body-secondary">${esc(u.texto)}</div></div>` +
-      `<span class="badge rounded-pill ${BADGE[u.situacion] || 'text-bg-secondary'}">${esc(u.etiqueta)}</span></li>`
-    ).join('') : '<li class="list-group-item small text-body-secondary">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</li>';
+      `<div class="ws-fila ${esc(u.estado || 'normal')}">` +
+      `<div><div class="nom">${esc(u.nombre)}</div><div class="sub">${esc(u.texto)}</div></div>` +
+      `<span class="ws-tag tag-${esc(u.estado || 'normal')}">${esc(u.etiqueta)}</span></div>`
+    ).join('') : '<div class="ws-vacio">Todavía no hay personas conectadas. Aparecerán aquí cuando su pulsera envíe información.</div>';
   }
 
-  function pintarOtras(otras, nota) {
-    const card = $('card-otras');
-    card.classList.toggle('d-none', !otras || !otras.length);
-    if (!otras || !otras.length) return;
-    $('otras-nota').textContent = nota || '';
-    $('lista-otras').innerHTML = otras.map(o =>
-      `<li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">` +
-      `<div><div class="fw-semibold small">${esc(o.nombre)}</div><div class="text-body-secondary" style="font-size:0.75rem;">Llegó a las ${esc(o.hora)}</div></div>` +
-      `<span class="badge text-bg-light border">Otra persona</span></li>`
-    ).join('');
+  const ROT_DET = { alerta: 'Persona en alerta', pulsera: 'Con pulsera', otra: 'Otra persona' };
+  function pintarDetectadas(det, nota) {
+    const n = $('otras-nota');
+    n.classList.toggle('d-none', !(det && det.length && nota));
+    n.textContent = nota || '';
+    $('lista-detectadas').innerHTML = det && det.length ? det.map(d =>
+      `<div class="ws-fila ${d.tipo === 'alerta' ? 'llego_espera' : d.tipo === 'pulsera' ? 'a_salvo' : 'normal'}">` +
+      `<div><div class="nom">${esc(d.nombre)}</div><div class="sub">Detectada en la entrada a las ${esc(d.hora)}</div></div>` +
+      `<span class="ws-tag tag-${esc(d.tipo)}">${esc(ROT_DET[d.tipo] || 'Detectada')}</span></div>`
+    ).join('') : '<div class="ws-vacio">Nadie ha sido detectado en la puerta todavía.</div>';
   }
 
-  const EV_COLOR = { alto: 'list-group-item-danger', ok: 'list-group-item-success', info: '' };
   function pintarHistorial(hist) {
     $('lista-eventos').innerHTML = hist && hist.length ? hist.map(h =>
-      `<li class="list-group-item ${EV_COLOR[h.nivel] || ''} py-2">` +
-      `<div class="d-flex justify-content-between small"><strong class="text-dark">${esc(h.nombre)}</strong><span class="text-body-secondary">${esc(h.hora)}</span></div>` +
-      `<div class="small text-body-secondary">${esc(h.texto)}</div></li>`
-    ).join('') : '<li class="list-group-item small text-body-secondary">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</li>';
+      `<div class="ws-ev ${esc(h.nivel)}"><div class="c"><strong>${esc(h.nombre)}</strong><span>${esc(h.hora)}</span></div>` +
+      `<div class="x">${esc(h.texto)}</div></div>`
+    ).join('') : '<div class="ws-vacio">Todavía no hay eventos. Aquí se registrarán las alertas y las llegadas.</div>';
   }
 
-  // ---------- Signos vitales y Gráficas SVG (Sparklines)
+  // ---------- Signos vitales y gráficas
   const series = { acel: [], x: [], y: [], z: [] };
   const MAX_PUNTOS = 40;
 
@@ -270,66 +349,44 @@
     svg.innerHTML = `<polyline fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${pts}" />`;
   }
 
+  function kpi(idCaja, idVal, idNota, valor, texto, malo, decimales) {
+    const sin = !(valor > 0);
+    $(idVal).textContent = sin ? '—' : (decimales ? Number(valor).toFixed(decimales) : valor);
+    $(idCaja).className = 'ws-kpi ' + (sin ? '' : malo ? 'mal' : 'ok');
+    $(idNota).textContent = sin ? 'Sin datos' : texto;
+  }
+
   function actualizarBiometria(foco) {
-    if (!foco) {
-      $('txt-foco').textContent = 'Sin datos';
-      return;
-    }
+    if (!foco) { $('txt-foco').textContent = 'Sin datos'; return; }
     $('txt-foco').textContent = `Monitoreando a: ${foco.nombre}`;
-
     const bpm = foco.pulso || 0;
-    $('v-bpm').textContent = bpm > 0 ? bpm : '—';
-    const altoBpm = bpm > 130 || (bpm > 0 && bpm < 50);
-    $('k-bpm').className = `border-top border-4 ${bpm === 0 ? 'border-secondary' : altoBpm ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
-    $('n-bpm').textContent = bpm === 0 ? 'Sin datos' : bpm > 140 ? 'Muy acelerado' : bpm > 100 ? 'Acelerado' : 'Normal';
-    $('n-bpm').className = `small fw-semibold mt-1 ${bpm === 0 ? 'text-body-secondary' : altoBpm ? 'text-danger' : 'text-success'}`;
-
+    kpi('k-bpm', 'v-bpm', 'n-bpm', bpm, bpm > 140 ? 'Muy acelerado' : bpm > 100 ? 'Acelerado' : bpm < 50 ? 'Muy bajo' : 'Normal', bpm > 130 || (bpm > 0 && bpm < 50));
     const spo2 = foco.oxigeno || 0;
-    $('v-spo2').textContent = spo2 > 0 ? spo2 : '—';
-    const bajoSpo2 = spo2 > 0 && spo2 < 92;
-    $('k-spo2').className = `border-top border-4 ${spo2 === 0 ? 'border-secondary' : bajoSpo2 ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
-    $('n-spo2').textContent = spo2 === 0 ? 'Sin datos' : bajoSpo2 ? 'Oxigenación baja' : 'Óptimo';
-    $('n-spo2').className = `small fw-semibold mt-1 ${spo2 === 0 ? 'text-body-secondary' : bajoSpo2 ? 'text-danger' : 'text-success'}`;
-
+    kpi('k-spo2', 'v-spo2', 'n-spo2', spo2, spo2 < 92 ? 'Oxigenación baja' : 'Óptimo', spo2 > 0 && spo2 < 92);
     const mov = Number(foco.mov || 0);
-    $('v-g').textContent = mov > 0 ? mov.toFixed(2) : '—';
-    const impacto = mov > 2.5;
-    $('k-g').className = `border-top border-4 ${mov === 0 ? 'border-secondary' : impacto ? 'border-danger' : 'border-success'} rounded bg-body-tertiary p-2 p-md-3 h-100`;
-    $('n-g').textContent = mov === 0 ? 'Sin datos' : impacto ? 'Impacto / Caída' : 'Estable';
-    $('n-g').className = `small fw-semibold mt-1 ${mov === 0 ? 'text-body-secondary' : impacto ? 'text-danger' : 'text-success'}`;
+    kpi('k-g', 'v-g', 'n-g', mov, mov > 2.5 ? 'Impacto / Caída' : 'Estable', mov > 2.5, 2);
   }
 
   function registrarMuestraGrafica(t) {
-    const push = (arr, val) => {
-      arr.push(Number(val) || 0);
-      if (arr.length > MAX_PUNTOS) arr.shift();
-    };
-    push(series.acel, t.acel);
-    push(series.x, t.ax);
-    push(series.y, t.ay);
-    push(series.z, t.az);
-
+    const push = (arr, val) => { arr.push(Number(val) || 0); if (arr.length > MAX_PUNTOS) arr.shift(); };
+    push(series.acel, t.acel); push(series.x, t.ax); push(series.y, t.ay); push(series.z, t.az);
     dibujarSparkline('sp-acel', series.acel, '#831843');
     dibujarSparkline('sp-x', series.x, '#0d6efd');
     dibujarSparkline('sp-y', series.y, '#198754');
-    dibujarSparkline('sp-z', series.z, '#fd7e14');
+    dibujarSparkline('sp-z', series.z, '#b45309');
   }
 
-  // ---------- Aplicar Snapshot Completo
+  // ---------- Aplicar estado completo
   function aplicarEstado(s) {
     if (!s) return;
     if (s.conexion) {
-      badge('b-mqtt', s.conexion.mqtt ? 'ok' : 'warn', s.conexion.mqtt ? 'Pulseras: En línea' : 'Pulseras: Sin conexión');
-      if (s.conexion.serial === null) {
-        badge('b-serial', 'off', 'Lector puerta: No configurado');
-      } else {
-        badge('b-serial', s.conexion.serial ? 'ok' : 'warn', s.conexion.serial ? 'Lector puerta: Activo' : 'Lector puerta: Desconectado');
-      }
+      chip('b-mqtt', s.conexion.mqtt ? 'ok' : 'warn', s.conexion.mqtt ? 'Pulseras: En línea' : 'Pulseras: Sin conexión');
+      if (s.conexion.serial === null) chip('b-serial', 'off', 'Lector puerta: No configurado');
+      else chip('b-serial', s.conexion.serial ? 'ok' : 'warn', s.conexion.serial ? 'Lector puerta: Activo' : 'Lector puerta: Desconectado');
     }
-
     if (s.banner) pintarBanner(s.banner);
     pintarPersonas(s.usuarias || []);
-    pintarOtras(s.otras || [], s.otrasNota);
+    pintarDetectadas(s.detecciones || [], s.otrasNota);
     pintarHistorial(s.historial || []);
     $('txt-puerta').textContent = s.puerta || 'Esperando conexión del lector de la puerta';
 
@@ -342,27 +399,17 @@
     }
   }
 
-  // ---------- Conexión en Tiempo Real (Server-Sent Events)
+  // ---------- Tiempo real (Server-Sent Events)
   const fuente = new EventSource('/seguridad/eventos');
-
-  fuente.onopen = () => {
-    badge('b-sse', 'ok', 'Tiempo real: Activo');
-  };
-
-  fuente.onerror = () => {
-    badge('b-sse', 'warn', 'Reconectando…');
-  };
-
+  fuente.onopen = () => chip('b-sse', 'ok', 'Tiempo real: Activo');
+  fuente.onerror = () => chip('b-sse', 'warn', 'Reconectando…');
   fuente.addEventListener('estado', e => {
     try { aplicarEstado(JSON.parse(e.data)); } catch (err) { console.error(err); }
   });
-
   fuente.addEventListener('telemetria', e => {
     try {
       const t = JSON.parse(e.data);
-      if (!focoActual || focoActual.nombre === t.nombre) {
-        registrarMuestraGrafica(t);
-      }
+      if (!focoActual || focoActual.nombre === t.nombre) registrarMuestraGrafica(t);
     } catch (err) { console.error(err); }
   });
 })();
