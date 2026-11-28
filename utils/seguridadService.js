@@ -345,11 +345,13 @@ function onPuerta(d) {
 // (puerto serial local o POST de Node-RED en /api/app/puerta)
 function recibirPuerta(d) {
   if (!d || typeof d !== 'object') return;
+  // Solo cuenta como "lector vivo" un mensaje real del lector (trae Estado).
+  // Cualquier otro JSON se ignora para no mostrar "Activo" sin que el lector haya hablado.
+  if (!d.Estado) return;
   ultimaPuerta = Date.now();
   const nombre = d.Nombre ? String(d.Nombre).trim().slice(0, 60) : '';
   if (d.Estado === 'A salvo' && nombre) onLlegada(nombre);
-  else if (d.Estado) onPuerta(d);
-  else emitir();
+  else onPuerta(d);
 }
 
 function revisar() {
