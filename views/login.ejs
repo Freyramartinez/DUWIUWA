@@ -175,6 +175,12 @@
 
         .pass-toggle:hover { color: var(--wine); }
 
+        .was-validated .pass-group .form-control:valid,
+        .was-validated .pass-group .form-control:invalid {
+            background-image: none;
+            padding-right: 46px;
+        }
+
         .was-validated .pass-group:has(:invalid) + .invalid-feedback { display: block; }
 
         .auth-btn {
@@ -210,6 +216,24 @@
         }
 
         .auth-hint { font-size: 0.75rem; color: var(--gray); margin-top: 6px; }
+
+        /* Requisitos de contraseña */
+        .pass-reqs-box {
+            margin: 14px 0 6px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+        }
+
+        .pass-reqs-title { font-size: 0.78rem; font-weight: 600; color: var(--wine-dark); }
+        .pass-reqs-level { font-size: 0.75rem; font-weight: 600; color: var(--gray); }
+
+        .pass-reqs-box .progress { height: 6px; background: var(--pink-light); border-radius: 10px; }
+        .pass-reqs-box .progress-bar { border-radius: 10px; transition: width 0.3s ease, background-color 0.3s ease; }
+
+        #pass-reqs li { font-size: 0.78rem; color: var(--gray); transition: color 0.25s ease; }
+        #pass-reqs li.ok { color: #2e7d32; font-weight: 600; }
 
         @media (max-width: 800px) {
             .auth-card { grid-template-columns: 1fr; }
@@ -315,7 +339,7 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
-                                <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                                <div class="invalid-feedback">La contraseña no cumple los requisitos.</div>
                             </div>
 
                             <div class="col-md-6">
@@ -329,9 +353,27 @@
                                 <div class="invalid-feedback" id="pass2-feedback">Las contraseñas no coinciden.</div>
                             </div>
                         </div>
-                        <p class="auth-hint">Usa al menos 8 caracteres.</p>
 
-                        <button type="submit" class="auth-btn">Crear cuenta</button>
+                        <!-- Requisitos de contraseña (se marcan en vivo) -->
+                        <div class="pass-reqs-box">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="pass-reqs-title">Tu contraseña debe tener</span>
+                                <span class="pass-reqs-level" id="pass-level"></span>
+                            </div>
+                            <div class="progress mb-3" role="progressbar" aria-label="Seguridad de la contraseña">
+                                <div class="progress-bar" id="pass-bar" style="width: 0%"></div>
+                            </div>
+                            <ul class="list-unstyled row row-cols-1 row-cols-sm-2 g-2 mb-0" id="pass-reqs">
+                                <li class="col" data-rule="len"><i class="bi bi-circle me-2"></i>8 caracteres</li>
+                                <li class="col" data-rule="lower"><i class="bi bi-circle me-2"></i>Una minúscula</li>
+                                <li class="col" data-rule="upper"><i class="bi bi-circle me-2"></i>Una mayúscula</li>
+                                <li class="col" data-rule="digit"><i class="bi bi-circle me-2"></i>Un número</li>
+                                <li class="col" data-rule="symbol"><i class="bi bi-circle me-2"></i>Un símbolo (!@#$%)</li>
+                                <li class="col" data-rule="nospace"><i class="bi bi-circle me-2"></i>Sin espacios</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="auth-btn mt-3">Crear cuenta</button>
                     </form>
 
                     <p class="auth-switch">¿Ya tienes cuenta? <a href="#login" data-switch="login">Inicia sesión</a></p>
@@ -378,13 +420,62 @@
             });
         });
 
-        // Validación de Bootstrap + confirmación de contraseña
+        // Requisitos de contraseña en vivo (el servidor valida de nuevo)
+        const regPass = document.getElementById('reg-password');
+        const regPass2 = document.getElementById('reg-password2');
+        const reglas = {
+            len:     v => v.length >= 8,
+            lower:   v => /[a-z]/.test(v),
+            upper:   v => /[A-Z]/.test(v),
+            digit:   v => /\d/.test(v),
+            symbol:  v => /[^A-Za-z0-9]/.test(v),
+            nospace: v => !/\s/.test(v)
+        };
+
+        function revisarPassword() {
+            let cumplidas = 0;
+            const total = Object.keys(reglas).length;
+
+            document.querySelectorAll('#pass-reqs li').forEach(li => {
+                const ok = reglas[li.dataset.rule](regPass.value);
+                li.classList.toggle('ok', ok);
+                const icono = li.querySelector('i');
+                icono.classList.toggle('bi-check-circle-fill', ok);
+                icono.classList.toggle('bi-circle', !ok);
+                if (ok) cumplidas++;
+            });
+
+            const porcentaje = regPass.value ? Math.round((cumplidas / total) * 100) : 0;
+            const bar = document.getElementById('pass-bar');
+            const nivel = document.getElementById('pass-level');
+            bar.style.width = porcentaje + '%';
+
+            let texto = '', color = '#dc3545';
+            if (!regPass.value) { texto = ''; }
+            else if (cumplidas < 4) { texto = 'Débil'; color = '#dc3545'; }
+            else if (cumplidas < total) { texto = 'Media'; color = '#f0a020'; }
+            else { texto = 'Segura'; color = '#2e7d32'; }
+
+            bar.style.backgroundColor = color;
+            nivel.textContent = texto;
+            nivel.style.color = color;
+
+            regPass.setCustomValidity(cumplidas === total ? '' : 'La contraseña no cumple los requisitos.');
+        }
+
+        function revisarCoincidencia() {
+            regPass2.setCustomValidity(regPass.value === regPass2.value ? '' : 'No coinciden');
+        }
+
+        regPass.addEventListener('input', () => { revisarPassword(); revisarCoincidencia(); });
+        regPass2.addEventListener('input', revisarCoincidencia);
+
+        // Validación de Bootstrap
         document.querySelectorAll('.needs-validation').forEach(form => {
             form.addEventListener('submit', e => {
-                const p1 = form.querySelector('#reg-password');
-                const p2 = form.querySelector('#reg-password2');
-                if (p1 && p2) {
-                    p2.setCustomValidity(p1.value === p2.value ? '' : 'No coinciden');
+                if (form.querySelector('#reg-password')) {
+                    revisarPassword();
+                    revisarCoincidencia();
                 }
                 if (!form.checkValidity()) {
                     e.preventDefault();

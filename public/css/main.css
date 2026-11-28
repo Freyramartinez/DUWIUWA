@@ -8,6 +8,10 @@
    en el <style> propio de esa vista.
 ========================================================= */
 
+.auth-reqs { list-style: none; padding: 0; margin: 6px 0 4px; font-size: 0.75rem; color: var(--gray); }
+.auth-reqs li::before { content: "○ "; }
+.auth-reqs li.ok { color: #2e7d32; }
+.auth-reqs li.ok::before { content: "✓ "; }
 
 /* =========================================================
    CONFIGURACIÓN GENERAL
@@ -32,6 +36,7 @@ body {
 section {
     scroll-margin-top: 85px;
 }
+
 
 
 /* =========================================================

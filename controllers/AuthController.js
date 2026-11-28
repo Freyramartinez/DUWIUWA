@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { vincularPorCorreo } = require("../utils/vincularFicha");
 const { emitirCodigo, avisarNovedades } = require("../utils/verificacion");
+const { validarPassword } = require("../utils/passwordSegura");
 
 const destinos = { 
   jefe: "/jefe", 
@@ -30,8 +31,10 @@ exports.registrar = async (req, res) => {
     if (password !== password2) {
       return res.render("login", { error: "Las contraseñas no coinciden." });
     }
-    if (password.length < 8) {
-      return res.render("login", { error: "La contraseña debe tener al menos 8 caracteres." });
+
+    const errores = validarPassword(password, { email: correo, nombre });
+    if (errores.length) {
+      return res.render("login", { error: "Contraseña insegura: " + errores.join(" ") });
     }
 
     let usuario = await User.findOne({ email: correo });
@@ -39,7 +42,7 @@ exports.registrar = async (req, res) => {
       return res.render("login", { error: "Ese correo ya está registrado." });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, 12);
     if (usuario) {
       // Cuenta SIN verificar: se reemplaza. Así nadie puede dejar una cuenta "preparada"
       // con una contraseña que conoce en el correo de otra persona.
