@@ -52,8 +52,12 @@
   .ws-b-llegada .acc { background: rgba(180,83,9,.12); }
   .ws-b-ok { background: var(--ws-verde); color: #fff; }
   .ws-b-ok .ico { color: var(--ws-verde); }
-  .ws-b-calma { background: var(--ws-verde-fondo); color: #14532d; border-color: #bfdccb; }
-  .ws-b-calma .ico { color: var(--ws-verde); }
+  .ws-b-calma { background: #fff; color: var(--ws-texto); border: 1px solid var(--ws-rosa-borde); border-left: 5px solid var(--ws-verde); padding: .75rem 1.1rem; }
+  .ws-b-calma .ico { display: none; }
+  .ws-b-calma .eti { color: var(--ws-gris); opacity: 1; }
+  .ws-b-calma .tit { font-family: inherit; font-size: 1.1rem; font-weight: 600; color: var(--ws-verde); margin: .1rem 0; }
+  .ws-b-calma .det { color: var(--ws-gris); font-size: .85rem; }
+  .ws-banner .meta { margin-left: auto; align-self: flex-start; font-size: .75rem; opacity: .8; white-space: nowrap; }
 
   /* Progreso */
   .ws-pasos { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
@@ -144,6 +148,7 @@
       <span id="bn-debe" class="debe d-none"></span>
       <div id="bn-acc" class="acc d-none"></div>
     </div>
+    <div id="bn-meta" class="meta"></div>
   </section>
 
   <!-- Progreso de la llegada -->
@@ -385,6 +390,7 @@
       else chip('b-serial', s.conexion.serial ? 'ok' : 'warn', s.conexion.serial ? 'Lector puerta: Activo' : 'Lector puerta: Desconectado');
     }
     if (s.banner) pintarBanner(s.banner);
+    $('bn-meta').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX');
     pintarPersonas(s.usuarias || []);
     pintarDetectadas(s.detecciones || [], s.otrasNota);
     pintarHistorial(s.historial || []);
